@@ -359,7 +359,7 @@ async function loadSermons() {
     const res = await fetch(API_URL);
     const data = await res.json();
 
-    allSermons = data.sort((a,b) => a.date.localeCompare(b.date));
+    allSermons = (data.data || []).sort((a,b) => a.date.localeCompare(b.date) );
 
     hideError();
     setSyncStatus('synced', 'Synced');
