@@ -225,46 +225,102 @@
 </div>
 
 <script>
-const SHEET_ID = '1tMooz6P-TdE1Ocsf_G0CrjIhIv9nT5tzrnpxvtBwIoI';
-const API_KEY = 'AIzaSyASJko_mU2158s5Jd_UYBTFK974OYiHWCI';
-const SHEET_NAME = 'Sheet1';
-const BASE = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`;
+const API_URL = 'https://script.google.com/macros/s/AKfycbxiyNYEPE58ym5RBrgOd5IszBMfk7X-ykJ306KqPHD3twEVZSm08_13j3z5aFiYmn-f/exec';
 
 const STAGES = [
-  { key: 'study',   label: 'Study',        daysBeforeSermon: 7 },
-  { key: 'idea',    label: 'Main idea',     daysBeforeSermon: 7 },
-  { key: 'outline', label: 'Outline',       daysBeforeSermon: 7 },
-  { key: 'draft',   label: 'Draft',         daysBeforeSermon: 2 },
-  { key: 'final',   label: 'Final',         daysBeforeSermon: 1 },
-  { key: 'run1',    label: 'Run-through 1', daysBeforeSermon: 1 },
-  { key: 'run2',    label: 'Run-through 2', daysBeforeSermon: 1 },
-  { key: 'run3',    label: 'Run-through 3', daysBeforeSermon: 1 },
+  { key: 'study', label: 'Study', daysBeforeSermon: 7 },
+  { key: 'idea', label: 'Main idea', daysBeforeSermon: 6 },
+  { key: 'outline', label: 'Outline', daysBeforeSermon: 5 },
+  { key: 'draft', label: 'Draft', daysBeforeSermon: 3 },
+  { key: 'final', label: 'Final', daysBeforeSermon: 2 },
+  { key: 'run1', label: 'Run-through 1', daysBeforeSermon: 1 },
+  { key: 'run2', label: 'Run-through 2', daysBeforeSermon: 1 },
+  { key: 'run3', label: 'Run-through 3', daysBeforeSermon: 0 },
 ];
+
 const STATUS_ORDER = ['study','idea','outline','draft','final','run1','run2','run3'];
-const STATUS_LABELS = {study:'Study',idea:'Main idea',outline:'Outline',draft:'Draft',final:'Final',run1:'Run-through 1',run2:'Run-through 2',run3:'Run-through 3'};
-const STATUS_CLASSES = {study:'sp-study',idea:'sp-idea',outline:'sp-outline',draft:'sp-draft',final:'sp-final',run1:'sp-run',run2:'sp-run',run3:'sp-run'};
+
+const STATUS_LABELS = {
+  study:'Study',
+  idea:'Main idea',
+  outline:'Outline',
+  draft:'Draft',
+  final:'Final',
+  run1:'Run-through 1',
+  run2:'Run-through 2',
+  run3:'Run-through 3'
+};
+
+const STATUS_CLASSES = {
+  study:'sp-study',
+  idea:'sp-idea',
+  outline:'sp-outline',
+  draft:'sp-draft',
+  final:'sp-final',
+  run1:'sp-run',
+  run2:'sp-run',
+  run3:'sp-run'
+};
 
 let editingId = null;
 let allSermons = [];
 
-function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
-function parseDate(str) { const [y,m,d] = str.split('-').map(Number); return new Date(y,m-1,d); }
-function isWeekend(d) { return d.getDay()===0||d.getDay()===6; }
-
-function subtractWorkdays(from, days) {
-  let d = new Date(from); let n = 0;
-  while (n < days) { d.setDate(d.getDate()-1); if (!isWeekend(d)) n++; }
+function today() {
+  const d = new Date();
+  d.setHours(0,0,0,0);
   return d;
 }
 
-function daysUntil(d) { return Math.round((d - today()) / 86400000); }
-function formatDate(d) { return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
-function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
+function parseDate(str) {
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y,m-1,d);
+}
+
+function isWeekend(d) {
+  return d.getDay() === 0 || d.getDay() === 6;
+}
+
+function subtractWorkdays(from, days) {
+  let d = new Date(from);
+  let n = 0;
+
+  while (n < days) {
+    d.setDate(d.getDate() - 1);
+
+    if (!isWeekend(d)) {
+      n++;
+    }
+  }
+
+  return d;
+}
+
+function daysUntil(d) {
+  return Math.round((d - today()) / 86400000);
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('en-US',{
+    weekday:'short',
+    month:'short',
+    day:'numeric'
+  });
+}
+
+function formatDateFull(d) {
+  return d.toLocaleDateString('en-US',{
+    month:'long',
+    day:'numeric',
+    year:'numeric'
+  });
+}
 
 function getStageDeadline(sermonDate, stageKey) {
   const d = parseDate(sermonDate);
-  const stage = STAGES.find(s=>s.key===stageKey);
-  if (!stage||stage.daysBeforeSermon===0) return d;
+  const stage = STAGES.find(s => s.key === stageKey);
+
+  if (!stage) return d;
+
   return subtractWorkdays(d, stage.daysBeforeSermon);
 }
 
@@ -275,6 +331,7 @@ function getStageStart(sermonDate, stageKey) {
 function setSyncStatus(state, label) {
   const dot = document.getElementById('sync-dot');
   const lbl = document.getElementById('sync-label');
+
   dot.className = 'sync-dot ' + state;
   lbl.textContent = label;
 }
@@ -291,252 +348,370 @@ function hideError() {
 
 async function loadSermons() {
   setSyncStatus('syncing', 'Loading...');
-  document.getElementById('sermon-list').innerHTML = `<div class="loading-state"><i class="ti ti-loader"></i>Loading your sermons...</div>`;
+
+  document.getElementById('sermon-list').innerHTML =
+    `<div class="loading-state">
+      <i class="ti ti-loader"></i>
+      Loading your sermons...
+    </div>`;
+
   try {
-    const url = `${BASE}/values/${SHEET_NAME}?key=${API_KEY}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetch(API_URL);
     const data = await res.json();
-    const rows = data.values || [];
-    const dataRows = rows.slice(1);
-    allSermons = dataRows.map(r => ({
-      id: r[0] || '',
-      title: r[1] || '',
-      text: r[2] || '',
-      series: r[3] || '',
-      date: r[4] || '',
-      status: r[5] || 'study',
-    })).filter(s => s.id && s.date);
-    allSermons.sort((a,b) => a.date.localeCompare(b.date));
+
+    allSermons = data.sort((a,b) => a.date.localeCompare(b.date));
+
     hideError();
     setSyncStatus('synced', 'Synced');
+
     renderSermons();
+
   } catch(e) {
-    setSyncStatus('error', 'Error loading');
-    showError('Could not load sermons from Google Sheets. Check your API key and Sheet ID. ' + e.message);
-    document.getElementById('sermon-list').innerHTML = `<div class="empty-state"><i class="ti ti-alert-circle"></i>Could not load data. Check your connection and try refreshing.</div>`;
+    console.error(e);
+
+    setSyncStatus('error', 'Error');
+
+    showError('Could not load sermons.');
+
+    document.getElementById('sermon-list').innerHTML =
+      `<div class="empty-state">
+        <i class="ti ti-alert-circle"></i>
+        Failed to load sermons.
+      </div>`;
   }
 }
 
-async function writeSermons(sermons) {
-  setSyncStatus('syncing', 'Saving...');
+async function saveAllSermons() {
   try {
-    const values = [['id','title','text','series','date','status']];
-    sermons.forEach(s => values.push([s.id, s.title, s.text, s.series, s.date, s.status]));
-    const url = `${BASE}/values/${SHEET_NAME}?valueInputOption=RAW&key=${API_KEY}`;
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ range: SHEET_NAME, majorDimension: 'ROWS', values })
+    setSyncStatus('syncing', 'Saving...');
+
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(allSermons)
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || `HTTP ${res.status}`);
+
+    const result = await res.json();
+
+    if (!result.success) {
+      throw new Error('Save failed');
     }
+
     setSyncStatus('synced', 'Saved');
-    hideError();
+
   } catch(e) {
+    console.error(e);
+
     setSyncStatus('error', 'Save failed');
-    showError('Could not save to Google Sheets: ' + e.message);
+
+    showError('Could not save sermons.');
   }
 }
 
 function renderStatusPill(status) {
-  return `<span class="status-pill ${STATUS_CLASSES[status]||''}">${STATUS_LABELS[status]||status}</span>`;
+  return `
+    <span class="status-pill ${STATUS_CLASSES[status] || ''}">
+      ${STATUS_LABELS[status] || status}
+    </span>
+  `;
+}
+
+function getProgressPct(status) {
+  const idx = STATUS_ORDER.indexOf(status);
+
+  if (idx < 0) return 0;
+
+  return Math.round((idx / (STATUS_ORDER.length - 1)) * 100);
 }
 
 function getUrgencyClass(sermon) {
-  const idx = STATUS_ORDER.indexOf(sermon.status);
-  if (idx < 0) return 'urgency-far';
-  const dl = getStageDeadline(sermon.date, STAGES[idx].key);
-  const d = daysUntil(dl);
-  if (d < 0) return 'urgency-urgent';
+  const d = daysUntil(parseDate(sermon.date));
+
   if (d <= 3) return 'urgency-urgent';
   if (d <= 7) return 'urgency-soon';
   if (d <= 14) return 'urgency-ok';
+
   return 'urgency-far';
 }
 
 function getUrgencyLabel(sermon) {
   const d = daysUntil(parseDate(sermon.date));
+
   if (d < 0) return `${Math.abs(d)}d ago`;
-  if (d === 0) return 'Today!';
+  if (d === 0) return 'Today';
   if (d === 1) return 'Tomorrow';
+
   return `${d}d away`;
-}
-
-function getTodayTask(sermon) {
-  const t = today();
-  const idx = STATUS_ORDER.indexOf(sermon.status);
-  if (idx < 0) return null;
-  const stage = STAGES[idx];
-  const dl = getStageDeadline(sermon.date, stage.key);
-  const td = daysUntil(dl);
-  if (isWeekend(t)) return 'Rest — no work today (weekend)';
-  if (td < 0) return `⚠ ${stage.label} is overdue`;
-  if (td === 0) return `${stage.label} due today`;
-  if (td <= 2) return `Work on ${stage.label} — due in ${td}d`;
-  const sd = daysUntil(getStageStart(sermon.date, stage.key));
-  if (sd <= 0) return `Deep work: ${stage.label}`;
-  return `Start ${stage.label} in ${sd}d`;
-}
-
-function getProgressPct(status) {
-  const idx = STATUS_ORDER.indexOf(status);
-  return idx < 0 ? 0 : Math.round((idx / (STATUS_ORDER.length-1)) * 100);
 }
 
 function renderStages(sermon) {
   const statusIdx = STATUS_ORDER.indexOf(sermon.status);
-  return STAGES.map((stage,i) => {
+
+  return STAGES.map((stage, i) => {
+
     const dl = getStageDeadline(sermon.date, stage.key);
-    const start = getStageStart(sermon.date, stage.key);
-    const d = daysUntil(dl);
+
     let cls = '';
+
     if (i < statusIdx) cls = 'stage-done';
-    else if (i === statusIdx) cls = d < 0 ? 'stage-overdue' : 'stage-active';
-    return `<div class="stage ${cls}">
-      <div class="stage-name">${stage.label}</div>
-      <div class="stage-date">${formatDate(dl)}</div>
-      <div class="stage-by">Start ${formatDate(start)}</div>
-    </div>`;
+
+    else if (i === statusIdx) {
+      cls = daysUntil(dl) < 0
+        ? 'stage-overdue'
+        : 'stage-active';
+    }
+
+    return `
+      <div class="stage ${cls}">
+        <div class="stage-name">${stage.label}</div>
+        <div class="stage-date">${formatDate(dl)}</div>
+      </div>
+    `;
   }).join('');
 }
 
 function renderSermons() {
-  const sermons = allSermons;
-  const upcoming = sermons.filter(s => daysUntil(parseDate(s.date)) >= 0);
-  document.getElementById('stat-upcoming').textContent = upcoming.length;
-  document.getElementById('stat-progress').textContent = sermons.filter(s => s.status !== 'run3').length;
-
-  let minDays = Infinity, minLabel = '—';
-  sermons.forEach(s => {
-    const idx = STATUS_ORDER.indexOf(s.status);
-    for (let i = idx; i < STAGES.length; i++) {
-      const dl = getStageDeadline(s.date, STAGES[i].key);
-      const d = daysUntil(dl);
-      if (d < minDays) { minDays = d; minLabel = d < 0 ? 'Overdue' : d === 0 ? 'Today' : `${d}d`; }
-    }
-  });
-  document.getElementById('stat-deadline').textContent = minLabel;
-  if (upcoming.length > 0) document.getElementById('stat-days').textContent = daysUntil(parseDate(upcoming[0].date));
 
   const list = document.getElementById('sermon-list');
-  if (sermons.length === 0) {
-    list.innerHTML = `<div class="empty-state"><i class="ti ti-book"></i>No sermons yet — click "Add sermon" to get started.</div>`;
+
+  document.getElementById('stat-upcoming').textContent =
+    allSermons.length;
+
+  document.getElementById('stat-progress').textContent =
+    allSermons.filter(s => s.status !== 'run3').length;
+
+  if (allSermons.length > 0) {
+    document.getElementById('stat-days').textContent =
+      daysUntil(parseDate(allSermons[0].date));
+  }
+
+  if (allSermons.length === 0) {
+    list.innerHTML =
+      `<div class="empty-state">
+        <i class="ti ti-book"></i>
+        No sermons yet.
+      </div>`;
     return;
   }
 
-  list.innerHTML = sermons.map(s => {
+  list.innerHTML = allSermons.map(s => {
+
     const pct = getProgressPct(s.status);
-    const task = getTodayTask(s);
-    return `<div class="sermon-card">
-      <div class="sermon-header" onclick="toggleCard('${s.id}')">
-        <div class="sermon-main">
-          <div class="sermon-title-row">
-            <span class="sermon-title">${s.title||'Untitled'}</span>
-            ${s.series?`<span class="series-badge">${s.series}</span>`:''}
-            ${renderStatusPill(s.status)}
+
+    return `
+      <div class="sermon-card">
+
+        <div class="sermon-header" onclick="toggleCard('${s.id}')">
+
+          <div class="sermon-main">
+
+            <div class="sermon-title-row">
+              <span class="sermon-title">${s.title}</span>
+
+              ${s.series
+                ? `<span class="series-badge">${s.series}</span>`
+                : ''}
+
+              ${renderStatusPill(s.status)}
+            </div>
+
+            <div class="sermon-meta">
+
+              <span class="meta-item">
+                <i class="ti ti-book-2"></i>
+                ${s.text || ''}
+              </span>
+
+              <span class="meta-item">
+                <i class="ti ti-calendar"></i>
+                ${formatDateFull(parseDate(s.date))}
+              </span>
+
+            </div>
           </div>
-          <div class="sermon-meta">
-            ${s.text?`<span class="meta-item"><i class="ti ti-book-2"></i>${s.text}</span>`:''}
-            <span class="meta-item"><i class="ti ti-calendar"></i>${formatDateFull(parseDate(s.date))}</span>
+
+          <div class="sermon-right">
+
+            <span class="urgency-pill ${getUrgencyClass(s)}">
+              ${getUrgencyLabel(s)}
+            </span>
+
+            <i class="ti ti-chevron-down chevron" id="chev-${s.id}"></i>
+
           </div>
         </div>
-        <div class="sermon-right">
-          <span class="urgency-pill ${getUrgencyClass(s)}">${getUrgencyLabel(s)}</span>
-          <i class="ti ti-chevron-down chevron" id="chev-${s.id}"></i>
+
+        <div class="sermon-body" id="body-${s.id}">
+
+          <div class="progress-row">
+
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width:${pct}%"></div>
+            </div>
+
+            <span class="progress-label">${pct}% complete</span>
+
+          </div>
+
+          <div class="stages-grid">
+            ${renderStages(s)}
+          </div>
+
+          <div class="action-row">
+
+            <button class="action-btn primary"
+              onclick="advanceStatus('${s.id}')">
+
+              <i class="ti ti-arrow-right"></i>
+              Mark next stage done
+
+            </button>
+
+            <button class="action-btn"
+              onclick="openEdit('${s.id}')">
+
+              <i class="ti ti-edit"></i>
+              Edit
+
+            </button>
+
+            <button class="action-btn danger"
+              onclick="deleteSermon('${s.id}')">
+
+              <i class="ti ti-trash"></i>
+
+            </button>
+
+          </div>
+
         </div>
       </div>
-      <div class="sermon-body" id="body-${s.id}">
-        <div class="progress-row">
-          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
-          <span class="progress-label">${pct}% complete</span>
-        </div>
-        <div class="stages-grid">${renderStages(s)}</div>
-        <div class="action-row">
-          <button class="action-btn primary" onclick="advanceStatus('${s.id}')"><i class="ti ti-arrow-right"></i> Mark next stage done</button>
-          <button class="action-btn" onclick="openEdit('${s.id}')"><i class="ti ti-edit"></i> Edit</button>
-          <button class="action-btn danger" onclick="deleteSermon('${s.id}')"><i class="ti ti-trash"></i></button>
-          ${task?`<span class="today-task"><strong>Today:</strong> ${task}</span>`:''}
-        </div>
-      </div>
-    </div>`;
+    `;
   }).join('');
 }
 
 function toggleCard(id) {
-  document.getElementById('body-'+id).classList.toggle('open');
-  document.getElementById('chev-'+id).classList.toggle('open');
+  document.getElementById('body-' + id).classList.toggle('open');
+  document.getElementById('chev-' + id).classList.toggle('open');
 }
 
 async function advanceStatus(id) {
-  const s = allSermons.find(x=>x.id===id);
+  const s = allSermons.find(x => x.id === id);
+
   if (!s) return;
+
   const idx = STATUS_ORDER.indexOf(s.status);
-  if (idx < STATUS_ORDER.length-1) {
-    s.status = STATUS_ORDER[idx+1];
+
+  if (idx < STATUS_ORDER.length - 1) {
+    s.status = STATUS_ORDER[idx + 1];
+
     renderSermons();
-    await writeSermons(allSermons);
+
+    await saveAllSermons();
   }
-  document.getElementById('body-'+id)?.classList.add('open');
-  document.getElementById('chev-'+id)?.classList.add('open');
 }
 
 async function deleteSermon(id) {
+
   if (!confirm('Delete this sermon?')) return;
-  allSermons = allSermons.filter(s=>s.id!==id);
+
+  allSermons = allSermons.filter(s => s.id !== id);
+
   renderSermons();
-  await writeSermons(allSermons);
+
+  await saveAllSermons();
 }
 
 function openAdd() {
+
   editingId = null;
-  document.getElementById('modal-title').textContent = 'Add sermon';
-  ['f-title','f-text','f-series','f-date'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-status').value='study';
+
+  document.getElementById('modal-title').textContent =
+    'Add sermon';
+
+  ['f-title','f-text','f-series','f-date']
+    .forEach(id => document.getElementById(id).value = '');
+
+  document.getElementById('f-status').value = 'study';
+
   document.getElementById('modal').classList.add('open');
 }
 
 function openEdit(id) {
-  const s = allSermons.find(x=>x.id===id);
+
+  const s = allSermons.find(x => x.id === id);
+
   if (!s) return;
+
   editingId = id;
-  document.getElementById('modal-title').textContent = 'Edit sermon';
+
+  document.getElementById('modal-title').textContent =
+    'Edit sermon';
+
   document.getElementById('f-title').value = s.title;
   document.getElementById('f-text').value = s.text;
   document.getElementById('f-series').value = s.series;
   document.getElementById('f-date').value = s.date;
   document.getElementById('f-status').value = s.status;
+
   document.getElementById('modal').classList.add('open');
 }
 
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-
-async function saveSermon() {
-  const title = document.getElementById('f-title').value.trim();
-  const date = document.getElementById('f-date').value;
-  if (!title||!date) { alert('Please enter a title and sermon date.'); return; }
-  const btn = document.getElementById('save-btn');
-  btn.textContent = 'Saving...'; btn.disabled = true;
-  if (editingId !== null) {
-    const s = allSermons.find(x=>x.id===editingId);
-    if (s) { s.title=title; s.text=document.getElementById('f-text').value.trim(); s.series=document.getElementById('f-series').value.trim(); s.date=date; s.status=document.getElementById('f-status').value; }
-  } else {
-    const newId = 's' + Date.now();
-    allSermons.push({id:newId,title,text:document.getElementById('f-text').value.trim(),series:document.getElementById('f-series').value.trim(),date,status:document.getElementById('f-status').value});
-    allSermons.sort((a,b)=>a.date.localeCompare(b.date));
-  }
-  await writeSermons(allSermons);
-  renderSermons();
-  closeModal();
-  btn.textContent = 'Save sermon'; btn.disabled = false;
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
 }
 
-document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+async function saveSermon() {
+
+  const title =
+    document.getElementById('f-title').value.trim();
+
+  const date =
+    document.getElementById('f-date').value;
+
+  if (!title || !date) {
+    alert('Please enter a title and date.');
+    return;
+  }
+
+  const sermon = {
+    id: editingId || 's' + Date.now(),
+    title,
+    text: document.getElementById('f-text').value.trim(),
+    series: document.getElementById('f-series').value.trim(),
+    date,
+    status: document.getElementById('f-status').value
+  };
+
+  if (editingId) {
+    const idx = allSermons.findIndex(s => s.id === editingId);
+    allSermons[idx] = sermon;
+  } else {
+    allSermons.push(sermon);
+  }
+
+  allSermons.sort((a,b) => a.date.localeCompare(b.date));
+
+  renderSermons();
+
+  closeModal();
+
+  await saveAllSermons();
+}
+
+document.getElementById('modal')
+  .addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
 
 const t = today();
-document.getElementById('today-label').textContent = t.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+document.getElementById('today-label').textContent =
+  t.toLocaleDateString('en-US',{
+    weekday:'long',
+    month:'long',
+    day:'numeric',
+    year:'numeric'
+  });
 
 loadSermons();
 </script>
