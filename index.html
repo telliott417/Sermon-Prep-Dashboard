@@ -393,18 +393,16 @@ async function saveAllSermons() {
       body: JSON.stringify(allSermons)
     });
 
-    const result = await res.json();
+    const text = await res.text();
 
-    if (!result.success) {
-      throw new Error(result.error || 'Save failed');
-    }
+    console.log("RAW RESPONSE:", text);
 
     setSyncStatus('synced', 'Saved');
 
   } catch (e) {
     console.error(e);
     setSyncStatus('error', 'Save failed');
-    showError('Could not save sermons: ' + e.message);
+    showError('Save failed: ' + e.message);
   }
 }
 
