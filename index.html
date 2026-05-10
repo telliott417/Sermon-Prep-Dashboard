@@ -19,6 +19,7 @@
     --purple-bg: #eeedfe; --purple-text: #534ab7;
     --teal-bg: #e1f5ee; --teal-text: #0f6e56;
     --coral-bg: #faece7; --coral-text: #993c1d;
+    --gray-bg: #f0f0ef; --gray-text: #57534e;
     --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
@@ -33,42 +34,57 @@
       --purple-bg: #2e1065; --purple-text: #c4b5fd;
       --teal-bg: #042f2e; --teal-text: #5eead4;
       --coral-bg: #431407; --coral-text: #fdba74;
+      --gray-bg: #292524; --gray-text: #a8a29e;
     }
   }
   html { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); font-size: 16px; }
   body { min-height: 100vh; }
-  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
   .top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 12px; }
   .top-bar h1 { font-size: 22px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em; }
   .top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
   .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.75rem; }
   .stat { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; }
   .stat-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
   .stat-num { font-size: 22px; font-weight: 600; color: var(--text-primary); line-height: 1; }
-  .stat-num.small { font-size: 14px; font-weight: 500; padding-top: 4px; }
+
   .btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
   .btn:hover { background: var(--bg-secondary); }
   .btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
   .btn.primary:hover { opacity: 0.85; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
   .sync-status { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
   .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; }
   .sync-dot.synced { background: var(--green-text); }
   .sync-dot.syncing { background: var(--amber-text); animation: pulse 1s infinite; }
   .sync-dot.error { background: var(--red-text); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .section-header { display: flex; align-items: center; gap: 10px; margin: 2rem 0 1rem; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+  .section-line { flex: 1; height: 0.5px; background: var(--border); }
+  .section-count { font-size: 11px; background: var(--bg-secondary); color: var(--text-secondary); padding: 2px 8px; border-radius: 20px; }
+
+  /* SERMON CARDS */
   .sermon-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 10px; overflow: hidden; }
+  .sermon-card.behind { border-color: var(--red-text); border-width: 1.5px; }
+  .sermon-card.completed-card { opacity: 0.7; }
   .sermon-header { padding: 14px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; cursor: pointer; transition: background 0.15s; }
   .sermon-header:hover { background: var(--bg-secondary); }
   .sermon-main { flex: 1; min-width: 0; }
   .sermon-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .sermon-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
   .series-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--blue-bg); color: var(--blue-text); white-space: nowrap; font-weight: 500; }
+  .context-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--purple-bg); color: var(--purple-text); white-space: nowrap; font-weight: 500; }
+  .behind-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--red-bg); color: var(--red-text); white-space: nowrap; font-weight: 600; }
   .sermon-meta { display: flex; gap: 16px; margin-top: 6px; flex-wrap: wrap; }
   .meta-item { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
   .meta-item i { font-size: 13px; }
-  .sermon-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .sermon-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
   .urgency-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
   .urgency-urgent { background: var(--red-bg); color: var(--red-text); }
   .urgency-soon { background: var(--amber-bg); color: var(--amber-text); }
@@ -78,16 +94,18 @@
   .chevron.open { transform: rotate(180deg); }
   .sermon-body { border-top: 0.5px solid var(--border); padding: 16px; display: none; }
   .sermon-body.open { display: block; }
-  .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+
+  /* PROGRESS — visible on card header for active sermons */
+  .card-progress { padding: 0 16px 12px; display: flex; align-items: center; gap: 10px; }
   .progress-bar-bg { flex: 1; height: 4px; background: var(--bg-secondary); border-radius: 2px; }
   .progress-bar-fill { height: 4px; border-radius: 2px; background: var(--blue-text); transition: width 0.4s; }
-  .progress-label { font-size: 12px; color: var(--text-secondary); white-space: nowrap; min-width: 80px; text-align: right; }
-  .stages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 14px; }
+  .progress-label { font-size: 11px; color: var(--text-tertiary); white-space: nowrap; }
+
+  .stages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-bottom: 14px; }
   .stage { border-radius: var(--radius-md); padding: 10px 12px; border: 0.5px solid var(--border); }
   .stage-name { font-size: 10px; font-weight: 600; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
   .stage-date { font-size: 13px; font-weight: 500; color: var(--text-primary); }
-  .stage-by { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
-  .stage-done { opacity: 0.45; }
+  .stage-done { opacity: 0.4; }
   .stage-done .stage-date { text-decoration: line-through; }
   .stage-active { border-color: var(--blue-text); border-width: 1.5px; background: var(--blue-bg); }
   .stage-active .stage-name { color: var(--blue-text); }
@@ -95,6 +113,7 @@
   .stage-overdue { border-color: var(--red-text); border-width: 1.5px; background: var(--red-bg); }
   .stage-overdue .stage-name { color: var(--red-text); }
   .stage-overdue .stage-date { color: var(--red-text); }
+
   .action-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .action-btn { font-size: 12px; padding: 6px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: transparent; color: var(--text-primary); font-family: var(--font); cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background 0.15s; }
   .action-btn:hover { background: var(--bg-secondary); }
@@ -103,37 +122,90 @@
   .action-btn.danger { color: var(--red-text); }
   .today-task { font-size: 12px; color: var(--text-secondary); margin-left: auto; }
   .today-task strong { color: var(--text-primary); }
+
   .status-pill { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .sp-not-started { background: var(--gray-bg); color: var(--gray-text); }
   .sp-study { background: var(--green-bg); color: var(--green-text); }
   .sp-idea { background: var(--blue-bg); color: var(--blue-text); }
   .sp-outline { background: var(--amber-bg); color: var(--amber-text); }
   .sp-draft { background: var(--purple-bg); color: var(--purple-text); }
   .sp-final { background: var(--teal-bg); color: var(--teal-text); }
   .sp-run { background: var(--coral-bg); color: var(--coral-text); }
-  .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-secondary); font-size: 14px; }
-  .empty-state i { font-size: 40px; display: block; margin-bottom: 12px; opacity: 0.35; }
+  .sp-completed { background: var(--green-bg); color: var(--green-text); }
+
+  /* TO-DO SECTION */
+  .todo-widget { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 0; }
+  .todo-header { padding: 14px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .todo-header-title { font-size: 14px; font-weight: 600; }
+  .todo-header-sub { font-size: 12px; color: var(--text-secondary); }
+  .todo-list { padding: 8px 0; }
+  .todo-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 16px; border-bottom: 0.5px solid var(--border); }
+  .todo-item:last-child { border-bottom: none; }
+  .todo-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .todo-dot.overdue { background: var(--red-text); }
+  .todo-dot.urgent { background: var(--amber-text); }
+  .todo-dot.upcoming { background: var(--blue-text); }
+  .todo-content { flex: 1; }
+  .todo-task { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .todo-sermon { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .todo-due { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; white-space: nowrap; }
+  .todo-due.overdue { background: var(--red-bg); color: var(--red-text); }
+  .todo-due.urgent { background: var(--amber-bg); color: var(--amber-text); }
+  .todo-due.upcoming { background: var(--blue-bg); color: var(--blue-text); }
+  .todo-empty { padding: 2rem; text-align: center; color: var(--text-secondary); font-size: 13px; }
+
+  /* CALENDAR */
+  .cal-widget { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 0.5px solid var(--border); }
+  .cal-nav-title { font-size: 15px; font-weight: 600; }
+  .cal-nav-btn { background: none; border: none; cursor: pointer; color: var(--text-secondary); font-size: 18px; padding: 4px 8px; border-radius: var(--radius-md); }
+  .cal-nav-btn:hover { background: var(--bg-secondary); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+  .cal-day-header { text-align: center; font-size: 11px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; padding: 10px 4px 6px; }
+  .cal-day { min-height: 72px; padding: 5px 4px; border-top: 0.5px solid var(--border); border-right: 0.5px solid var(--border); }
+  .cal-day:nth-child(7n) { border-right: none; }
+  .cal-day.other-month { background: var(--bg-secondary); opacity: 0.4; }
+  .cal-day.today { background: var(--blue-bg); }
+  .cal-day.weekend { background: var(--bg-secondary); }
+  .cal-day-num { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 3px; }
+  .cal-day.today .cal-day-num { color: var(--blue-text); font-weight: 700; }
+  .cal-event { font-size: 10px; font-weight: 500; padding: 2px 4px; border-radius: 3px; margin-bottom: 2px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cal-event.ev-study { background: var(--green-bg); color: var(--green-text); }
+  .cal-event.ev-idea { background: var(--blue-bg); color: var(--blue-text); }
+  .cal-event.ev-outline { background: var(--amber-bg); color: var(--amber-text); }
+  .cal-event.ev-draft { background: var(--purple-bg); color: var(--purple-text); }
+  .cal-event.ev-final { background: var(--teal-bg); color: var(--teal-text); }
+  .cal-event.ev-run { background: var(--coral-bg); color: var(--coral-text); }
+  .cal-event.ev-sermon { background: var(--gray-bg); color: var(--gray-text); font-weight: 700; }
+  .cal-event.ev-overdue { background: var(--red-bg); color: var(--red-text); }
+
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-secondary); font-size: 14px; }
+  .empty-state i { font-size: 36px; display: block; margin-bottom: 10px; opacity: 0.3; }
   .loading-state { text-align: center; padding: 3rem 1rem; color: var(--text-secondary); font-size: 14px; }
   .loading-state i { font-size: 32px; display: block; margin-bottom: 10px; opacity: 0.35; animation: spin 1s linear infinite; }
   @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
   .error-banner { background: var(--red-bg); color: var(--red-text); border: 0.5px solid var(--red-text); border-radius: var(--radius-md); padding: 12px 16px; font-size: 13px; margin-bottom: 1rem; display: none; }
   .error-banner.show { display: block; }
+
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--bg); border-radius: var(--radius-xl); border: 0.5px solid var(--border-md); padding: 24px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
+  .modal { background: var(--bg); border-radius: var(--radius-xl); border: 0.5px solid var(--border-md); padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
   .modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 18px; color: var(--text-primary); }
   .form-field { margin-bottom: 14px; }
   .form-field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; font-weight: 500; }
   .form-field input, .form-field select { width: 100%; padding: 9px 12px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 14px; outline: none; transition: border-color 0.15s; }
   .form-field input:focus, .form-field select:focus { border-color: var(--blue-text); }
+  .context-row { display: flex; gap: 8px; }
+  .context-row select, .context-row input { flex: 1; }
   .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
 </style>
 </head>
 <body>
-
 <div class="container">
+
   <div class="top-bar">
     <div>
-      <h1>Sermon prep</h1>
+      <h1>Sermon Prep Dashboard</h1>
       <div class="subtitle" id="today-label"></div>
     </div>
     <div class="top-actions">
@@ -148,30 +220,65 @@
   <div class="stats">
     <div class="stat"><div class="stat-label">Upcoming</div><div class="stat-num" id="stat-upcoming">—</div></div>
     <div class="stat"><div class="stat-label">In progress</div><div class="stat-num" id="stat-progress">—</div></div>
-    <div class="stat"><div class="stat-label">Next deadline</div><div class="stat-num small" id="stat-deadline">—</div></div>
+    <div class="stat"><div class="stat-label">Behind schedule</div><div class="stat-num" id="stat-behind" style="color:var(--red-text)">—</div></div>
     <div class="stat"><div class="stat-label">Days to next sermon</div><div class="stat-num" id="stat-days">—</div></div>
   </div>
 
-  <div id="sermon-list"></div>
+  <!-- ACTIVE SERMONS -->
+  <div id="active-section"></div>
+
+  <!-- TO-DO -->
+  <div class="section-header">
+    <div class="section-title">To-Do — Next 3 Weeks</div>
+    <div class="section-line"></div>
+  </div>
+  <div class="todo-widget">
+    <div class="todo-list" id="todo-list"></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="section-header" style="margin-top:2rem;">
+    <div class="section-title">Prep calendar — Next 2 Weeks</div>
+    <div class="section-line"></div>
+  </div>
+  <div class="cal-widget">
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <!-- COMPLETED -->
+  <div id="completed-section"></div>
+
 </div>
 
+<!-- MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h2 id="modal-title">Add sermon</h2>
     <div class="form-field"><label>Sermon title</label><input type="text" id="f-title" placeholder="e.g. Walking by Faith" /></div>
     <div class="form-field"><label>Scripture text</label><input type="text" id="f-text" placeholder="e.g. Hebrews 11:1–6" /></div>
     <div class="form-field"><label>Series</label><input type="text" id="f-series" placeholder="e.g. Heroes of Faith" /></div>
+    <div class="form-field"><label>Context (where are you preaching?)</label>
+      <div class="context-row">
+        <select id="f-context-select" onchange="handleContextSelect()">
+          <option value="">— Select —</option>
+          <option value="Salt">Salt</option>
+          <option value="Candeo">Candeo</option>
+          <option value="other">Other...</option>
+        </select>
+        <input type="text" id="f-context-other" placeholder="Type context..." style="display:none;" />
+      </div>
+    </div>
     <div class="form-field"><label>Sermon date</label><input type="date" id="f-date" /></div>
     <div class="form-field"><label>Current status</label>
       <select id="f-status">
+        <option value="not-started">Not yet started</option>
         <option value="study">Study</option>
         <option value="idea">Main idea</option>
         <option value="outline">Outline</option>
         <option value="draft">Draft</option>
         <option value="final">Final</option>
-        <option value="run1">Run-through 1</option>
-        <option value="run2">Run-through 2</option>
-        <option value="run3">Run-through 3</option>
+        <option value="run">Run-through</option>
+        <option value="completed">Completed</option>
       </select>
     </div>
     <div class="modal-actions">
@@ -182,248 +289,436 @@
 </div>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiyNYEPE58ym5RBrgOd5IszBMfk7X-ykJ306KqPHD3twEVZSm08_13j3z5aFiYmn-f/exec';
 
-// ── STAGES ──────────────────────────────────────────────────────────────────
 const STAGES = [
-  { key: 'study',   label: 'Study',        daysBeforeSermon: 7 },
-  { key: 'idea',    label: 'Main idea',     daysBeforeSermon: 7 },
-  { key: 'outline', label: 'Outline',       daysBeforeSermon: 7 },
-  { key: 'draft',   label: 'Draft',         daysBeforeSermon: 2 },
-  { key: 'final',   label: 'Final',         daysBeforeSermon: 1 },
-  { key: 'run1',    label: 'Run-through 1', daysBeforeSermon: 1 },
-  { key: 'run2',    label: 'Run-through 2', daysBeforeSermon: 1 },
-  { key: 'run3',    label: 'Run-through 3', daysBeforeSermon: 1 },
+  { key: 'not-started', label: 'Not yet started', dueDay: null, weeksBack: null },
+  { key: 'study',       label: 'Study',            dueDay: 2, weeksBack: 2 },
+  { key: 'idea',        label: 'Main idea',        dueDay: 2, weeksBack: 2 },
+  { key: 'outline',     label: 'Outline',          dueDay: 3, weeksBack: 2 },
+  { key: 'draft',       label: 'Draft',            dueDay: 2, weeksBack: 1 },
+  { key: 'final',       label: 'Final',            dueDay: 3, weeksBack: 1 },
+  { key: 'run',         label: 'Run-through',      dueDay: 4, weeksBack: 1 },
+  { key: 'completed',   label: 'Completed',        dueDay: 0, weeksBack: 0 },
 ];
-const STATUS_ORDER = ['study','idea','outline','draft','final','run1','run2','run3'];
-const STATUS_LABELS = {study:'Study',idea:'Main idea',outline:'Outline',draft:'Draft',final:'Final',run1:'Run-through 1',run2:'Run-through 2',run3:'Run-through 3'};
-const STATUS_CLASSES = {study:'sp-study',idea:'sp-idea',outline:'sp-outline',draft:'sp-draft',final:'sp-final',run1:'sp-run',run2:'sp-run',run3:'sp-run'};
+const STATUS_ORDER = ['not-started','study','idea','outline','draft','final','run','completed'];
+const STATUS_LABELS = {'not-started':'Not yet started',study:'Study',idea:'Main idea',outline:'Outline',draft:'Draft',final:'Final',run:'Run-through',completed:'Completed'};
+const STATUS_CLASSES = {'not-started':'sp-not-started',study:'sp-study',idea:'sp-idea',outline:'sp-outline',draft:'sp-draft',final:'sp-final',run:'sp-run',completed:'sp-completed'};
 
 let editingId = null;
 let allSermons = [];
+// Track which active cards are open so re-render preserves state
+let openCards = new Set();
 
-// ── DATE HELPERS ─────────────────────────────────────────────────────────────
 function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
-function parseDate(str) { const [y,m,d] = str.split('-').map(Number); return new Date(y,m-1,d); }
-function isWeekend(d) { return d.getDay()===0||d.getDay()===6; }
-function subtractWorkdays(from, days) {
-  let d = new Date(from), n = 0;
-  while (n < days) { d.setDate(d.getDate()-1); if (!isWeekend(d)) n++; }
-  return d;
-}
+function parseDate(str) { if (!str) return null; const [y,m,d] = str.split('-').map(Number); return new Date(y,m-1,d); }
+function toYMD(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function daysUntil(d) { return Math.round((d - today()) / 86400000); }
 function formatDate(d) { return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
+function formatDateShort(d) { return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
 function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
-function getStageDeadline(sermonDate, stageKey) {
-  const d = parseDate(sermonDate);
+
+function getStageDueDate(sermonDateStr, stageKey) {
   const stage = STAGES.find(s=>s.key===stageKey);
-  if (!stage||stage.daysBeforeSermon===0) return d;
-  return subtractWorkdays(d, stage.daysBeforeSermon);
-}
-function getStageStart(sermonDate, stageKey) {
-  return subtractWorkdays(getStageDeadline(sermonDate, stageKey), 2);
-}
-
-// ── SYNC STATUS ──────────────────────────────────────────────────────────────
-function setSyncStatus(state, label) {
-  document.getElementById('sync-dot').className = 'sync-dot ' + state;
-  document.getElementById('sync-label').textContent = label;
-}
-function showError(msg) {
-  const el = document.getElementById('error-banner');
-  el.textContent = msg; el.classList.add('show');
-}
-function hideError() { document.getElementById('error-banner').classList.remove('show'); }
-
-// ── DATA: LOAD FROM GOOGLE SHEETS VIA APPS SCRIPT ───────────────────────────
-async function loadSermons() {
-  setSyncStatus('syncing', 'Loading...');
-  document.getElementById('sermon-list').innerHTML = `<div class="loading-state"><i class="ti ti-loader"></i>Loading your sermons...</div>`;
-  try {
-    const res = await fetch(SCRIPT_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    allSermons = (data.data || []).filter(s => s.id && s.date).map(s => ({
-  ...s,
-  date: s.date.includes('T') ? s.date.split('T')[0] : s.date
-}));
-    allSermons.sort((a,b) => a.date.localeCompare(b.date));
-    hideError();
-    setSyncStatus('synced', 'Synced');
-    renderSermons();
-  } catch(e) {
-    setSyncStatus('error', 'Error loading');
-    showError('Could not load sermons. Check your Apps Script deployment and try refreshing. ' + e.message);
-    document.getElementById('sermon-list').innerHTML = `<div class="empty-state"><i class="ti ti-alert-circle"></i>Could not load data. Try refreshing.</div>`;
-  }
+  if (!stage || stage.dueDay === null) return null;
+  const sermonDate = parseDate(sermonDateStr);
+  const base = new Date(sermonDate);
+  base.setDate(base.getDate() - (stage.weeksBack * 7));
+  const result = new Date(base);
+  result.setDate(base.getDate() + stage.dueDay);
+  return result;
 }
 
-// ── DATA: SAVE TO GOOGLE SHEETS VIA APPS SCRIPT ─────────────────────────────
-async function writeSermons(sermons) {
-  setSyncStatus('syncing', 'Saving...');
-  try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ data: sermons }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    setSyncStatus('synced', 'Saved ✓');
-    hideError();
-  } catch(e) {
-    setSyncStatus('error', 'Save failed');
-    showError('Could not save: ' + e.message);
-  }
+function isBehind(sermon) {
+  if (sermon.status === 'completed' || sermon.status === 'not-started') return false;
+  const due = getStageDueDate(sermon.date, sermon.status);
+  if (!due) return false;
+  return daysUntil(due) < 0;
 }
 
-// ── RENDER HELPERS ───────────────────────────────────────────────────────────
-function renderStatusPill(status) {
-  return `<span class="status-pill ${STATUS_CLASSES[status]||''}">${STATUS_LABELS[status]||status}</span>`;
-}
-function getUrgencyClass(sermon) {
-  const idx = STATUS_ORDER.indexOf(sermon.status);
-  if (idx < 0) return 'urgency-far';
-  const d = daysUntil(getStageDeadline(sermon.date, STAGES[idx].key));
-  if (d <= 0) return 'urgency-urgent';
-  if (d <= 3) return 'urgency-urgent';
-  if (d <= 7) return 'urgency-soon';
-  if (d <= 14) return 'urgency-ok';
-  return 'urgency-far';
-}
-function getUrgencyLabel(sermon) {
-  const d = daysUntil(parseDate(sermon.date));
-  if (d < 0) return `${Math.abs(d)}d ago`;
-  if (d === 0) return 'Today!';
-  if (d === 1) return 'Tomorrow';
-  return `${d}d away`;
-}
-function getTodayTask(sermon) {
-  const t = today();
-  const idx = STATUS_ORDER.indexOf(sermon.status);
-  if (idx < 0) return null;
-  const stage = STAGES[idx];
-  const dl = getStageDeadline(sermon.date, stage.key);
-  const td = daysUntil(dl);
-  if (isWeekend(t)) return 'Rest — no work today (weekend)';
-  if (td < 0) return `⚠ ${stage.label} is overdue`;
-  if (td === 0) return `${stage.label} due today`;
-  if (td <= 2) return `Work on ${stage.label} — due in ${td}d`;
-  const sd = daysUntil(getStageStart(sermon.date, stage.key));
-  if (sd <= 0) return `Deep work: ${stage.label}`;
-  return `Start ${stage.label} in ${sd}d`;
-}
 function getProgressPct(status) {
   const idx = STATUS_ORDER.indexOf(status);
   return idx < 0 ? 0 : Math.round((idx / (STATUS_ORDER.length-1)) * 100);
 }
+
+function getTodayTask(sermon) {
+  if (sermon.status === 'completed') return null;
+  if (sermon.status === 'not-started') {
+    const studyDue = getStageDueDate(sermon.date, 'study');
+    if (!studyDue) return null;
+    const d = daysUntil(studyDue);
+    if (d < 0) return `⚠ Should have started already`;
+    return `Start study in ${d}d`;
+  }
+  const idx = STATUS_ORDER.indexOf(sermon.status);
+  const stage = STAGES[idx];
+  const due = getStageDueDate(sermon.date, stage.key);
+  if (!due) return null;
+  const d = daysUntil(due);
+  if (d < 0) return `⚠ ${stage.label} overdue by ${Math.abs(d)}d`;
+  if (d === 0) return `${stage.label} due today!`;
+  if (d <= 3) return `Work on ${stage.label} — due in ${d}d`;
+  return `${stage.label} due ${formatDate(due)}`;
+}
+
+// ── SYNC ─────────────────────────────────────────────────────────────────────
+function setSyncStatus(state, label) {
+  document.getElementById('sync-dot').className = 'sync-dot ' + state;
+  document.getElementById('sync-label').textContent = label;
+}
+function showError(msg) { const el=document.getElementById('error-banner'); el.textContent=msg; el.classList.add('show'); }
+function hideError() { document.getElementById('error-banner').classList.remove('show'); }
+
+async function loadSermons() {
+  setSyncStatus('syncing','Loading...');
+  document.getElementById('active-section').innerHTML = `<div class="loading-state"><i class="ti ti-loader"></i>Loading your sermons...</div>`;
+  try {
+    const res = await fetch(SCRIPT_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    allSermons = (data.data||[]).filter(s=>s.id&&s.date).map(s=>({
+      ...s,
+      date: s.date.includes('T') ? s.date.split('T')[0] : s.date
+    }));
+    allSermons.sort((a,b)=>a.date.localeCompare(b.date));
+    hideError();
+    setSyncStatus('synced','Synced');
+    renderAll();
+  } catch(e) {
+    setSyncStatus('error','Error loading');
+    showError('Could not load sermons. ' + e.message);
+    document.getElementById('active-section').innerHTML = `<div class="empty-state"><i class="ti ti-alert-circle"></i>Could not load data.</div>`;
+  }
+}
+
+async function writeSermons(sermons) {
+  setSyncStatus('syncing','Saving...');
+  try {
+    const res = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify({data:sermons}) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    setSyncStatus('synced','Saved ✓');
+    hideError();
+  } catch(e) {
+    setSyncStatus('error','Save failed');
+    showError('Could not save: ' + e.message);
+  }
+}
+
+// ── RENDER HELPERS ────────────────────────────────────────────────────────────
+function renderStatusPill(status) {
+  return `<span class="status-pill ${STATUS_CLASSES[status]||''}">${STATUS_LABELS[status]||status}</span>`;
+}
+function getUrgencyClass(sermon) {
+  if (sermon.status==='completed') return 'urgency-far';
+  const idx = STATUS_ORDER.indexOf(sermon.status);
+  if (idx<0) return 'urgency-far';
+  const due = getStageDueDate(sermon.date, STAGES[idx].key);
+  if (!due) return 'urgency-far';
+  const d = daysUntil(due);
+  if (d<0) return 'urgency-urgent';
+  if (d<=3) return 'urgency-urgent';
+  if (d<=7) return 'urgency-soon';
+  if (d<=14) return 'urgency-ok';
+  return 'urgency-far';
+}
+function getUrgencyLabel(sermon) {
+  const d = daysUntil(parseDate(sermon.date));
+  if (d<0) return `${Math.abs(d)}d ago`;
+  if (d===0) return 'Today!';
+  if (d===1) return 'Tomorrow';
+  return `${d}d away`;
+}
+
 function renderStages(sermon) {
   const statusIdx = STATUS_ORDER.indexOf(sermon.status);
-  return STAGES.map((stage,i) => {
-    const dl = getStageDeadline(sermon.date, stage.key);
-    const start = getStageStart(sermon.date, stage.key);
-    const d = daysUntil(dl);
+  return STAGES.filter(s=>s.dueDay!==null).map(stage => {
+    const i = STATUS_ORDER.indexOf(stage.key);
+    const due = getStageDueDate(sermon.date, stage.key);
+    if (!due) return '';
+    const d = daysUntil(due);
     let cls = '';
     if (i < statusIdx) cls = 'stage-done';
     else if (i === statusIdx) cls = d < 0 ? 'stage-overdue' : 'stage-active';
     return `<div class="stage ${cls}">
       <div class="stage-name">${stage.label}</div>
-      <div class="stage-date">${formatDate(dl)}</div>
-      <div class="stage-by">Start ${formatDate(start)}</div>
+      <div class="stage-date">${formatDate(due)}</div>
     </div>`;
   }).join('');
 }
 
-// ── MAIN RENDER ──────────────────────────────────────────────────────────────
-function renderSermons() {
-  const sermons = allSermons;
-  const upcoming = sermons.filter(s => daysUntil(parseDate(s.date)) >= 0);
-  document.getElementById('stat-upcoming').textContent = upcoming.length;
-  document.getElementById('stat-progress').textContent = sermons.filter(s => s.status !== 'run3').length;
+function renderSermonCard(s, isCompleted=false) {
+  const pct = getProgressPct(s.status);
+  const task = getTodayTask(s);
+  const behind = isBehind(s);
+  const isOpen = isCompleted ? false : openCards.has(s.id);
+  const cardClass = isCompleted ? 'sermon-card completed-card' : (behind ? 'sermon-card behind' : 'sermon-card');
 
-  let minDays = Infinity, minLabel = '—';
-  sermons.forEach(s => {
-    const idx = STATUS_ORDER.indexOf(s.status);
-    for (let i = idx; i < STAGES.length; i++) {
-      const d = daysUntil(getStageDeadline(s.date, STAGES[i].key));
-      if (d < minDays) { minDays = d; minLabel = d < 0 ? 'Overdue' : d === 0 ? 'Today' : `${d}d`; }
+  const progressBar = !isCompleted ? `
+    <div class="card-progress">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      <span class="progress-label">${pct}%</span>
+    </div>` : '';
+
+  return `<div class="${cardClass}" id="card-${s.id}">
+    <div class="sermon-header" onclick="toggleCard('${s.id}', ${isCompleted})">
+      <div class="sermon-main">
+        <div class="sermon-title-row">
+          <span class="sermon-title">${s.title||'Untitled'}</span>
+          ${s.series?`<span class="series-badge">${s.series}</span>`:''}
+          ${s.context?`<span class="context-badge">${s.context}</span>`:''}
+          ${renderStatusPill(s.status)}
+          ${behind?`<span class="behind-badge"><i class="ti ti-alert-triangle"></i> Behind</span>`:''}
+        </div>
+        <div class="sermon-meta">
+          ${s.text?`<span class="meta-item"><i class="ti ti-book-2"></i>${s.text}</span>`:''}
+          <span class="meta-item"><i class="ti ti-calendar"></i>${formatDateFull(parseDate(s.date))}</span>
+        </div>
+      </div>
+      <div class="sermon-right">
+        ${!isCompleted?`<span class="urgency-pill ${getUrgencyClass(s)}">${getUrgencyLabel(s)}</span>`:''}
+        <i class="ti ti-chevron-down chevron ${isOpen?'open':''}" id="chev-${s.id}"></i>
+      </div>
+    </div>
+    ${progressBar}
+    <div class="sermon-body ${isOpen?'open':''}" id="body-${s.id}">
+      <div class="stages-grid">${renderStages(s)}</div>
+      <div class="action-row">
+        ${s.status!=='completed'?`<button class="action-btn primary" onclick="advanceStatus('${s.id}')"><i class="ti ti-arrow-right"></i> Mark next stage done</button>`:''}
+        <button class="action-btn" onclick="openEdit('${s.id}')"><i class="ti ti-edit"></i> Edit</button>
+        <button class="action-btn danger" onclick="deleteSermon('${s.id}')"><i class="ti ti-trash"></i></button>
+        ${task?`<span class="today-task"><strong>Today:</strong> ${task}</span>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── TO-DO ─────────────────────────────────────────────────────────────────────
+function renderTodo() {
+  const t = today();
+  const threeWeeks = new Date(t); threeWeeks.setDate(t.getDate() + 21);
+  const items = [];
+
+  allSermons.filter(s=>s.status!=='completed').forEach(s => {
+    const curIdx = STATUS_ORDER.indexOf(s.status);
+    // Show current stage and all future stages within 3 weeks
+    for (let i = Math.max(curIdx, 1); i < STATUS_ORDER.length - 1; i++) {
+      const stage = STAGES[i];
+      const due = getStageDueDate(s.date, stage.key);
+      if (!due) continue;
+      if (due > threeWeeks) continue;
+      const d = daysUntil(due);
+      const isDone = i < curIdx;
+      if (isDone) continue;
+      items.push({ sermon: s, stage, due, d });
+    }
+    // Also add sermon day if within 3 weeks
+    const sermonD = parseDate(s.date);
+    if (sermonD <= threeWeeks) {
+      items.push({ sermon: s, stage: { key: 'sermon', label: 'Preach!' }, due: sermonD, d: daysUntil(sermonD), isSermon: true });
     }
   });
-  document.getElementById('stat-deadline').textContent = minLabel;
-  if (upcoming.length > 0) document.getElementById('stat-days').textContent = daysUntil(parseDate(upcoming[0].date));
 
-  const list = document.getElementById('sermon-list');
-  if (sermons.length === 0) {
-    list.innerHTML = `<div class="empty-state"><i class="ti ti-book"></i>No sermons yet — click "Add sermon" to get started.</div>`;
+  items.sort((a,b) => a.due - b.due);
+
+  const el = document.getElementById('todo-list');
+  if (items.length === 0) {
+    el.innerHTML = `<div class="todo-empty">No tasks in the next 3 weeks. You're ahead of schedule! 🎉</div>`;
     return;
   }
-  list.innerHTML = sermons.map(s => {
-    const pct = getProgressPct(s.status);
-    const task = getTodayTask(s);
-    return `<div class="sermon-card">
-      <div class="sermon-header" onclick="toggleCard('${s.id}')">
-        <div class="sermon-main">
-          <div class="sermon-title-row">
-            <span class="sermon-title">${s.title||'Untitled'}</span>
-            ${s.series?`<span class="series-badge">${s.series}</span>`:''}
-            ${renderStatusPill(s.status)}
-          </div>
-          <div class="sermon-meta">
-            ${s.text?`<span class="meta-item"><i class="ti ti-book-2"></i>${s.text}</span>`:''}
-            <span class="meta-item"><i class="ti ti-calendar"></i>${formatDateFull(parseDate(s.date))}</span>
-          </div>
-        </div>
-        <div class="sermon-right">
-          <span class="urgency-pill ${getUrgencyClass(s)}">${getUrgencyLabel(s)}</span>
-          <i class="ti ti-chevron-down chevron" id="chev-${s.id}"></i>
-        </div>
+
+  el.innerHTML = items.map(item => {
+    const { sermon, stage, d, isSermon } = item;
+    const dotCls = d < 0 ? 'overdue' : d <= 3 ? 'urgent' : 'upcoming';
+    const dueCls = d < 0 ? 'overdue' : d <= 3 ? 'urgent' : 'upcoming';
+    const dueLabel = d < 0 ? `${Math.abs(d)}d overdue` : d === 0 ? 'Due today' : d === 1 ? 'Due tomorrow' : `Due in ${d}d`;
+    const taskLabel = isSermon ? `📖 Preach: ${sermon.title}` : `${stage.label}`;
+    const sermonLabel = isSermon ? `${sermon.context||''} · ${formatDateShort(item.due)}` : `${sermon.title}${sermon.context?' · '+sermon.context:''} · Due ${formatDate(item.due)}`;
+    return `<div class="todo-item">
+      <div class="todo-dot ${dotCls}"></div>
+      <div class="todo-content">
+        <div class="todo-task">${taskLabel}</div>
+        <div class="todo-sermon">${sermonLabel}</div>
       </div>
-      <div class="sermon-body" id="body-${s.id}">
-        <div class="progress-row">
-          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
-          <span class="progress-label">${pct}% complete</span>
-        </div>
-        <div class="stages-grid">${renderStages(s)}</div>
-        <div class="action-row">
-          <button class="action-btn primary" onclick="advanceStatus('${s.id}')"><i class="ti ti-arrow-right"></i> Mark next stage done</button>
-          <button class="action-btn" onclick="openEdit('${s.id}')"><i class="ti ti-edit"></i> Edit</button>
-          <button class="action-btn danger" onclick="deleteSermon('${s.id}')"><i class="ti ti-trash"></i></button>
-          ${task?`<span class="today-task"><strong>Today:</strong> ${task}</span>`:''}
-        </div>
-      </div>
+      <div class="todo-due ${dueCls}">${dueLabel}</div>
     </div>`;
   }).join('');
 }
 
-// ── ACTIONS ──────────────────────────────────────────────────────────────────
-function toggleCard(id) {
-  document.getElementById('body-'+id).classList.toggle('open');
-  document.getElementById('chev-'+id).classList.toggle('open');
+// ── CALENDAR (2-week rolling view) ───────────────────────────────────────────
+function buildCalendarEvents() {
+  const events = {};
+  const add = (dateStr, label, cls) => {
+    if (!dateStr) return;
+    if (!events[dateStr]) events[dateStr] = [];
+    events[dateStr].push({label, cls});
+  };
+  allSermons.filter(s=>s.status!=='completed').forEach(s => {
+    const name = s.title.split(' ').slice(0,3).join(' ');
+    add(s.date, `📖 ${name}`, 'ev-sermon');
+    const curIdx = STATUS_ORDER.indexOf(s.status);
+    STAGES.filter(st=>st.dueDay!==null && st.key!=='completed' && st.key!=='not-started').forEach(st => {
+      const stIdx = STATUS_ORDER.indexOf(st.key);
+      if (stIdx < curIdx) return;
+      const due = getStageDueDate(s.date, st.key);
+      if (!due) return;
+      const dStr = toYMD(due);
+      const clsMap = {study:'ev-study',idea:'ev-idea',outline:'ev-outline',draft:'ev-draft',final:'ev-final',run:'ev-run'};
+      const overdue = daysUntil(due) < 0;
+      add(dStr, `${st.label}`, overdue ? 'ev-overdue' : (clsMap[st.key]||'ev-study'));
+    });
+  });
+  return events;
 }
+
+function renderCalendar() {
+  const t = today();
+  const events = buildCalendarEvents();
+
+  // Find start: beginning of current week (Sunday)
+  const startDate = new Date(t);
+  startDate.setDate(t.getDate() - t.getDay());
+
+  // 2 weeks = 14 days
+  const totalDays = 14;
+  const todayStr = toYMD(t);
+
+  let html = '';
+  // Day headers
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+    html += `<div class="cal-day-header">${d}</div>`;
+  });
+
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i);
+    const dateStr = toYMD(d);
+    const dow = d.getDay();
+    const isToday = dateStr === todayStr;
+    const isWeekend = dow===0||dow===6;
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    else if (isWeekend) cls += ' weekend';
+    const dayEvents = events[dateStr] || [];
+    const evHtml = dayEvents.slice(0,4).map(ev=>`<div class="cal-event ${ev.cls}" title="${ev.label}">${ev.label}</div>`).join('');
+    const more = dayEvents.length>4 ? `<div class="cal-event ev-study">+${dayEvents.length-4} more</div>` : '';
+    const dayNum = d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    html += `<div class="${cls}"><div class="cal-day-num">${dayNum}</div>${evHtml}${more}</div>`;
+  }
+
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
+// ── MAIN RENDER ───────────────────────────────────────────────────────────────
+function renderAll() {
+  const active = allSermons.filter(s=>s.status!=='completed');
+  const completed = allSermons.filter(s=>s.status==='completed');
+  const behind = active.filter(s=>isBehind(s));
+  const upcoming = active.filter(s=>daysUntil(parseDate(s.date))>=0);
+
+  document.getElementById('stat-upcoming').textContent = upcoming.length;
+  document.getElementById('stat-progress').textContent = active.filter(s=>s.status!=='not-started').length;
+  document.getElementById('stat-behind').textContent = behind.length;
+  document.getElementById('stat-days').textContent = upcoming.length>0 ? daysUntil(parseDate(upcoming[0].date)) : '—';
+
+  // Active sermons — start all open if not tracked yet
+  const activeEl = document.getElementById('active-section');
+  if (active.length===0) {
+    activeEl.innerHTML = `<div class="empty-state"><i class="ti ti-book"></i>No active sermons — click "Add sermon" to get started.</div>`;
+  } else {
+    // Default: open all active cards on first load
+    active.forEach(s => { if (!openCards.has(s.id)) openCards.add(s.id); });
+    activeEl.innerHTML = `
+      <div class="section-header">
+        <div class="section-title">Active sermons</div>
+        <div class="section-line"></div>
+        <div class="section-count">${active.length}</div>
+      </div>
+      ${active.map(s=>renderSermonCard(s,false)).join('')}`;
+  }
+
+  renderTodo();
+  renderCalendar();
+
+  // Completed — always minimized
+  const completedEl = document.getElementById('completed-section');
+  if (completed.length===0) {
+    completedEl.innerHTML = '';
+  } else {
+    completedEl.innerHTML = `
+      <div class="section-header">
+        <div class="section-title">Completed sermons</div>
+        <div class="section-line"></div>
+        <div class="section-count">${completed.length}</div>
+      </div>
+      ${completed.map(s=>renderSermonCard(s,true)).join('')}`;
+  }
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function toggleCard(id, isCompleted) {
+  if (isCompleted) {
+    // Completed cards just toggle normally
+    document.getElementById('body-'+id).classList.toggle('open');
+    document.getElementById('chev-'+id).classList.toggle('open');
+    return;
+  }
+  // Active cards: persist open state
+  if (openCards.has(id)) {
+    openCards.delete(id);
+    document.getElementById('body-'+id).classList.remove('open');
+    document.getElementById('chev-'+id).classList.remove('open');
+  } else {
+    openCards.add(id);
+    document.getElementById('body-'+id).classList.add('open');
+    document.getElementById('chev-'+id).classList.add('open');
+  }
+}
+
 async function advanceStatus(id) {
   const s = allSermons.find(x=>x.id===id);
   if (!s) return;
   const idx = STATUS_ORDER.indexOf(s.status);
-  if (idx < STATUS_ORDER.length-1) {
-    s.status = STATUS_ORDER[idx+1];
-    renderSermons();
+  if (idx<STATUS_ORDER.length-1) {
+    const newStatus = STATUS_ORDER[idx+1];
+    // If moving to completed, remove from openCards
+    if (newStatus === 'completed') openCards.delete(id);
+    s.status = newStatus;
+    renderAll();
     await writeSermons(allSermons);
   }
-  document.getElementById('body-'+id)?.classList.add('open');
-  document.getElementById('chev-'+id)?.classList.add('open');
 }
+
 async function deleteSermon(id) {
   if (!confirm('Delete this sermon?')) return;
+  openCards.delete(id);
   allSermons = allSermons.filter(s=>s.id!==id);
-  renderSermons();
+  renderAll();
   await writeSermons(allSermons);
 }
 
-// ── MODAL ────────────────────────────────────────────────────────────────────
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function handleContextSelect() {
+  const sel = document.getElementById('f-context-select').value;
+  document.getElementById('f-context-other').style.display = sel==='other' ? 'block' : 'none';
+}
+function getContextValue() {
+  const sel = document.getElementById('f-context-select').value;
+  if (sel==='other') return document.getElementById('f-context-other').value.trim();
+  return sel;
+}
+function setContextValue(val) {
+  const sel = document.getElementById('f-context-select');
+  const other = document.getElementById('f-context-other');
+  if (!val) { sel.value=''; other.style.display='none'; return; }
+  if (val==='Salt'||val==='Candeo') { sel.value=val; other.style.display='none'; }
+  else { sel.value='other'; other.style.display='block'; other.value=val; }
+}
 function openAdd() {
   editingId = null;
   document.getElementById('modal-title').textContent = 'Add sermon';
   ['f-title','f-text','f-series','f-date'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-status').value = 'study';
+  document.getElementById('f-status').value = 'not-started';
+  setContextValue('');
   document.getElementById('modal').classList.add('open');
 }
 function openEdit(id) {
@@ -431,11 +726,12 @@ function openEdit(id) {
   if (!s) return;
   editingId = id;
   document.getElementById('modal-title').textContent = 'Edit sermon';
-  document.getElementById('f-title').value = s.title;
-  document.getElementById('f-text').value = s.text;
-  document.getElementById('f-series').value = s.series;
-  document.getElementById('f-date').value = s.date;
-  document.getElementById('f-status').value = s.status;
+  document.getElementById('f-title').value = s.title||'';
+  document.getElementById('f-text').value = s.text||'';
+  document.getElementById('f-series').value = s.series||'';
+  document.getElementById('f-date').value = s.date||'';
+  document.getElementById('f-status').value = s.status||'not-started';
+  setContextValue(s.context||'');
   document.getElementById('modal').classList.add('open');
 }
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
@@ -444,35 +740,25 @@ async function saveSermon() {
   const date = document.getElementById('f-date').value;
   if (!title||!date) { alert('Please enter a title and sermon date.'); return; }
   const btn = document.getElementById('save-btn');
-  btn.textContent = 'Saving...'; btn.disabled = true;
-  if (editingId !== null) {
+  btn.textContent='Saving...'; btn.disabled=true;
+  const context = getContextValue();
+  if (editingId!==null) {
     const s = allSermons.find(x=>x.id===editingId);
-    if (s) {
-      s.title = title;
-      s.text = document.getElementById('f-text').value.trim();
-      s.series = document.getElementById('f-series').value.trim();
-      s.date = date;
-      s.status = document.getElementById('f-status').value;
-    }
+    if (s) { s.title=title; s.text=document.getElementById('f-text').value.trim(); s.series=document.getElementById('f-series').value.trim(); s.date=date; s.status=document.getElementById('f-status').value; s.context=context; }
   } else {
-    allSermons.push({
-      id: 's' + Date.now(),
-      title,
-      text: document.getElementById('f-text').value.trim(),
-      series: document.getElementById('f-series').value.trim(),
-      date,
-      status: document.getElementById('f-status').value
-    });
+    const newId = 's'+Date.now();
+    openCards.add(newId);
+    allSermons.push({ id:newId, title, text:document.getElementById('f-text').value.trim(), series:document.getElementById('f-series').value.trim(), date, status:document.getElementById('f-status').value, context });
     allSermons.sort((a,b)=>a.date.localeCompare(b.date));
   }
   await writeSermons(allSermons);
-  renderSermons();
+  renderAll();
   closeModal();
-  btn.textContent = 'Save sermon'; btn.disabled = false;
+  btn.textContent='Save sermon'; btn.disabled=false;
 }
-document.getElementById('modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 const t = today();
 document.getElementById('today-label').textContent = t.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 loadSermons();
