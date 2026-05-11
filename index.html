@@ -46,7 +46,6 @@
   /* ── LAYOUT ── */
   .app { display: flex; min-height: 100vh; }
 
-  /* LEFT NAV */
   .nav { width: var(--nav-width); flex-shrink: 0; background: var(--bg); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
   .nav-logo { padding: 0 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
   .nav-logo-title { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
@@ -64,42 +63,30 @@
   .sync-dot.error { background: var(--red-text); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-  /* MIDDLE COLUMN */
   .main { flex: 0 0 var(--main-width); max-width: var(--main-width); padding: 2rem 2rem 4rem; overflow-y: auto; }
-
-  /* RIGHT COLUMN */
   .sidebar { width: var(--right-width); flex-shrink: 0; background: var(--bg); border-left: 0.5px solid var(--border); padding: 1.5rem 1rem 4rem; overflow-y: auto; position: sticky; top: 0; height: 100vh; }
-
-  /* Overflow center on large screens */
-  .app-inner { display: flex; flex: 1; min-width: 0; }
   .main-wrap { flex: 1; display: flex; justify-content: center; overflow: hidden; }
 
-  /* ── TOP BAR ── */
   .top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px; }
   .top-bar h1 { font-size: 20px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em; }
   .top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
   .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-  /* ── STATS ── */
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
   .stat { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
   .stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
   .stat-num { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1; }
 
-  /* ── BUTTONS ── */
   .btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
   .btn:hover { background: var(--bg-secondary); }
   .btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
   .btn.primary:hover { opacity: 0.85; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* ── SECTION HEADERS ── */
   .section-header { display: flex; align-items: center; gap: 10px; margin: 1.75rem 0 0.875rem; }
   .section-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
   .section-line { flex: 1; height: 0.5px; background: var(--border); }
   .section-count { font-size: 11px; background: var(--bg-secondary); color: var(--text-secondary); padding: 2px 8px; border-radius: 20px; }
 
-  /* ── THIS WEEK'S FOCUS ── */
   .focus-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 0; }
   .focus-top { background: var(--bg-secondary); padding: 11px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid var(--border); }
   .focus-top-left { display: flex; align-items: center; gap: 8px; }
@@ -115,100 +102,56 @@
   .focus-priority-sermon { font-size: 12px; color: var(--green-text); margin-top: 2px; }
   .focus-priority-due { font-size: 11px; color: var(--green-text); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
   .focus-priority.urgent { background: var(--red-bg); border-left-color: var(--red-text); }
-  .focus-priority.urgent .focus-priority-label { color: var(--red-text); }
-  .focus-priority.urgent .focus-priority-task { color: var(--red-text); }
-  .focus-priority.urgent .focus-priority-sermon { color: var(--red-text); }
-  .focus-priority.urgent .focus-priority-due { color: var(--red-text); }
-  .focus-priority.empty { background: var(--bg-secondary); border-left-color: var(--text-tertiary); }
-  .focus-priority.empty .focus-priority-task { color: var(--text-secondary); font-size: 13px; }
-
-  /* Week strip */
+  .focus-priority.urgent .focus-priority-label, .focus-priority.urgent .focus-priority-task, .focus-priority.urgent .focus-priority-sermon, .focus-priority.urgent .focus-priority-due { color: var(--red-text); }
+  
   .focus-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 14px; }
-  .focus-day { border-radius: var(--radius-md); padding: 6px 2px; text-align: center; border: 0.5px solid var(--border); }
+  .focus-day { border-radius: var(--radius-md); padding: 6px 2px; text-align: center; border: 0.5px solid var(--border); cursor: pointer; transition: transform 0.1s; }
+  .focus-day:hover { background: var(--bg-secondary); transform: translateY(-1px); }
   .focus-day.today { background: var(--blue-bg); border-color: var(--blue-text); }
-  .focus-day.weekend { background: var(--bg-secondary); opacity: 0.6; }
   .focus-day-name { font-size: 9px; color: var(--text-tertiary); text-transform: uppercase; margin-bottom: 3px; }
   .focus-day.today .focus-day-name { color: var(--blue-text); }
   .focus-day-num { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
-  .focus-day.today .focus-day-num { color: var(--blue-text); }
+  .focus-day.today .focus-day-num { color: var(--blue-text); font-weight: 700; }
   .focus-day-pip { width: 5px; height: 5px; border-radius: 50%; margin: 3px auto 0; background: transparent; }
   .focus-day-pip.green { background: var(--green-text); }
   .focus-day-pip.amber { background: var(--amber-text); }
   .focus-day-pip.red { background: var(--red-text); }
   .focus-day-pip.blue { background: var(--blue-text); }
 
-  /* Week task list */
   .focus-tasks { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
   .focus-task { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border); }
   .focus-task.overdue { border-color: var(--red-text); background: var(--red-bg); }
   .focus-task.today-task { border-color: var(--green-text); }
   .focus-task-icon { font-size: 15px; color: var(--text-tertiary); flex-shrink: 0; }
-  .focus-task.overdue .focus-task-icon { color: var(--red-text); }
-  .focus-task.today-task .focus-task-icon { color: var(--green-text); }
   .focus-task-content { flex: 1; min-width: 0; }
   .focus-task-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
-  .focus-task.overdue .focus-task-name { color: var(--red-text); }
   .focus-task-meta { font-size: 11px; color: var(--text-secondary); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .focus-task-due { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
   .focus-task-due.overdue { background: var(--red-bg); color: var(--red-text); }
   .focus-task-due.due-today { background: var(--green-bg); color: var(--green-text); }
-  .focus-task-due.due-soon { background: var(--amber-bg); color: var(--amber-text); }
-  .focus-task-due.due-later { background: var(--bg-secondary); color: var(--text-secondary); }
-  .focus-empty { font-size: 13px; color: var(--text-secondary); padding: 1rem 0; text-align: center; }
-  .focus-btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  /* ── SERMON CARDS ── */
   .sermon-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 8px; overflow: hidden; }
   .sermon-card.behind { border-color: var(--red-text); border-width: 1.5px; }
-  .sermon-card.completed-card { opacity: 0.7; }
-  .sermon-card.upcoming-card { border-style: dashed; opacity: 0.85; }
   .sermon-header { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; transition: background 0.15s; }
   .sermon-header:hover { background: var(--bg-secondary); }
-  .sermon-main { flex: 1; min-width: 0; }
-  .sermon-title-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
   .sermon-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-  .series-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--blue-bg); color: var(--blue-text); white-space: nowrap; font-weight: 500; }
-  .context-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--purple-bg); color: var(--purple-text); white-space: nowrap; font-weight: 500; }
-  .behind-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--red-bg); color: var(--red-text); white-space: nowrap; font-weight: 600; }
-  .sermon-meta { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; align-items: center; }
-  .meta-item { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; }
-  .meta-item i { font-size: 12px; }
-  .meta-link { font-size: 11px; color: var(--blue-text); display: flex; align-items: center; gap: 3px; text-decoration: none; }
-  .meta-link:hover { text-decoration: underline; }
-  .sermon-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
-  .urgency-pill { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
-  .urgency-urgent { background: var(--red-bg); color: var(--red-text); }
-  .urgency-soon { background: var(--amber-bg); color: var(--amber-text); }
-  .urgency-ok { background: var(--green-bg); color: var(--green-text); }
-  .urgency-far { background: var(--bg-secondary); color: var(--text-secondary); }
-  .quick-advance { font-size: 10px; font-weight: 500; padding: 3px 9px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: var(--blue-bg); color: var(--blue-text); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 3px; font-family: var(--font); }
-  .quick-advance:hover { opacity: 0.8; }
-  .chevron { font-size: 15px; color: var(--text-tertiary); transition: transform 0.2s; display: inline-block; flex-shrink: 0; }
-  .chevron.open { transform: rotate(180deg); }
-  .sermon-body { border-top: 0.5px solid var(--border); padding: 14px; display: none; }
-  .sermon-body.open { display: block; }
-  .card-progress { padding: 0 14px 10px; display: flex; align-items: center; gap: 10px; }
-  .progress-bar-bg { flex: 1; height: 3px; background: var(--bg-secondary); border-radius: 2px; }
-  .progress-bar-fill { height: 3px; border-radius: 2px; background: var(--blue-text); transition: width 0.4s; }
-  .progress-label { font-size: 10px; color: var(--text-tertiary); white-space: nowrap; }
-  .stages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; margin-bottom: 12px; }
-  .stage { border-radius: var(--radius-md); padding: 8px 10px; border: 0.5px solid var(--border); }
-  .stage-name { font-size: 9px; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
-  .stage-date { font-size: 12px; font-weight: 500; color: var(--text-primary); }
-  .stage-done { opacity: 0.4; }
-  .stage-done .stage-date { text-decoration: line-through; }
-  .stage-active { border-color: var(--blue-text); border-width: 1.5px; background: var(--blue-bg); }
-  .stage-active .stage-name { color: var(--blue-text); }
-  .stage-active .stage-date { color: var(--blue-text); }
-  .stage-overdue { border-color: var(--red-text); border-width: 1.5px; background: var(--red-bg); }
-  .stage-overdue .stage-name { color: var(--red-text); }
-  .stage-overdue .stage-date { color: var(--red-text); }
-  .action-row { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
-  .action-btn { font-size: 11px; padding: 5px 11px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: transparent; color: var(--text-primary); font-family: var(--font); cursor: pointer; display: flex; align-items: center; gap: 4px; transition: background 0.15s; }
-  .action-btn:hover { background: var(--bg-secondary); }
-  .action-btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
-  .action-btn.primary:hover { opacity: 0.85; }
-  .action-btn.danger { color: var(--red-text); }
+  .series-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--blue-bg); color: var(--blue-text); font-weight: 500; }
+  .context-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--purple-bg); color: var(--purple-text); font-weight: 500; }
+  .behind-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--red-bg); color: var(--red-text); font-weight: 600; }
+  
+  .sidebar-sermon { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 6px; border: 0.5px solid var(--border); cursor: pointer; transition: background 0.15s; }
+  .sidebar-sermon:hover { background: var(--bg-tertiary); border-color: var(--border-md); }
+  .sidebar-sermon-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+  .sidebar-sermon-date { font-size: 11px; color: var(--text-secondary); }
+
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg); border-radius: var(--radius-xl); border: 0.5px solid var(--border-md); padding: 24px; width: 100%; max-width: 480px; }
+  .form-field { margin-bottom: 13px; }
+  .form-field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
+  .form-field input, .form-field select { width: 100%; padding: 8px 11px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 14px; outline: none; }
+  
   .status-pill { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
   .sp-not-started { background: var(--gray-bg); color: var(--gray-text); }
   .sp-study { background: var(--green-bg); color: var(--green-text); }
@@ -219,282 +162,88 @@
   .sp-run { background: var(--coral-bg); color: var(--coral-text); }
   .sp-completed { background: var(--green-bg); color: var(--green-text); }
 
-  /* ── CALENDAR ── */
-  .cal-widget { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-  .cal-nav { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 0.5px solid var(--border); gap: 8px; }
-  .cal-nav-title { font-size: 13px; font-weight: 600; flex: 1; text-align: center; }
-  .cal-nav-btn { background: none; border: 0.5px solid var(--border-md); cursor: pointer; color: var(--text-secondary); font-size: 14px; padding: 3px 8px; border-radius: var(--radius-md); }
-  .cal-nav-btn:hover { background: var(--bg-secondary); }
-  .cal-nav-today { font-size: 11px; padding: 3px 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: none; cursor: pointer; color: var(--text-secondary); font-family: var(--font); }
-  .cal-nav-today:hover { background: var(--bg-secondary); }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-  .cal-day-header { text-align: center; font-size: 10px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; padding: 7px 2px 5px; border-bottom: 0.5px solid var(--border); }
-  .cal-day { min-height: 72px; padding: 4px; border-bottom: 0.5px solid var(--border); border-right: 0.5px solid var(--border); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg); }
+  .cal-day { min-height: 72px; padding: 4px; border-right: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); }
   .cal-day:nth-child(7n) { border-right: none; }
-  .cal-day:nth-last-child(-n+7) { border-bottom: none; }
   .cal-day.today { background: var(--blue-bg); }
-  .cal-day.weekend { background: var(--bg-secondary); }
-  .cal-day-num { font-size: 10px; font-weight: 500; color: var(--text-secondary); margin-bottom: 3px; }
-  .cal-day.today .cal-day-num { color: var(--blue-text); font-weight: 700; }
-  .cal-event { font-size: 9px; font-weight: 500; padding: 1px 4px; border-radius: 3px; margin-bottom: 1px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cal-event.ev-study { background: var(--green-bg); color: var(--green-text); }
-  .cal-event.ev-idea { background: var(--blue-bg); color: var(--blue-text); }
-  .cal-event.ev-outline { background: var(--amber-bg); color: var(--amber-text); }
-  .cal-event.ev-draft { background: var(--purple-bg); color: var(--purple-text); }
-  .cal-event.ev-final { background: var(--teal-bg); color: var(--teal-text); }
-  .cal-event.ev-run { background: var(--coral-bg); color: var(--coral-text); }
-  .cal-event.ev-sermon { background: var(--gray-bg); color: var(--gray-text); font-weight: 700; }
-  .cal-event.ev-overdue { background: var(--red-bg); color: var(--red-text); }
+  .cal-day-num { font-size: 10px; color: var(--text-secondary); margin-bottom: 4px; }
 
-  /* ── RIGHT SIDEBAR ── */
-  .sidebar .section-header { margin-top: 0; }
-  .sidebar .section-header:first-child { margin-top: 0; }
-  .sidebar-sermon { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 6px; border: 0.5px solid var(--border); }
-  .sidebar-sermon.upcoming-card { border-style: dashed; opacity: 0.85; }
-  .sidebar-sermon.completed-card { opacity: 0.6; }
-  .sidebar-sermon-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sidebar-sermon-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-  .sidebar-sermon-date { font-size: 11px; color: var(--text-secondary); }
-  .sidebar-sermon-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
-
-  /* ── MISC ── */
-  .error-banner { background: var(--red-bg); color: var(--red-text); border: 0.5px solid var(--red-text); border-radius: var(--radius-md); padding: 10px 14px; font-size: 13px; margin-bottom: 1rem; display: none; }
-  .error-banner.show { display: block; }
-  .empty-state { text-align: center; padding: 2rem 1rem; color: var(--text-secondary); font-size: 13px; }
-  .empty-state i { font-size: 28px; display: block; margin-bottom: 8px; opacity: 0.3; }
-  .loading-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-secondary); font-size: 13px; }
-  .loading-state i { font-size: 28px; display: block; margin-bottom: 8px; opacity: 0.35; animation: spin 1s linear infinite; }
-  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-
-  /* ── MODAL ── */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center; padding: 1rem; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--bg); border-radius: var(--radius-xl); border: 0.5px solid var(--border-md); padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
-  .modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 18px; color: var(--text-primary); }
-  .form-field { margin-bottom: 13px; }
-  .form-field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
-  .form-field input, .form-field select { width: 100%; padding: 8px 11px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 14px; outline: none; transition: border-color 0.15s; }
-  .form-field input:focus, .form-field select:focus { border-color: var(--blue-text); }
-  .context-row { display: flex; gap: 8px; }
-  .context-row select, .context-row input { flex: 1; }
-  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
-
- .sidebar-sermon {
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    transform 0.15s,
-    border-color 0.15s,
-    box-shadow 0.15s;
-}
-
-.sidebar-sermon:hover {
-  background: var(--bg);
-  transform: translateY(-1px);
-  border-color: var(--border-md);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-}
-
-.sidebar-sermon-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 5px;
-}
-
-.sidebar-actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-.sidebar-action-btn {
-  border: 0.5px solid var(--border-md);
-  background: var(--bg);
-  color: var(--text-secondary);
-  border-radius: var(--radius-md);
-  padding: 4px 8px;
-  font-size: 11px;
-  font-family: var(--font);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.15s, opacity 0.15s;
-}
-
-.sidebar-action-btn:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-.sidebar-action-btn.primary {
-  background: var(--blue-bg);
-  color: var(--blue-text);
-  border-color: transparent;
-  font-weight: 500;
-}
-
-.sidebar-action-btn.primary:hover {
-  opacity: 0.85;
-}
-
-/* ── RESPONSIVE ── */
-  /* ── RESPONSIVE ── */
-  @media (max-width: 1300px) {
-    :root { --right-width: 240px; }
-  }
-  @media (max-width: 1100px) {
-    .sidebar { display: none; }
-    .main { max-width: 100%; flex: 1; }
-  }
-  @media (max-width: 768px) {
-    .nav { display: none; }
-    .main { padding: 1rem 1rem 3rem; }
-  }
 </style>
 </head>
 <body>
 <div class="app">
-
-  <!-- LEFT NAV -->
   <nav class="nav">
     <div class="nav-logo">
       <div class="nav-logo-title">Sermon Prep</div>
       <div class="nav-logo-sub" id="nav-date"></div>
     </div>
-    <div class="nav-section-label" style="margin-bottom:8px;">Pages</div>
-    <a class="nav-item active" href="#" onclick="return false;">
-      <i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard
-    </a>
+    <a class="nav-item active" href="#"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
     <div class="nav-bottom">
-      <div class="sync-status">
-        <div class="sync-dot" id="sync-dot"></div>
-        <span id="sync-label">Loading...</span>
-      </div>
-      <div style="margin-top:10px;">
-        <button class="btn" style="width:100%; justify-content:center; font-size:12px;" onclick="loadSermons()">
-          <i class="ti ti-refresh" aria-hidden="true"></i> Refresh
-        </button>
-      </div>
+      <div class="sync-status"><div class="sync-dot synced"></div> <span id="sync-label">Synced</span></div>
     </div>
   </nav>
 
-  <!-- MIDDLE -->
   <div class="main-wrap">
     <main class="main">
-
       <div class="top-bar">
-        <div>
-          <h1>Sermon Prep Dashboard</h1>
-          <div class="subtitle" id="today-label"></div>
-        </div>
-        <div class="top-actions">
-          <button class="btn primary" onclick="openAdd()"><i class="ti ti-plus" aria-hidden="true"></i> Add sermon</button>
-        </div>
+        <div><h1>Dashboard</h1><div class="subtitle" id="today-label"></div></div>
+        <div class="top-actions"><button class="btn primary" onclick="openAdd()"><i class="ti ti-plus"></i> Add sermon</button></div>
       </div>
 
-      <div class="error-banner" id="error-banner"></div>
-
-      <!-- STATS -->
       <div class="stats">
         <div class="stat"><div class="stat-label">Upcoming</div><div class="stat-num" id="stat-upcoming">—</div></div>
         <div class="stat"><div class="stat-label">In progress</div><div class="stat-num" id="stat-progress">—</div></div>
-        <div class="stat"><div class="stat-label">Behind schedule</div><div class="stat-num" id="stat-behind" style="color:var(--red-text)">—</div></div>
-        <div class="stat"><div class="stat-label">Days to next sermon</div><div class="stat-num" id="stat-days">—</div></div>
+        <div class="stat"><div class="stat-label">Behind</div><div class="stat-num" id="stat-behind" style="color:var(--red-text)">—</div></div>
+        <div class="stat"><div class="stat-label">Next Sermon</div><div class="stat-num" id="stat-days">—</div></div>
       </div>
 
-      <!-- THIS WEEK'S FOCUS -->
-      <div class="section-header" style="margin-top:0;">
+      <div class="section-header">
         <div class="section-title">This week's focus</div>
         <div class="section-line"></div>
       </div>
       <div class="focus-card">
         <div class="focus-top">
-          <div class="focus-top-left">
-            <div class="focus-dot" id="focus-dot"></div>
-            <span class="focus-top-label" id="focus-top-label">Loading...</span>
-          </div>
+          <div class="focus-top-left"><div class="focus-dot" id="focus-dot"></div><span class="focus-top-label" id="focus-top-label">On track</span></div>
           <span class="focus-top-date" id="focus-week-range"></span>
         </div>
         <div class="focus-body">
           <div class="focus-headline" id="focus-headline"></div>
           <div id="focus-priority-box"></div>
-          <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-tertiary); margin-bottom:7px;">Week at a glance</div>
           <div class="focus-week" id="focus-week-strip"></div>
-          <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-tertiary); margin-bottom:7px;" id="focus-tasks-label">Tasks this week</div>
           <div class="focus-tasks" id="focus-tasks"></div>
-          <div class="focus-btn-row" id="focus-btn-row"></div>
+          <div id="focus-btn-row"></div>
         </div>
       </div>
 
-      <!-- ACTIVE SERMONS -->
       <div id="active-section"></div>
-
-      <!-- PREP CALENDAR -->
-      <div class="section-header">
-        <div class="section-title">Prep calendar</div>
-        <div class="section-line"></div>
-      </div>
-      <div class="cal-widget">
-        <div class="cal-nav">
-          <button class="cal-nav-btn" onclick="calPrev()"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
-          <div class="cal-nav-title" id="cal-title"></div>
-          <button class="cal-nav-today" onclick="calReset()">Today</button>
-          <button class="cal-nav-btn" onclick="calNext()"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
-        </div>
-        <div class="cal-grid" id="cal-grid"></div>
-      </div>
-
     </main>
   </div>
 
-  <!-- RIGHT SIDEBAR -->
   <aside class="sidebar">
     <div id="sidebar-upcoming"></div>
     <div id="sidebar-completed"></div>
   </aside>
-
 </div>
 
-<!-- MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
-    <h2 id="modal-title">Add sermon</h2>
-    <div class="form-field"><label>Sermon title</label><input type="text" id="f-title" placeholder="e.g. Walking by Faith" /></div>
-    <div class="form-field"><label>Scripture text</label><input type="text" id="f-text" placeholder="e.g. Hebrews 11:1–6" /></div>
-    <div class="form-field"><label>Series</label><input type="text" id="f-series" placeholder="e.g. Heroes of Faith" /></div>
-    <div class="form-field"><label>Context</label>
-      <div class="context-row">
-        <select id="f-context-select" onchange="handleContextSelect()">
-          <option value="">— Select —</option>
-          <option value="Salt">Salt</option>
-          <option value="Candeo">Candeo</option>
-          <option value="other">Other...</option>
-        </select>
-        <input type="text" id="f-context-other" placeholder="Type context..." style="display:none;" />
-      </div>
-    </div>
-    <div class="form-field"><label>Sermon date</label><input type="date" id="f-date" /></div>
-    <div class="form-field"><label>Google Docs link (optional)</label><input type="url" id="f-doc" placeholder="https://docs.google.com/..." /></div>
-    <div class="form-field"><label>Current status</label>
-      <select id="f-status">
-        <option value="not-started">Not yet started</option>
-        <option value="study">Study</option>
-        <option value="idea">Main idea</option>
-        <option value="outline">Outline</option>
-        <option value="draft">Draft</option>
-        <option value="final">Final</option>
-        <option value="run">Run-through</option>
-        <option value="completed">Completed</option>
-      </select>
-    </div>
-    <div class="modal-actions">
-      <button class="action-btn" onclick="closeModal()">Cancel</button>
-      <button class="action-btn primary" id="save-btn" onclick="saveSermon()">Save sermon</button>
+    <h2 id="modal-title">Sermon</h2>
+    <div class="form-field"><label>Title</label><input type="text" id="f-title" /></div>
+    <div class="form-field"><label>Date</label><input type="date" id="f-date" /></div>
+    <div class="form-field"><label>Context</label><select id="f-context-select"><option value="Salt">Salt</option><option value="Candeo">Candeo</option></select></div>
+    <div class="form-field"><label>Status</label><select id="f-status">
+      <option value="not-started">Not started</option>
+      <option value="study">Study</option>
+      <option value="idea">Idea</option>
+      <option value="outline">Outline</option>
+      <option value="draft">Draft</option>
+      <option value="final">Final</option>
+      <option value="run">Run</option>
+      <option value="completed">Completed</option>
+    </select></div>
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:20px;">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="saveSermon()">Save</button>
     </div>
   </div>
 </div>
@@ -516,17 +265,14 @@ const STATUS_ORDER = ['not-started','study','idea','outline','draft','final','ru
 const STATUS_LABELS = {'not-started':'Not yet started',study:'Study',idea:'Main idea',outline:'Outline',draft:'Draft',final:'Final',run:'Run-through',completed:'Completed'};
 const STATUS_CLASSES = {'not-started':'sp-not-started',study:'sp-study',idea:'sp-idea',outline:'sp-outline',draft:'sp-draft',final:'sp-final',run:'sp-run',completed:'sp-completed'};
 
-let editingId = null;
 let allSermons = [];
 let openCards = new Set();
-let calWeekOffset = 0;
+let editingId = null;
 
 function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
-function parseDate(str) { if (!str) return null; const [y,m,d] = str.split('-').map(Number); return new Date(y,m-1,d); }
 function toYMD(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function parseDate(str) { if (!str) return null; const [y,m,d] = str.split('-').map(Number); return new Date(y,m-1,d); }
 function daysUntil(d) { return Math.round((d - today()) / 86400000); }
-function formatDate(d) { return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
-function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
 
 function getStageDueDate(sermonDateStr, stageKey) {
   const stage = STAGES.find(s=>s.key===stageKey);
@@ -542,600 +288,155 @@ function getStageDueDate(sermonDateStr, stageKey) {
 function isBehind(sermon) {
   if (sermon.status === 'completed' || sermon.status === 'not-started') return false;
   const due = getStageDueDate(sermon.date, sermon.status);
-  if (!due) return false;
-  return daysUntil(due) < 0;
+  return due && daysUntil(due) < 0;
 }
-
-function getProgressPct(status) {
-  const idx = STATUS_ORDER.indexOf(status);
-  return idx < 0 ? 0 : Math.round((idx / (STATUS_ORDER.length-1)) * 100);
-}
-
-function isActive(s) {
-  if (s.status === 'completed') return false;
-  if (s.status !== 'not-started') return true;
-  return daysUntil(parseDate(s.date)) <= 21;
-}
-
-function getNextStageName(s) {
-  const idx = STATUS_ORDER.indexOf(s.status);
-  if (idx < 0 || idx >= STATUS_ORDER.length - 1) return null;
-  return STATUS_LABELS[STATUS_ORDER[idx+1]];
-}
-
-// ── SYNC ─────────────────────────────────────────────────────────────────────
-function setSyncStatus(state, label) {
-  document.getElementById('sync-dot').className = 'sync-dot ' + state;
-  document.getElementById('sync-label').textContent = label;
-}
-function showError(msg) { const el=document.getElementById('error-banner'); el.textContent=msg; el.classList.add('show'); }
-function hideError() { document.getElementById('error-banner').classList.remove('show'); }
 
 async function loadSermons() {
-  setSyncStatus('syncing','Loading...');
-  document.getElementById('active-section').innerHTML = `<div class="loading-state"><i class="ti ti-loader"></i>Loading...</div>`;
   try {
     const res = await fetch(SCRIPT_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    allSermons = (data.data||[]).filter(s=>s.id&&s.date).map(s=>({
-      ...s,
-      date: s.date.includes('T') ? s.date.split('T')[0] : s.date
-    }));
-    allSermons.sort((a,b)=>a.date.localeCompare(b.date));
-    hideError();
-    setSyncStatus('synced','Synced');
-    openCards.clear();
+    allSermons = (data.data||[]).filter(s=>s.id).map(s=>({
+      ...s, date: s.date.includes('T') ? s.date.split('T')[0] : s.date
+    })).sort((a,b)=>a.date.localeCompare(b.date));
     renderAll();
-  } catch(e) {
-    setSyncStatus('error','Error');
-    showError('Could not load sermons. ' + e.message);
-    document.getElementById('active-section').innerHTML = `<div class="empty-state"><i class="ti ti-alert-circle"></i>Could not load data.</div>`;
-  }
+  } catch(e) { console.error(e); }
 }
 
-async function writeSermons(sermons) {
-  setSyncStatus('syncing','Saving...');
-  try {
-    const res = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify({data:sermons}) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    setSyncStatus('synced','Saved ✓');
-    hideError();
-  } catch(e) {
-    setSyncStatus('error','Save failed');
-    showError('Could not save: ' + e.message);
-  }
+async function writeSermons() {
+  await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify({data:allSermons}) });
 }
 
-// ── RENDER HELPERS ────────────────────────────────────────────────────────────
-function renderStatusPill(status) {
-  return `<span class="status-pill ${STATUS_CLASSES[status]||''}">${STATUS_LABELS[status]||status}</span>`;
-}
-function getUrgencyClass(sermon) {
-  if (sermon.status==='completed'||sermon.status==='not-started') return 'urgency-far';
-  const idx = STATUS_ORDER.indexOf(sermon.status);
-  if (idx<0) return 'urgency-far';
-  const due = getStageDueDate(sermon.date, STAGES[idx].key);
-  if (!due) return 'urgency-far';
-  const d = daysUntil(due);
-  if (d<0||d<=3) return 'urgency-urgent';
-  if (d<=7) return 'urgency-soon';
-  if (d<=14) return 'urgency-ok';
-  return 'urgency-far';
-}
-function getUrgencyLabel(sermon) {
-  const d = daysUntil(parseDate(sermon.date));
-  if (d<0) return `${Math.abs(d)}d ago`;
-  if (d===0) return 'Today!';
-  if (d===1) return 'Tomorrow';
-  return `${d}d away`;
-}
-
-function renderStages(sermon) {
-  const statusIdx = STATUS_ORDER.indexOf(sermon.status);
-  return STAGES.filter(s=>s.dueDay!==null).map(stage => {
-    const i = STATUS_ORDER.indexOf(stage.key);
-    const due = getStageDueDate(sermon.date, stage.key);
-    if (!due) return '';
-    const d = daysUntil(due);
-    let cls = '';
-    if (i < statusIdx) cls = 'stage-done';
-    else if (i === statusIdx) cls = d < 0 ? 'stage-overdue' : 'stage-active';
-    return `<div class="stage ${cls}">
-      <div class="stage-name">${stage.label}</div>
-      <div class="stage-date">${formatDate(due)}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderSermonCard(s, mode='active') {
-  const isCompleted = mode==='completed';
-  const isUpcoming = mode==='upcoming';
-  const pct = getProgressPct(s.status);
-  const behind = isBehind(s);
-  const isOpen = openCards.has(s.id);
-  const nextStageName = getNextStageName(s);
-  let cardClass = 'sermon-card';
-  if (isCompleted) cardClass += ' completed-card';
-  else if (isUpcoming) cardClass += ' upcoming-card';
-  else if (behind) cardClass += ' behind';
-  const progressBar = (!isCompleted&&!isUpcoming) ? `
-    <div class="card-progress">
-      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
-      <span class="progress-label">${pct}%</span>
-    </div>` : '';
-  const docLink = s.doc ? `<a class="meta-link" href="${s.doc}" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-file-text"></i>Doc</a>` : '';
-  const quickAdvance = (!isCompleted&&!isUpcoming&&nextStageName&&s.status!=='not-started')
-    ? `<button class="quick-advance" onclick="event.stopPropagation();advanceStatus('${s.id}')"><i class="ti ti-check"></i> Done: ${STATUS_LABELS[s.status]}</button>` : '';
-  return `<div class="${cardClass}" id="card-${s.id}">
-    <div class="sermon-header" onclick="toggleCard('${s.id}')">
-      <div class="sermon-main">
-        <div class="sermon-title-row">
-          <span class="sermon-title">${s.title||'Untitled'}</span>
-          ${s.series?`<span class="series-badge">${s.series}</span>`:''}
-          ${s.context?`<span class="context-badge">${s.context}</span>`:''}
-          ${renderStatusPill(s.status)}
-          ${behind?`<span class="behind-badge"><i class="ti ti-alert-triangle"></i> Behind</span>`:''}
-        </div>
-        <div class="sermon-meta">
-          ${s.text?`<span class="meta-item"><i class="ti ti-book-2"></i>${s.text}</span>`:''}
-          <span class="meta-item"><i class="ti ti-calendar"></i>${formatDateFull(parseDate(s.date))}</span>
-          ${docLink}
-        </div>
-      </div>
-      <div class="sermon-right">
-        ${quickAdvance}
-        ${!isCompleted?`<span class="urgency-pill ${getUrgencyClass(s)}">${getUrgencyLabel(s)}</span>`:''}
-        <i class="ti ti-chevron-down chevron ${isOpen?'open':''}" id="chev-${s.id}"></i>
-      </div>
-    </div>
-    ${progressBar}
-    <div class="sermon-body ${isOpen?'open':''}" id="body-${s.id}">
-      <div class="stages-grid">${renderStages(s)}</div>
-      <div class="action-row">
-        ${s.status!=='completed'?`<button class="action-btn primary" onclick="advanceStatus('${s.id}')"><i class="ti ti-arrow-right"></i> Mark next stage done</button>`:''}
-        <button class="action-btn" onclick="openEdit('${s.id}')"><i class="ti ti-edit"></i> Edit</button>
-        <button class="action-btn danger" onclick="deleteSermon('${s.id}')"><i class="ti ti-trash"></i></button>
-        ${s.doc?`<a class="action-btn" href="${s.doc}" target="_blank"><i class="ti ti-external-link"></i> Open doc</a>`:''}
-      </div>
-    </div>
-  </div>`;
-}
-
-// ── THIS WEEK'S FOCUS ─────────────────────────────────────────────────────────
 function renderFocus() {
   const t = today();
-  const dow = t.getDay();
-  // Monday of this week
-  const daysToMon = dow === 0 ? -6 : 1 - dow;
-  const monday = new Date(t); monday.setDate(t.getDate() + daysToMon);
-  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
-  const todayStr = toYMD(t);
+  const weekEnd = new Date(t); weekEnd.setDate(t.getDate() + 7);
+  document.getElementById('focus-week-range').textContent = `${t.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${weekEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
 
-  const monLabel = monday.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  const sunLabel = sunday.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  document.getElementById('focus-week-range').textContent = `${monLabel} – ${sunLabel}`;
-
-  // Collect all tasks due this week from active sermons
   const weekTasks = [];
-  allSermons.filter(s=>isActive(s)&&s.status!=='completed').forEach(s => {
+  allSermons.filter(s=>s.status!=='completed').forEach(s => {
     const curIdx = STATUS_ORDER.indexOf(s.status);
-    for (let i=Math.max(curIdx,1); i<STATUS_ORDER.length-1; i++) {
-      const stage = STAGES[i];
+    STAGES.forEach((stage, i) => {
+      if (i < 1 || i >= STATUS_ORDER.length - 1) return;
       const due = getStageDueDate(s.date, stage.key);
-      if (!due) continue;
-      if (due < monday || due > sunday) continue;
-      const done = i < curIdx;
-      weekTasks.push({ sermon:s, stage, due, d:daysUntil(due), done });
-    }
-    // Sermon day this week
-    const sd = parseDate(s.date);
-    if (sd >= monday && sd <= sunday) {
-      weekTasks.push({ sermon:s, stage:{key:'sermon',label:'Preach!'}, due:sd, d:daysUntil(sd), done:false, isSermon:true });
-    }
+      if (!due) return;
+      const d = daysUntil(due);
+      // Include if due this week OR overdue
+      if ((due >= t && due <= weekEnd) || (d < 0 && i === curIdx)) {
+        weekTasks.push({ sermon:s, stage, due, d, done: i < curIdx });
+      }
+    });
   });
   weekTasks.sort((a,b)=>a.due-b.due);
 
-  const overdue = weekTasks.filter(t=>t.d<0&&!t.done);
-  const dueToday = weekTasks.filter(t=>t.d===0&&!t.done);
-  const upcoming = weekTasks.filter(t=>t.d>0&&!t.done);
-  const totalPending = overdue.length + dueToday.length + upcoming.length;
-
-  // Headline
-  let headline = '';
-  if (totalPending === 0 && weekTasks.length === 0) headline = 'Nothing due this week — you\'re ahead of schedule!';
-  else if (overdue.length > 0) headline = `<strong>${overdue.length} overdue</strong> task${overdue.length>1?'s':''} need${overdue.length===1?'s':''} your attention.`;
-  else if (dueToday.length > 0) headline = `<strong>${dueToday.length} task${dueToday.length>1?'s':''}</strong> due today.`;
-  else headline = `<strong>${totalPending} task${totalPending!==1?'s':''}</strong> due this week.`;
-  document.getElementById('focus-headline').innerHTML = headline;
-
-  // Priority box
-  const priorityTask = overdue[0] || dueToday[0] || upcoming[0];
-  let priorityHtml = '';
-  if (!priorityTask) {
-    priorityHtml = `<div class="focus-priority empty" style="margin-bottom:14px;"><div class="focus-priority-label">Priority right now</div><div class="focus-priority-task">You're all caught up this week 🎉</div></div>`;
-  } else {
-    const isUrgent = priorityTask.d <= 0;
-    const dLabel = priorityTask.d < 0 ? `${Math.abs(priorityTask.d)}d overdue` : priorityTask.d === 0 ? 'Due today' : `Due ${formatDate(priorityTask.due)}`;
-    priorityHtml = `<div class="focus-priority ${isUrgent?'urgent':''}" style="margin-bottom:14px;">
-      <div class="focus-priority-label"><i class="ti ti-flame" aria-hidden="true"></i> Priority right now</div>
-      <div class="focus-priority-task">${priorityTask.stage.label}</div>
-      <div class="focus-priority-sermon">${priorityTask.sermon.title}${priorityTask.sermon.context?' · '+priorityTask.sermon.context:''}</div>
-      <div class="focus-priority-due"><i class="ti ti-clock" aria-hidden="true"></i> ${dLabel}</div>
-    </div>`;
-  }
-  document.getElementById('focus-priority-box').innerHTML = priorityHtml;
-
-  // Dot color on header
-  const focusDot = document.getElementById('focus-dot');
-  const focusTopLabel = document.getElementById('focus-top-label');
-  if (overdue.length > 0) { focusDot.style.background='var(--red-text)'; focusTopLabel.textContent='Action needed'; }
-  else if (dueToday.length > 0) { focusDot.style.background='var(--amber-text)'; focusTopLabel.textContent='Due today'; }
-  else if (upcoming.length > 0) { focusDot.style.background='var(--green-text)'; focusTopLabel.textContent='On track'; }
-  else { focusDot.style.background='var(--green-text)'; focusTopLabel.textContent='All clear'; }
-
-  // Build events by date for pip colors
-  const eventsByDate = {};
-  weekTasks.forEach(task => {
-    const dStr = toYMD(task.due);
-    if (!eventsByDate[dStr]) eventsByDate[dStr] = [];
-    eventsByDate[dStr].push(task);
-  });
-
-  // Week strip (Mon–Sun)
-  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  // Render Day Strip (Starting Today)
   let stripHtml = '';
   for (let i=0; i<7; i++) {
-    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    const d = new Date(t); d.setDate(t.getDate()+i);
     const dStr = toYMD(d);
-    const isToday = dStr === todayStr;
-    const isWeekend = d.getDay()===0||d.getDay()===6;
-    const dayTasks = eventsByDate[dStr]||[];
-    const hasOverdue = dayTasks.some(t=>t.d<0&&!t.done);
-    const hasTask = dayTasks.some(t=>!t.done);
-    let pipCls = 'empty';
-    if (hasOverdue) pipCls = 'red';
-    else if (hasTask && isToday) pipCls = 'amber';
-    else if (hasTask) pipCls = 'green';
-    stripHtml += `<div class="focus-day ${isToday?'today':''} ${isWeekend?'weekend':''}">
-      <div class="focus-day-name">${days[i]}</div>
-      <div class="focus-day-num">${d.getDate()}</div>
-      <div class="focus-day-pip ${pipCls}"></div>
-    </div>`;
+    const isToday = i === 0;
+    const dayTasks = weekTasks.filter(tk => toYMD(tk.due) === dStr);
+    const hasOverdue = dayTasks.some(tk => tk.d < 0);
+    const pipCls = hasOverdue ? 'red' : dayTasks.length > 0 ? 'green' : '';
+    
+    stripHtml += `
+      <div class="focus-day ${isToday?'today':''}" onclick="console.log('Clicked ${dStr}')">
+        <div class="focus-day-name">${d.toLocaleDateString('en-US',{weekday:'short'})}</div>
+        <div class="focus-day-num">${d.getDate()}</div>
+        <div class="focus-day-pip ${pipCls}"></div>
+      </div>`;
   }
   document.getElementById('focus-week-strip').innerHTML = stripHtml;
 
-  // Task list
-  if (weekTasks.length === 0) {
-    document.getElementById('focus-tasks-label').style.display = 'none';
-    document.getElementById('focus-tasks').innerHTML = `<div class="focus-empty">No tasks scheduled this week.</div>`;
-  } else {
-    document.getElementById('focus-tasks-label').style.display = 'block';
-    document.getElementById('focus-tasks').innerHTML = weekTasks.map(item => {
-      const dueCls = item.d < 0 ? 'overdue' : item.d===0 ? 'due-today' : item.d<=3 ? 'due-soon' : 'due-later';
-      const dueLabel = item.d < 0 ? `${Math.abs(item.d)}d overdue` : item.d===0 ? 'Today' : item.d===1 ? 'Tomorrow' : formatDate(item.due);
-      const taskCls = item.d<0&&!item.done ? 'focus-task overdue' : item.d===0&&!item.done ? 'focus-task today-task' : 'focus-task';
-      const iconMap = {study:'ti-book',idea:'ti-bulb',outline:'ti-list',draft:'ti-file-text',final:'ti-check',run:'ti-microphone',sermon:'ti-bible'};
-      const icon = iconMap[item.stage.key]||'ti-circle-dot';
-      return `<div class="${taskCls}">
-        <i class="ti ${icon} focus-task-icon" aria-hidden="true"></i>
-        <div class="focus-task-content">
-          <div class="focus-task-name">${item.stage.label}</div>
-          <div class="focus-task-meta">${item.sermon.title}${item.sermon.context?' · '+item.sermon.context:''}</div>
-        </div>
-        <span class="focus-task-due ${dueCls}">${dueLabel}</span>
-      </div>`;
-    }).join('');
-  }
-
-  // Buttons
-  let btnHtml = '';
-  if (priorityTask && !priorityTask.isSermon && priorityTask.sermon.status !== 'completed') {
-    btnHtml += `<button class="btn primary" onclick="advanceStatus('${priorityTask.sermon.id}')"><i class="ti ti-check" aria-hidden="true"></i> Mark ${priorityTask.stage.label} done</button>`;
-  }
-  document.getElementById('focus-btn-row').innerHTML = btnHtml;
+  // Task List
+  document.getElementById('focus-tasks').innerHTML = weekTasks.map(tk => `
+    <div class="focus-task ${tk.d < 0 ? 'overdue' : ''}">
+      <i class="ti ti-circle-check"></i>
+      <div class="focus-task-content">
+        <div class="focus-task-name">${tk.stage.label}</div>
+        <div class="focus-task-meta">${tk.sermon.title} (${tk.sermon.context})</div>
+      </div>
+      <span class="focus-task-due ${tk.d < 0 ? 'overdue' : ''}">${tk.d < 0 ? Math.abs(tk.d)+'d ago' : (tk.d===0?'Today':toYMD(tk.due))}</span>
+    </div>
+  `).join('');
 }
 
-// ── CALENDAR ─────────────────────────────────────────────────────────────────
-function buildCalendarEvents() {
-  const events = {};
-  const add = (dateStr, label, cls) => {
-    if (!events[dateStr]) events[dateStr] = [];
-    events[dateStr].push({label, cls});
-  };
-  allSermons.filter(s=>s.status!=='completed').forEach(s => {
-    const name = s.title.split(' ').slice(0,3).join(' ');
-    add(s.date, `📖 ${name}`, 'ev-sermon');
-    const curIdx = STATUS_ORDER.indexOf(s.status);
-    STAGES.filter(st=>st.dueDay!==null&&st.key!=='completed'&&st.key!=='not-started').forEach(st => {
-      const stIdx = STATUS_ORDER.indexOf(st.key);
-      if (stIdx < curIdx) return;
-      const due = getStageDueDate(s.date, st.key);
-      if (!due) return;
-      const clsMap = {study:'ev-study',idea:'ev-idea',outline:'ev-outline',draft:'ev-draft',final:'ev-final',run:'ev-run'};
-      add(toYMD(due), st.label, daysUntil(due)<0 ? 'ev-overdue' : (clsMap[st.key]||'ev-study'));
-    });
-  });
-  return events;
+function renderSidebar() {
+  const upcoming = allSermons.filter(s => s.status === 'not-started');
+  const completed = allSermons.filter(s => s.status === 'completed');
+
+  document.getElementById('sidebar-upcoming').innerHTML = `
+    <div class="section-header"><div class="section-title">Upcoming</div><div class="section-line"></div><div class="section-count">${upcoming.length}</div></div>
+    ${upcoming.map(s => `
+      <div class="sidebar-sermon" onclick="openEdit('${s.id}')">
+        <div class="sidebar-sermon-title">${s.title}</div>
+        <div class="sidebar-sermon-date">${s.date}</div>
+        <div style="margin-top:4px;">${s.context ? `<span class="context-badge">${s.context}</span>` : ''}</div>
+      </div>
+    `).join('')}`;
+
+  document.getElementById('sidebar-completed').innerHTML = `
+    <div class="section-header"><div class="section-title">Recent</div><div class="section-line"></div></div>
+    ${completed.slice(-3).map(s => `
+      <div class="sidebar-sermon" style="opacity:0.6" onclick="openEdit('${s.id}')">
+        <div class="sidebar-sermon-title">${s.title}</div>
+        <div class="sidebar-sermon-date">${s.date}</div>
+      </div>
+    `).join('')}`;
 }
 
-function renderCalendar() {
-  const t = today();
-  const events = buildCalendarEvents();
-  const dow = t.getDay();
-  const daysToMon = dow===0 ? -6 : 1-dow;
-  const startDate = new Date(t);
-  startDate.setDate(t.getDate() + daysToMon + (calWeekOffset*7));
-  const endDate = new Date(startDate); endDate.setDate(startDate.getDate()+20);
-  const s1 = startDate.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  const s2 = endDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  document.getElementById('cal-title').textContent = `${s1} – ${s2}`;
-  const todayStr = toYMD(t);
-  let html = '';
-  ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => { html += `<div class="cal-day-header">${d}</div>`; });
-  for (let i=0; i<21; i++) {
-    const d = new Date(startDate); d.setDate(startDate.getDate()+i);
-    const dateStr = toYMD(d);
-    const dayOfWeek = d.getDay();
-    const isToday = dateStr===todayStr;
-    const isWeekend = dayOfWeek===0||dayOfWeek===6;
-    let cls = 'cal-day';
-    if (isToday) cls+=' today'; else if (isWeekend) cls+=' weekend';
-    const dayEvents = events[dateStr]||[];
-    const evHtml = dayEvents.slice(0,3).map(ev=>`<div class="cal-event ${ev.cls}" title="${ev.label}">${ev.label}</div>`).join('');
-    const more = dayEvents.length>3 ? `<div style="font-size:9px;color:var(--text-tertiary);padding:0 2px;">+${dayEvents.length-3} more</div>` : '';
-    html += `<div class="${cls}"><div class="cal-day-num">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>${evHtml}${more}</div>`;
-  }
-  document.getElementById('cal-grid').innerHTML = html;
-}
-
-function calPrev() { calWeekOffset--; renderCalendar(); }
-function calNext() { calWeekOffset++; renderCalendar(); }
-function calReset() { calWeekOffset=0; renderCalendar(); }
-
-// ── SIDEBAR ───────────────────────────────────────────────────────────────────
-function renderSidebar(upcoming, completed) {
-
-  function renderSidebarCard(s, type='upcoming') {
-    const isCompleted = type === 'completed';
-    const nextStageName = getNextStageName(s);
-
-    return `
-      <div class="sidebar-sermon ${isCompleted ? 'completed-card' : 'upcoming-card'}"
-           onclick="openEdit('${s.id}')">
-
-        <div class="sidebar-sermon-top">
-          <div class="sidebar-sermon-title">
-            ${s.title || 'Untitled'}
-          </div>
-
-          ${renderStatusPill(s.status)}
-        </div>
-
-        <div class="sidebar-sermon-meta">
-          <span class="sidebar-sermon-date">
-            <i class="ti ti-calendar" style="font-size:11px"></i>
-            ${formatDateFull(parseDate(s.date))}
-          </span>
-        </div>
-
-        <div class="sidebar-sermon-badges">
-          ${s.context ? `<span class="context-badge">${s.context}</span>` : ''}
-          ${s.series ? `<span class="series-badge">${s.series}</span>` : ''}
-        </div>
-
-        <div class="sidebar-actions">
-
-          <button
-            class="sidebar-action-btn"
-            onclick="event.stopPropagation(); openEdit('${s.id}')">
-            <i class="ti ti-edit"></i>
-            Edit
-          </button>
-
-          ${s.doc ? `
-            <a
-              class="sidebar-action-btn"
-              href="${s.doc}"
-              target="_blank"
-              onclick="event.stopPropagation()">
-              <i class="ti ti-file-text"></i>
-              Doc
-            </a>
-          ` : ''}
-
-          ${!isCompleted && nextStageName && s.status !== 'not-started' ? `
-            <button
-              class="sidebar-action-btn primary"
-              onclick="event.stopPropagation(); advanceStatus('${s.id}')">
-              <i class="ti ti-check"></i>
-              Done
-            </button>
-          ` : ''}
-
-        </div>
-      </div>
-    `;
-  }
-
-  // Upcoming
-  const upEl = document.getElementById('sidebar-upcoming');
-
-  if (upcoming.length === 0) {
-    upEl.innerHTML = `
-      <div class="section-header" style="margin-top:0;">
-        <div class="section-title">Upcoming</div>
-        <div class="section-line"></div>
-        <div class="section-count">0</div>
-      </div>
-    `;
-  } else {
-    upEl.innerHTML = `
-      <div class="section-header" style="margin-top:0;">
-        <div class="section-title">Upcoming</div>
-        <div class="section-line"></div>
-        <div class="section-count">${upcoming.length}</div>
-      </div>
-
-      ${upcoming.map(s => renderSidebarCard(s, 'upcoming')).join('')}
-    `;
-  }
-
-  // Completed
-  const compEl = document.getElementById('sidebar-completed');
-
-  if (completed.length === 0) {
-    compEl.innerHTML = '';
-  } else {
-    compEl.innerHTML = `
-      <div class="section-header">
-        <div class="section-title">Completed</div>
-        <div class="section-line"></div>
-        <div class="section-count">${completed.length}</div>
-      </div>
-
-      ${completed.map(s => renderSidebarCard(s, 'completed')).join('')}
-    `;
-  }
-}
-
-// ── MAIN RENDER ───────────────────────────────────────────────────────────────
 function renderAll() {
-  const active = allSermons.filter(s=>s.status!=='completed'&&isActive(s));
-  const upcomingNotStarted = allSermons.filter(s=>s.status==='not-started'&&!isActive(s));
-  const completed = allSermons.filter(s=>s.status==='completed');
-  const behind = active.filter(s=>isBehind(s));
-  const allFuture = allSermons.filter(s=>s.status!=='completed'&&daysUntil(parseDate(s.date))>=0);
-
-  document.getElementById('stat-upcoming').textContent = allFuture.length;
-  document.getElementById('stat-progress').textContent = active.filter(s=>s.status!=='not-started').length;
-  document.getElementById('stat-behind').textContent = behind.length;
-  document.getElementById('stat-days').textContent = allFuture.length>0 ? daysUntil(parseDate(allFuture[0].date)) : '—';
-
+  const active = allSermons.filter(s => s.status !== 'completed' && s.status !== 'not-started');
+  document.getElementById('stat-upcoming').textContent = allSermons.filter(s=>s.status!=='completed').length;
+  document.getElementById('stat-progress').textContent = active.length;
+  document.getElementById('stat-behind').textContent = active.filter(isBehind).length;
+  
   renderFocus();
+  renderSidebar();
 
-  // Active sermons
-  const activeEl = document.getElementById('active-section');
-  if (active.length===0) {
-    activeEl.innerHTML = `
-      <div class="section-header">
-        <div class="section-title">Active sermons</div>
-        <div class="section-line"></div>
-        <div class="section-count">0</div>
+  document.getElementById('active-section').innerHTML = `
+    <div class="section-header"><div class="section-title">In Progress</div><div class="section-line"></div></div>
+    ${active.map(s => `
+      <div class="sermon-card ${isBehind(s)?'behind':''}" onclick="openEdit('${s.id}')">
+        <div class="sermon-header">
+          <div>
+            <div class="sermon-title">${s.title} <span class="status-pill ${STATUS_CLASSES[s.status]}">${STATUS_LABELS[s.status]}</span></div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">${s.date} • ${s.context}</div>
+          </div>
+          <i class="ti ti-chevron-right"></i>
+        </div>
       </div>
-      <div class="empty-state"><i class="ti ti-book"></i>No active sermons yet.</div>`;
-  } else {
-    activeEl.innerHTML = `
-      <div class="section-header">
-        <div class="section-title">Active sermons</div>
-        <div class="section-line"></div>
-        <div class="section-count">${active.length}</div>
-      </div>
-      ${active.map(s=>renderSermonCard(s,'active')).join('')}`;
-  }
-
-  renderCalendar();
-  renderSidebar(upcomingNotStarted, completed);
+    `).join('')}`;
 }
 
-// ── CARD TOGGLE ───────────────────────────────────────────────────────────────
-function toggleCard(id) {
-  const body = document.getElementById('body-'+id);
-  const chev = document.getElementById('chev-'+id);
-  if (!body||!chev) return;
-  if (openCards.has(id)) { openCards.delete(id); body.classList.remove('open'); chev.classList.remove('open'); }
-  else { openCards.add(id); body.classList.add('open'); chev.classList.add('open'); }
-}
-
-// ── ACTIONS ───────────────────────────────────────────────────────────────────
-async function advanceStatus(id) {
+function openAdd() { editingId = null; document.getElementById('modal').classList.add('open'); }
+function openEdit(id) { 
+  editingId = id; 
   const s = allSermons.find(x=>x.id===id);
-  if (!s) return;
-  const idx = STATUS_ORDER.indexOf(s.status);
-  if (idx<STATUS_ORDER.length-1) {
-    const newStatus = STATUS_ORDER[idx+1];
-    if (newStatus==='completed') openCards.delete(id);
-    s.status = newStatus;
-    renderAll();
-    await writeSermons(allSermons);
-  }
-}
-
-async function deleteSermon(id) {
-  if (!confirm('Delete this sermon?')) return;
-  openCards.delete(id);
-  allSermons = allSermons.filter(s=>s.id!==id);
-  renderAll();
-  await writeSermons(allSermons);
-}
-
-// ── MODAL ─────────────────────────────────────────────────────────────────────
-function handleContextSelect() {
-  const sel = document.getElementById('f-context-select').value;
-  document.getElementById('f-context-other').style.display = sel==='other' ? 'block' : 'none';
-}
-function getContextValue() {
-  const sel = document.getElementById('f-context-select').value;
-  if (sel==='other') return document.getElementById('f-context-other').value.trim();
-  return sel;
-}
-function setContextValue(val) {
-  const sel = document.getElementById('f-context-select');
-  const other = document.getElementById('f-context-other');
-  if (!val) { sel.value=''; other.style.display='none'; return; }
-  if (val==='Salt'||val==='Candeo') { sel.value=val; other.style.display='none'; }
-  else { sel.value='other'; other.style.display='block'; other.value=val; }
-}
-function openAdd() {
-  editingId=null;
-  document.getElementById('modal-title').textContent='Add sermon';
-  ['f-title','f-text','f-series','f-date','f-doc'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-status').value='not-started';
-  setContextValue('');
-  document.getElementById('modal').classList.add('open');
-}
-function openEdit(id) {
-  const s = allSermons.find(x=>x.id===id);
-  if (!s) return;
-  editingId=id;
-  document.getElementById('modal-title').textContent='Edit sermon';
-  document.getElementById('f-title').value=s.title||'';
-  document.getElementById('f-text').value=s.text||'';
-  document.getElementById('f-series').value=s.series||'';
-  document.getElementById('f-date').value=s.date||'';
-  document.getElementById('f-doc').value=s.doc||'';
-  document.getElementById('f-status').value=s.status||'not-started';
-  setContextValue(s.context||'');
-  document.getElementById('modal').classList.add('open');
+  document.getElementById('f-title').value = s.title;
+  document.getElementById('f-date').value = s.date;
+  document.getElementById('f-status').value = s.status;
+  document.getElementById('modal').classList.add('open'); 
 }
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
 async function saveSermon() {
-  const title=document.getElementById('f-title').value.trim();
-  const date=document.getElementById('f-date').value;
-  if (!title||!date) { alert('Please enter a title and sermon date.'); return; }
-  const btn=document.getElementById('save-btn');
-  btn.textContent='Saving...'; btn.disabled=true;
-  const context=getContextValue();
-  const doc=document.getElementById('f-doc').value.trim();
-  if (editingId!==null) {
-    const s=allSermons.find(x=>x.id===editingId);
-    if (s) { s.title=title; s.text=document.getElementById('f-text').value.trim(); s.series=document.getElementById('f-series').value.trim(); s.date=date; s.status=document.getElementById('f-status').value; s.context=context; s.doc=doc; }
+  const sData = {
+    id: editingId || 's' + Date.now(),
+    title: document.getElementById('f-title').value,
+    date: document.getElementById('f-date').value,
+    status: document.getElementById('f-status').value,
+    context: document.getElementById('f-context-select').value
+  };
+  if (editingId) {
+    const idx = allSermons.findIndex(x=>x.id===editingId);
+    allSermons[idx] = sData;
   } else {
-    allSermons.push({id:'s'+Date.now(),title,text:document.getElementById('f-text').value.trim(),series:document.getElementById('f-series').value.trim(),date,status:document.getElementById('f-status').value,context,doc});
-    allSermons.sort((a,b)=>a.date.localeCompare(b.date));
+    allSermons.push(sData);
   }
-  await writeSermons(allSermons);
   renderAll();
   closeModal();
-  btn.textContent='Save sermon'; btn.disabled=false;
+  await writeSermons();
 }
-document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-const t = today();
-const navDate = t.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-document.getElementById('nav-date').textContent = navDate;
-document.getElementById('today-label').textContent = t.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 loadSermons();
 </script>
 </body>
