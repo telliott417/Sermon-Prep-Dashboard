@@ -1,1 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ideas — Sermon Prep</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #fafaf9;
+    --text-primary: #1c1917; --text-secondary: #78716c; --text-tertiary: #a8a29e;
+    --border: rgba(28,25,23,0.12); --border-md: rgba(28,25,23,0.2);
+    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+    --blue-bg: #e6f1fb; --blue-text: #185fa5;
+    --green-bg: #eaf3de; --green-text: #3b6d11;
+    --amber-bg: #faeeda; --amber-text: #854f0b;
+    --red-bg: #fcebeb; --red-text: #a32d2d;
+    --purple-bg: #eeedfe; --purple-text: #534ab7;
+    --teal-bg: #e1f5ee; --teal-text: #0f6e56;
+    --coral-bg: #faece7; --coral-text: #993c1d;
+    --gray-bg: #f0f0ef; --gray-text: #57534e;
+    --nav-width: 200px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1917; --bg-secondary: #292524; --bg-tertiary: #1c1917;
+      --text-primary: #fafaf9; --text-secondary: #a8a29e; --text-tertiary: #78716c;
+      --border: rgba(250,250,249,0.12); --border-md: rgba(250,250,249,0.22);
+      --blue-bg: #0c3d6e; --blue-text: #93c5fd;
+      --green-bg: #14401a; --green-text: #86efac;
+      --amber-bg: #451a03; --amber-text: #fcd34d;
+      --red-bg: #450a0a; --red-text: #fca5a5;
+      --purple-bg: #2e1065; --purple-text: #c4b5fd;
+      --teal-bg: #042f2e; --teal-text: #5eead4;
+      --coral-bg: #431407; --coral-text: #fdba74;
+      --gray-bg: #292524; --gray-text: #a8a29e;
+    }
+  }
+  html { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); font-size: 16px; }
+  body { min-height: 100vh; }
 
+  /* ── LAYOUT ── */
+  .app { display: flex; min-height: 100vh; }
+  .nav { width: var(--nav-width); flex-shrink: 0; background: var(--bg); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .nav-logo { padding: 0 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
+  .nav-logo-title { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+  .nav-logo-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .nav-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 0 1.25rem; margin-bottom: 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 1.25rem; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; border-left: 2px solid transparent; }
+  .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .nav-item.active { color: var(--blue-text); background: var(--blue-bg); border-left-color: var(--blue-text); }
+  .nav-item i { font-size: 16px; flex-shrink: 0; }
+  .nav-bottom { margin-top: auto; padding: 1rem 1.25rem 0; border-top: 0.5px solid var(--border); }
+  .sync-status { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; }
+  .sync-dot.synced { background: var(--green-text); }
+  .sync-dot.syncing { background: var(--amber-text); animation: pulse 1s infinite; }
+  .sync-dot.error { background: var(--red-text); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .main { flex: 1; padding: 2rem 2.5rem 4rem; max-width: 1000px; }
+
+  /* ── TOP BAR ── */
+  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px; }
+  .top-bar h1 { font-size: 20px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em; }
+  .top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+  .top-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* ── STATS ── */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
+  .stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .stat-num { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1; }
+
+  /* ── FILTERS ── */
+  .filter-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .filter-search { flex: 1; min-width: 200px; padding: 8px 12px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-family: var(--font); font-size: 13px; outline: none; }
+  .filter-search:focus { border-color: var(--blue-text); }
+  .filter-btn { padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-secondary); font-size: 12px; font-family: var(--font); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .filter-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .filter-btn.active { border-color: transparent; font-weight: 500; }
+  .filter-btn.all.active { background: var(--gray-bg); color: var(--gray-text); }
+  .filter-btn.illustration.active { background: var(--blue-bg); color: var(--blue-text); }
+  .filter-btn.quote.active { background: var(--purple-bg); color: var(--purple-text); }
+  .filter-btn.story.active { background: var(--amber-bg); color: var(--amber-text); }
+
+  /* ── TAG FILTER ── */
+  .tag-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; align-items: center; }
+  .tag-filter-label { font-size: 11px; color: var(--text-tertiary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 2px; }
+  .tag-chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: var(--bg); border: 0.5px solid var(--border-md); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+  .tag-chip:hover { border-color: var(--blue-text); color: var(--blue-text); }
+  .tag-chip.active { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+
+  /* ── IDEA CARDS ── */
+  .ideas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .idea-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.15s; }
+  .idea-card:hover { border-color: var(--border-md); }
+  .idea-card.type-illustration { border-top: 2.5px solid var(--blue-text); }
+  .idea-card.type-quote { border-top: 2.5px solid var(--purple-text); }
+  .idea-card.type-story { border-top: 2.5px solid var(--amber-text); }
+  .idea-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .idea-type-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .type-illustration .idea-type-badge { background: var(--blue-bg); color: var(--blue-text); }
+  .type-quote .idea-type-badge { background: var(--purple-bg); color: var(--purple-text); }
+  .type-story .idea-type-badge { background: var(--amber-bg); color: var(--amber-text); }
+  .idea-actions { display: flex; gap: 4px; }
+  .idea-action-btn { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 14px; padding: 3px; border-radius: var(--radius-md); }
+  .idea-action-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .idea-action-btn.danger:hover { color: var(--red-text); }
+  .idea-content { font-size: 14px; color: var(--text-primary); line-height: 1.6; flex: 1; }
+  .type-quote .idea-content { font-style: italic; }
+  .idea-source { font-size: 12px; color: var(--text-tertiary); display: flex; align-items: center; gap: 4px; }
+  .idea-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .idea-tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; border: 0.5px solid var(--border); }
+  .idea-tag:hover { border-color: var(--blue-text); color: var(--blue-text); }
+  .idea-date { font-size: 11px; color: var(--text-tertiary); }
+
+  /* ── BUTTONS ── */
+  .btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+  .btn:hover { background: var(--bg-secondary); }
+  .btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+  .btn.primary:hover { opacity: 0.85; }
+  .btn.capture { background: var(--green-bg); color: var(--green-text); border-color: transparent; font-weight: 500; }
+  .btn.capture:hover { opacity: 0.85; }
+
+  /* ── EMPTY / LOADING ── */
+  .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-secondary); font-size: 14px; grid-column: 1/-1; }
+  .empty-state i { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.3; }
+  .loading-state { text-align: center; padding: 4rem 1rem; color: var(--text-secondary); font-size: 14px; }
+  .loading-state i { font-size: 32px; display: block; margin-bottom: 10px; opacity: 0.35; animation: spin 1s linear infinite; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .error-banner { background: var(--red-bg); color: var(--red-text); border: 0.5px solid var(--red-text); border-radius: var(--radius-md); padding: 10px 14px; font-size: 13px; margin-bottom: 1rem; display: none; }
+  .error-banner.show { display: block; }
+
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg); border-radius: var(--radius-xl); border: 0.5px solid var(--border-md); padding: 24px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 18px; color: var(--text-primary); }
+  .form-field { margin-bottom: 13px; }
+  .form-field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
+  .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 8px 11px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 14px; outline: none; transition: border-color 0.15s; resize: vertical; }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--blue-text); }
+  .form-field textarea { min-height: 100px; line-height: 1.5; }
+
+  /* Type selector */
+  .type-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .type-option { padding: 10px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); text-align: center; cursor: pointer; transition: all 0.15s; }
+  .type-option:hover { border-color: var(--blue-text); }
+  .type-option.selected-illustration { border-color: var(--blue-text); background: var(--blue-bg); }
+  .type-option.selected-quote { border-color: var(--purple-text); background: var(--purple-bg); }
+  .type-option.selected-story { border-color: var(--amber-text); background: var(--amber-bg); }
+  .type-option-icon { font-size: 20px; margin-bottom: 4px; }
+  .type-option-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+  .type-option.selected-illustration .type-option-label { color: var(--blue-text); }
+  .type-option.selected-quote .type-option-label { color: var(--purple-text); }
+  .type-option.selected-story .type-option-label { color: var(--amber-text); }
+
+  /* Tag picker */
+  .tag-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag-pick { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: var(--bg); border: 0.5px solid var(--border-md); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+  .tag-pick:hover { border-color: var(--blue-text); color: var(--blue-text); }
+  .tag-pick.selected { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+  .custom-tag-row { display: flex; gap: 6px; margin-top: 6px; }
+  .custom-tag-row input { flex: 1; }
+  .custom-tag-row button { padding: 7px 12px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-secondary); cursor: pointer; font-family: var(--font); font-size: 12px; white-space: nowrap; }
+  .custom-tag-row button:hover { background: var(--bg-secondary); }
+
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+  .action-btn { font-size: 12px; padding: 6px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: transparent; color: var(--text-primary); font-family: var(--font); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .action-btn:hover { background: var(--bg-secondary); }
+  .action-btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+
+  @media (max-width: 768px) { .nav { display: none; } .main { padding: 1rem 1rem 3rem; } .stats { grid-template-columns: repeat(2,1fr); } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- LEFT NAV -->
+  <nav class="nav">
+    <div class="nav-logo">
+      <div class="nav-logo-title">Sermon Prep</div>
+      <div class="nav-logo-sub" id="nav-date"></div>
+    </div>
+    <div class="nav-section-label" style="margin-bottom:8px;">Pages</div>
+    <a class="nav-item" href="/index.html">
+      <i class="ti ti-layout-dashboard"></i> Dashboard
+    </a>
+    <a class="nav-item active" href="/ideas.html">
+      <i class="ti ti-bulb"></i> Ideas
+    </a>
+    <div class="nav-bottom">
+      <div class="sync-status">
+        <div class="sync-dot" id="sync-dot"></div>
+        <span id="sync-label">Loading...</span>
+      </div>
+      <button class="btn" style="width:100%;justify-content:center;font-size:12px;" onclick="loadIdeas()">
+        <i class="ti ti-refresh"></i> Refresh
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="top-bar">
+      <div>
+        <h1>Ideas</h1>
+        <div class="subtitle">Illustrations, quotes & stories for your sermons</div>
+      </div>
+      <div class="top-actions">
+        <button class="btn capture" onclick="openCapture()"><i class="ti ti-plus"></i> Capture idea</button>
+      </div>
+    </div>
+
+    <div class="error-banner" id="error-banner"></div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Total ideas</div><div class="stat-num" id="stat-total">—</div></div>
+      <div class="stat"><div class="stat-label">Illustrations</div><div class="stat-num" id="stat-illustrations" style="color:var(--blue-text)">—</div></div>
+      <div class="stat"><div class="stat-label">Quotes</div><div class="stat-num" id="stat-quotes" style="color:var(--purple-text)">—</div></div>
+      <div class="stat"><div class="stat-label">Stories</div><div class="stat-num" id="stat-stories" style="color:var(--amber-text)">—</div></div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-bar">
+      <input class="filter-search" type="text" id="search-input" placeholder="Search ideas..." oninput="renderIdeas()" />
+      <button class="filter-btn all active" id="filter-all" onclick="setTypeFilter('all')">All</button>
+      <button class="filter-btn illustration" id="filter-illustration" onclick="setTypeFilter('illustration')"><i class="ti ti-photo"></i> Illustrations</button>
+      <button class="filter-btn quote" id="filter-quote" onclick="setTypeFilter('quote')"><i class="ti ti-quote"></i> Quotes</button>
+      <button class="filter-btn story" id="filter-story" onclick="setTypeFilter('story')"><i class="ti ti-book"></i> Stories</button>
+    </div>
+
+    <div class="tag-filter" id="tag-filter"></div>
+
+    <div class="ideas-grid" id="ideas-grid">
+      <div class="loading-state"><i class="ti ti-loader"></i>Loading your ideas...</div>
+    </div>
+  </main>
+</div>
+
+<!-- CAPTURE MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Capture idea</h2>
+
+    <div class="form-field">
+      <label>Type</label>
+      <div class="type-selector">
+        <div class="type-option" id="type-illustration" onclick="selectType('illustration')">
+          <div class="type-option-icon">🖼</div>
+          <div class="type-option-label">Illustration</div>
+        </div>
+        <div class="type-option" id="type-quote" onclick="selectType('quote')">
+          <div class="type-option-icon">💬</div>
+          <div class="type-option-label">Quote</div>
+        </div>
+        <div class="type-option" id="type-story" onclick="selectType('story')">
+          <div class="type-option-icon">📖</div>
+          <div class="type-option-label">Story</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label id="content-label">Content</label>
+      <textarea id="f-content" placeholder="Write your idea here..." rows="4"></textarea>
+    </div>
+
+    <div class="form-field">
+      <label>Source <span style="color:var(--text-tertiary);font-weight:400;">(optional)</span></label>
+      <input type="text" id="f-source" placeholder="e.g. Tim Keller, The Prodigal God, p.42" />
+    </div>
+
+    <div class="form-field">
+      <label>Tags</label>
+      <div class="tag-picker" id="tag-picker"></div>
+      <div class="custom-tag-row">
+        <input type="text" id="custom-tag-input" placeholder="Add custom tag..." onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomTag();}" />
+        <button onclick="addCustomTag()">+ Add</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="action-btn" onclick="closeModal()">Cancel</button>
+      <button class="action-btn primary" id="save-btn" onclick="saveIdea()">Save idea</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiyNYEPE58ym5RBrgOd5IszBMfk7X-ykJ306KqPHD3twEVZSm08_13j3z5aFiYmn-f/exec';
+
+const PRESET_TAGS = [
+  'Grace','Suffering','Faith','Hope','Prayer','Family','Culture',
+  'Money','Identity','Leadership','Community','Mission','Doubt',
+  'Forgiveness','Holy Spirit','Heaven','Sin','Redemption','Love','Joy'
+];
+
+let allIdeas = [];
+let activeTypeFilter = 'all';
+let activeTagFilter = null;
+let selectedType = 'illustration';
+let selectedTags = new Set();
+let editingId = null;
+let customTags = new Set();
+
+function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+function formatDateShort(str) {
+  if (!str) return '';
+  const d = new Date(str);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+// ── SYNC ─────────────────────────────────────────────────────────────────────
+function setSyncStatus(state, label) {
+  document.getElementById('sync-dot').className = 'sync-dot '+state;
+  document.getElementById('sync-label').textContent = label;
+}
+function showError(msg) { const el=document.getElementById('error-banner'); el.textContent=msg; el.classList.add('show'); }
+function hideError() { document.getElementById('error-banner').classList.remove('show'); }
+
+async function loadIdeas() {
+  setSyncStatus('syncing','Loading...');
+  document.getElementById('ideas-grid').innerHTML = `<div class="loading-state"><i class="ti ti-loader"></i>Loading your ideas...</div>`;
+  try {
+    const res = await fetch(SCRIPT_URL+'?type=ideas');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    allIdeas = (data.ideas||[]).filter(i=>i.id);
+    // Collect all custom tags
+    allIdeas.forEach(idea => {
+      if (idea.tags) idea.tags.split(',').map(t=>t.trim()).filter(Boolean).forEach(t => {
+        if (!PRESET_TAGS.includes(t)) customTags.add(t);
+      });
+    });
+    hideError();
+    setSyncStatus('synced','Synced');
+    updateStats();
+    renderTagFilter();
+    renderIdeas();
+  } catch(e) {
+    setSyncStatus('error','Error');
+    showError('Could not load ideas. '+e.message);
+    document.getElementById('ideas-grid').innerHTML = `<div class="empty-state"><i class="ti ti-alert-circle"></i>Could not load data.</div>`;
+  }
+}
+
+async function writeIdeas() {
+  setSyncStatus('syncing','Saving...');
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method:'POST',
+      body: JSON.stringify({type:'ideas', data:allIdeas})
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    setSyncStatus('synced','Saved ✓');
+    hideError();
+  } catch(e) {
+    setSyncStatus('error','Save failed');
+    showError('Could not save: '+e.message);
+  }
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('stat-total').textContent = allIdeas.length;
+  document.getElementById('stat-illustrations').textContent = allIdeas.filter(i=>i.type==='illustration').length;
+  document.getElementById('stat-quotes').textContent = allIdeas.filter(i=>i.type==='quote').length;
+  document.getElementById('stat-stories').textContent = allIdeas.filter(i=>i.type==='story').length;
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+function setTypeFilter(type) {
+  activeTypeFilter = type;
+  ['all','illustration','quote','story'].forEach(t => {
+    const btn = document.getElementById('filter-'+t);
+    if (btn) btn.classList.toggle('active', t===type);
+  });
+  renderIdeas();
+}
+
+function setTagFilter(tag) {
+  activeTagFilter = activeTagFilter===tag ? null : tag;
+  renderTagFilter();
+  renderIdeas();
+}
+
+function getAllTags() {
+  const tags = new Set();
+  allIdeas.forEach(idea => {
+    if (idea.tags) idea.tags.split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>tags.add(t));
+  });
+  return [...tags].sort();
+}
+
+function renderTagFilter() {
+  const tags = getAllTags();
+  const el = document.getElementById('tag-filter');
+  if (tags.length===0) { el.innerHTML=''; return; }
+  el.innerHTML = `<span class="tag-filter-label">Tags:</span>` +
+    tags.map(tag => `<span class="tag-chip ${activeTagFilter===tag?'active':''}" onclick="setTagFilter('${tag}')">${tag}</span>`).join('');
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderIdeas() {
+  const search = document.getElementById('search-input').value.toLowerCase().trim();
+  let filtered = allIdeas.filter(idea => {
+    if (activeTypeFilter!=='all' && idea.type!==activeTypeFilter) return false;
+    if (activeTagFilter) {
+      const tags = idea.tags ? idea.tags.split(',').map(t=>t.trim()) : [];
+      if (!tags.includes(activeTagFilter)) return false;
+    }
+    if (search) {
+      const haystack = `${idea.content} ${idea.source} ${idea.tags}`.toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+
+  // Sort newest first
+  filtered.sort((a,b) => b.created.localeCompare(a.created));
+
+  const grid = document.getElementById('ideas-grid');
+  if (filtered.length===0) {
+    grid.innerHTML = `<div class="empty-state"><i class="ti ti-bulb"></i>${allIdeas.length===0?'No ideas yet — hit "Capture idea" to get started.':'No ideas match your filters.'}</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(idea => {
+    const tags = idea.tags ? idea.tags.split(',').map(t=>t.trim()).filter(Boolean) : [];
+    const typeLabel = idea.type==='illustration'?'Illustration':idea.type==='quote'?'Quote':'Story';
+    return `<div class="idea-card type-${idea.type}">
+      <div class="idea-top">
+        <span class="idea-type-badge">${typeLabel}</span>
+        <div class="idea-actions">
+          <button class="idea-action-btn" onclick="openEdit('${idea.id}')" title="Edit"><i class="ti ti-edit"></i></button>
+          <button class="idea-action-btn danger" onclick="deleteIdea('${idea.id}')" title="Delete"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      <div class="idea-content">${idea.type==='quote'?`"${idea.content}"`:idea.content}</div>
+      ${idea.source?`<div class="idea-source"><i class="ti ti-book-2"></i>${idea.source}</div>`:''}
+      ${tags.length>0?`<div class="idea-tags">${tags.map(t=>`<span class="idea-tag" onclick="setTagFilter('${t}')">${t}</span>`).join('')}</div>`:''}
+      <div class="idea-date">${formatDateShort(idea.created)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function selectType(type) {
+  selectedType = type;
+  ['illustration','quote','story'].forEach(t => {
+    const el = document.getElementById('type-'+t);
+    el.className = 'type-option'+(type===t?` selected-${t}`:'');
+  });
+  const labels = {illustration:'Illustration or example',quote:'Quote',story:'Story or experience'};
+  document.getElementById('content-label').textContent = labels[type]||'Content';
+  const placeholders = {
+    illustration:'Describe the illustration or example...',
+    quote:'Type the quote here...',
+    story:'Tell the story...'
+  };
+  document.getElementById('f-content').placeholder = placeholders[type]||'Write your idea here...';
+}
+
+function renderTagPicker() {
+  const allTags = [...new Set([...PRESET_TAGS, ...customTags])].sort();
+  document.getElementById('tag-picker').innerHTML = allTags.map(tag =>
+    `<span class="tag-pick ${selectedTags.has(tag)?'selected':''}" onclick="toggleTag('${tag}')">${tag}</span>`
+  ).join('');
+}
+
+function toggleTag(tag) {
+  if (selectedTags.has(tag)) selectedTags.delete(tag);
+  else selectedTags.add(tag);
+  renderTagPicker();
+}
+
+function addCustomTag() {
+  const input = document.getElementById('custom-tag-input');
+  const tag = input.value.trim();
+  if (!tag) return;
+  customTags.add(tag);
+  selectedTags.add(tag);
+  input.value = '';
+  renderTagPicker();
+}
+
+function openCapture() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Capture idea';
+  document.getElementById('f-content').value = '';
+  document.getElementById('f-source').value = '';
+  document.getElementById('custom-tag-input').value = '';
+  selectedTags = new Set();
+  selectType('illustration');
+  renderTagPicker();
+  document.getElementById('modal').classList.add('open');
+}
+
+function openEdit(id) {
+  const idea = allIdeas.find(i=>i.id===id);
+  if (!idea) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Edit idea';
+  document.getElementById('f-content').value = idea.content||'';
+  document.getElementById('f-source').value = idea.source||'';
+  selectedTags = new Set(idea.tags ? idea.tags.split(',').map(t=>t.trim()).filter(Boolean) : []);
+  selectType(idea.type||'illustration');
+  renderTagPicker();
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+async function saveIdea() {
+  const content = document.getElementById('f-content').value.trim();
+  if (!content) { alert('Please enter some content.'); return; }
+  const btn = document.getElementById('save-btn');
+  btn.textContent='Saving...'; btn.disabled=true;
+  const source = document.getElementById('f-source').value.trim();
+  const tags = [...selectedTags].join(',');
+  if (editingId) {
+    const idea = allIdeas.find(i=>i.id===editingId);
+    if (idea) { idea.type=selectedType; idea.content=content; idea.source=source; idea.tags=tags; }
+  } else {
+    allIdeas.push({
+      id: 'i'+Date.now(),
+      type: selectedType,
+      content,
+      source,
+      tags,
+      created: new Date().toISOString().split('T')[0]
+    });
+  }
+  await writeIdeas();
+  updateStats();
+  renderTagFilter();
+  renderIdeas();
+  closeModal();
+  btn.textContent='Save idea'; btn.disabled=false;
+}
+
+async function deleteIdea(id) {
+  if (!confirm('Delete this idea?')) return;
+  allIdeas = allIdeas.filter(i=>i.id!==id);
+  await writeIdeas();
+  updateStats();
+  renderTagFilter();
+  renderIdeas();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('nav-date').textContent = today().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+loadIdeas();
+</script>
+</body>
+</html>
