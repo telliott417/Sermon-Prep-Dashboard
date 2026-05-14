@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ideas — Sermon Prep</title>
+<title>Color — Sermon Prep</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,9 +41,10 @@
   html { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); font-size: 16px; }
   body { min-height: 100vh; }
 
-  /* ── LAYOUT ── */
   .app { display: flex; min-height: 100vh; }
-  .nav { width: var(--nav-width); flex-shrink: 0; background: var(--bg); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+
+  /* ── NAV ── */
+  .nav { width: var(--nav-width); flex-shrink: 0; background: var(--bg); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 100; transition: transform 0.25s ease; }
   .nav-logo { padding: 0 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
   .nav-logo-title { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
   .nav-logo-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
@@ -59,6 +60,13 @@
   .sync-dot.syncing { background: var(--amber-text); animation: pulse 1s infinite; }
   .sync-dot.error { background: var(--red-text); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ── MOBILE TOP BAR ── */
+  .mobile-topbar { display: none; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-bottom: 0.5px solid var(--border); position: sticky; top: 0; z-index: 50; }
+  .mobile-topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
+  .hamburger { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 6px 8px; cursor: pointer; color: var(--text-primary); font-size: 18px; display: flex; align-items: center; }
+  .nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+  .nav-overlay.open { display: block; }
 
   .main { flex: 1; padding: 2rem 2.5rem 4rem; max-width: 1000px; }
 
@@ -122,7 +130,7 @@
   .btn:hover { background: var(--bg-secondary); }
   .btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
   .btn.primary:hover { opacity: 0.85; }
-  .btn.capture { background: var(--green-bg); color: var(--green-text); border-color: transparent; font-weight: 500; }
+  .btn.capture { background: var(--purple-bg); color: var(--purple-text); border-color: transparent; font-weight: 500; }
   .btn.capture:hover { opacity: 0.85; }
 
   /* ── EMPTY / LOADING ── */
@@ -145,7 +153,6 @@
   .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--blue-text); }
   .form-field textarea { min-height: 100px; line-height: 1.5; }
 
-  /* Type selector */
   .type-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .type-option { padding: 10px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); text-align: center; cursor: pointer; transition: all 0.15s; }
   .type-option:hover { border-color: var(--blue-text); }
@@ -158,7 +165,6 @@
   .type-option.selected-quote .type-option-label { color: var(--purple-text); }
   .type-option.selected-story .type-option-label { color: var(--amber-text); }
 
-  /* Tag picker */
   .tag-picker { display: flex; gap: 6px; flex-wrap: wrap; }
   .tag-pick { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: var(--bg); border: 0.5px solid var(--border-md); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
   .tag-pick:hover { border-color: var(--blue-text); color: var(--blue-text); }
@@ -173,14 +179,24 @@
   .action-btn:hover { background: var(--bg-secondary); }
   .action-btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
 
-  @media (max-width: 768px) { .nav { display: none; } .main { padding: 1rem 1rem 3rem; } .stats { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 768px) {
+    .nav { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); z-index: 250; height: 100vh; }
+    .nav.open { transform: translateX(0); }
+    .mobile-topbar { display: flex; }
+    .top-bar { display: none; }
+    .main { padding: 1rem 1rem 4rem; }
+    .stats { grid-template-columns: repeat(2,1fr); }
+    .ideas-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 <div class="app">
 
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+
   <!-- LEFT NAV -->
-  <nav class="nav">
+  <nav class="nav" id="main-nav">
     <div class="nav-logo">
       <div class="nav-logo-title">Sermon Prep</div>
       <div class="nav-logo-sub" id="nav-date"></div>
@@ -189,8 +205,8 @@
     <a class="nav-item" href="/index.html">
       <i class="ti ti-layout-dashboard"></i> Dashboard
     </a>
-    <a class="nav-item active" href="/ideas.html">
-      <i class="ti ti-bulb"></i> Ideas
+    <a class="nav-item active" href="/color.html">
+      🎨 Color
     </a>
     <div class="nav-bottom">
       <div class="sync-status">
@@ -203,11 +219,18 @@
     </div>
   </nav>
 
+  <!-- MOBILE TOP BAR -->
+  <div class="mobile-topbar">
+    <button class="hamburger" onclick="openNav()"><i class="ti ti-menu-2"></i></button>
+    <h1>🎨 Color</h1>
+    <button class="btn capture" style="font-size:12px;padding:6px 10px;" onclick="openCapture()"><i class="ti ti-plus"></i> Capture</button>
+  </div>
+
   <!-- MAIN -->
   <main class="main">
     <div class="top-bar">
       <div>
-        <h1>Ideas</h1>
+        <h1>🎨 Color</h1>
         <div class="subtitle">Illustrations, quotes & stories for your sermons</div>
       </div>
       <div class="top-actions">
@@ -218,15 +241,14 @@
     <div class="error-banner" id="error-banner"></div>
 
     <div class="stats">
-      <div class="stat"><div class="stat-label">Total ideas</div><div class="stat-num" id="stat-total">—</div></div>
+      <div class="stat"><div class="stat-label">Total</div><div class="stat-num" id="stat-total">—</div></div>
       <div class="stat"><div class="stat-label">Illustrations</div><div class="stat-num" id="stat-illustrations" style="color:var(--blue-text)">—</div></div>
       <div class="stat"><div class="stat-label">Quotes</div><div class="stat-num" id="stat-quotes" style="color:var(--purple-text)">—</div></div>
       <div class="stat"><div class="stat-label">Stories</div><div class="stat-num" id="stat-stories" style="color:var(--amber-text)">—</div></div>
     </div>
 
-    <!-- FILTERS -->
     <div class="filter-bar">
-      <input class="filter-search" type="text" id="search-input" placeholder="Search ideas..." oninput="renderIdeas()" />
+      <input class="filter-search" type="text" id="search-input" placeholder="Search..." oninput="renderIdeas()" />
       <button class="filter-btn all active" id="filter-all" onclick="setTypeFilter('all')">All</button>
       <button class="filter-btn illustration" id="filter-illustration" onclick="setTypeFilter('illustration')"><i class="ti ti-photo"></i> Illustrations</button>
       <button class="filter-btn quote" id="filter-quote" onclick="setTypeFilter('quote')"><i class="ti ti-quote"></i> Quotes</button>
@@ -234,9 +256,8 @@
     </div>
 
     <div class="tag-filter" id="tag-filter"></div>
-
     <div class="ideas-grid" id="ideas-grid">
-      <div class="loading-state"><i class="ti ti-loader"></i>Loading your ideas...</div>
+      <div class="loading-state"><i class="ti ti-loader"></i>Loading your color...</div>
     </div>
   </main>
 </div>
@@ -245,7 +266,6 @@
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h2 id="modal-title">Capture idea</h2>
-
     <div class="form-field">
       <label>Type</label>
       <div class="type-selector">
@@ -263,17 +283,14 @@
         </div>
       </div>
     </div>
-
     <div class="form-field">
       <label id="content-label">Content</label>
       <textarea id="f-content" placeholder="Write your idea here..." rows="4"></textarea>
     </div>
-
     <div class="form-field">
       <label>Source <span style="color:var(--text-tertiary);font-weight:400;">(optional)</span></label>
       <input type="text" id="f-source" placeholder="e.g. Tim Keller, The Prodigal God, p.42" />
     </div>
-
     <div class="form-field">
       <label>Tags</label>
       <div class="tag-picker" id="tag-picker"></div>
@@ -282,7 +299,6 @@
         <button onclick="addCustomTag()">+ Add</button>
       </div>
     </div>
-
     <div class="modal-actions">
       <button class="action-btn" onclick="closeModal()">Cancel</button>
       <button class="action-btn primary" id="save-btn" onclick="saveIdea()">Save idea</button>
@@ -307,6 +323,18 @@ let selectedTags = new Set();
 let editingId = null;
 let customTags = new Set();
 
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function openNav() {
+  document.getElementById('main-nav').classList.add('open');
+  document.getElementById('nav-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeNav() {
+  document.getElementById('main-nav').classList.remove('open');
+  document.getElementById('nav-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
 function formatDateShort(str) {
   if (!str) return '';
@@ -314,7 +342,6 @@ function formatDateShort(str) {
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 }
 
-// ── SYNC ─────────────────────────────────────────────────────────────────────
 function setSyncStatus(state, label) {
   document.getElementById('sync-dot').className = 'sync-dot '+state;
   document.getElementById('sync-label').textContent = label;
@@ -324,13 +351,12 @@ function hideError() { document.getElementById('error-banner').classList.remove(
 
 async function loadIdeas() {
   setSyncStatus('syncing','Loading...');
-  document.getElementById('ideas-grid').innerHTML = `<div class="loading-state"><i class="ti ti-loader"></i>Loading your ideas...</div>`;
+  document.getElementById('ideas-grid').innerHTML = `<div class="loading-state"><i class="ti ti-loader"></i>Loading your color...</div>`;
   try {
     const res = await fetch(SCRIPT_URL+'?type=ideas');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     allIdeas = (data.ideas||[]).filter(i=>i.id);
-    // Collect all custom tags
     allIdeas.forEach(idea => {
       if (idea.tags) idea.tags.split(',').map(t=>t.trim()).filter(Boolean).forEach(t => {
         if (!PRESET_TAGS.includes(t)) customTags.add(t);
@@ -364,7 +390,6 @@ async function writeIdeas() {
   }
 }
 
-// ── STATS ─────────────────────────────────────────────────────────────────────
 function updateStats() {
   document.getElementById('stat-total').textContent = allIdeas.length;
   document.getElementById('stat-illustrations').textContent = allIdeas.filter(i=>i.type==='illustration').length;
@@ -372,7 +397,6 @@ function updateStats() {
   document.getElementById('stat-stories').textContent = allIdeas.filter(i=>i.type==='story').length;
 }
 
-// ── FILTERS ───────────────────────────────────────────────────────────────────
 function setTypeFilter(type) {
   activeTypeFilter = type;
   ['all','illustration','quote','story'].forEach(t => {
@@ -404,7 +428,6 @@ function renderTagFilter() {
     tags.map(tag => `<span class="tag-chip ${activeTagFilter===tag?'active':''}" onclick="setTagFilter('${tag}')">${tag}</span>`).join('');
 }
 
-// ── RENDER ────────────────────────────────────────────────────────────────────
 function renderIdeas() {
   const search = document.getElementById('search-input').value.toLowerCase().trim();
   let filtered = allIdeas.filter(idea => {
@@ -419,16 +442,12 @@ function renderIdeas() {
     }
     return true;
   });
-
-  // Sort newest first
   filtered.sort((a,b) => b.created.localeCompare(a.created));
-
   const grid = document.getElementById('ideas-grid');
   if (filtered.length===0) {
-    grid.innerHTML = `<div class="empty-state"><i class="ti ti-bulb"></i>${allIdeas.length===0?'No ideas yet — hit "Capture idea" to get started.':'No ideas match your filters.'}</div>`;
+    grid.innerHTML = `<div class="empty-state"><i class="ti ti-palette"></i>${allIdeas.length===0?'No color yet — hit "Capture idea" to get started.':'No ideas match your filters.'}</div>`;
     return;
   }
-
   grid.innerHTML = filtered.map(idea => {
     const tags = idea.tags ? idea.tags.split(',').map(t=>t.trim()).filter(Boolean) : [];
     const typeLabel = idea.type==='illustration'?'Illustration':idea.type==='quote'?'Quote':'Story';
@@ -448,7 +467,6 @@ function renderIdeas() {
   }).join('');
 }
 
-// ── MODAL ─────────────────────────────────────────────────────────────────────
 function selectType(type) {
   selectedType = type;
   ['illustration','quote','story'].forEach(t => {
@@ -552,10 +570,17 @@ async function deleteIdea(id) {
   renderIdeas();
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeNav();closeModal();}});
+
 document.getElementById('nav-date').textContent = today().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-loadIdeas();
+
+// Auto-open capture form if redirected from dashboard
+const params = new URLSearchParams(window.location.search);
+
+loadIdeas().then(() => {
+  if (params.get('capture')==='1') openCapture();
+});
 </script>
 </body>
 </html>
