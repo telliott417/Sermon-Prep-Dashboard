@@ -237,7 +237,7 @@
         <div class="subtitle">Illustrations, quotes & stories for your sermons</div>
       </div>
       <div class="top-actions">
-        <button class="btn capture" onclick="openCapture()"><i class="ti ti-plus"></i> Capture idea</button>
+        <button class="btn capture" onclick="openCapture()"><i class="ti ti-plus"></i> Add Color</button>
       </div>
     </div>
 
@@ -268,7 +268,7 @@
 <!-- CAPTURE MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
-    <h2 id="modal-title">Capture idea</h2>
+    <h2 id="modal-title">Add Color</h2>
     <div class="form-field">
       <label>Type</label>
       <div class="type-selector">
@@ -448,7 +448,7 @@ function renderIdeas() {
   filtered.sort((a,b) => b.created.localeCompare(a.created));
   const grid = document.getElementById('ideas-grid');
   if (filtered.length===0) {
-    grid.innerHTML = `<div class="empty-state"><i class="ti ti-palette"></i>${allIdeas.length===0?'No color yet — hit "Capture idea" to get started.':'No ideas match your filters.'}</div>`;
+    grid.innerHTML = `<div class="empty-state"><i class="ti ti-palette"></i>${allIdeas.length===0?'No color yet — hit "Add Color" to get started.':'No ideas match your filters.'}</div>`;
     return;
   }
   grid.innerHTML = filtered.map(idea => {
@@ -511,7 +511,7 @@ function addCustomTag() {
 
 function openCapture() {
   editingId = null;
-  document.getElementById('modal-title').textContent = 'Capture idea';
+  document.getElementById('modal-title').textContent = 'Add Color';
   document.getElementById('f-content').value = '';
   document.getElementById('f-source').value = '';
   document.getElementById('custom-tag-input').value = '';
