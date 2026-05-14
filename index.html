@@ -272,18 +272,21 @@
   @media (max-width: 1400px) { :root { --right-width: 300px; } }
   @media (max-width: 1200px) { .sidebar { display: none; } .main { max-width: 100%; flex: 1; } }
 
-  @media (max-width: 768px) {
+ @media (max-width: 768px) {
     .nav {
       position: fixed;
       left: 0; top: 0; bottom: 0;
+      width: var(--nav-width);
       transform: translateX(-100%);
       z-index: 250;
       height: 100vh;
     }
     .nav.open { transform: translateX(0); }
     .mobile-topbar { display: flex; }
-    .main-wrap { flex-direction: column; }
-    .main { padding: 1rem 1rem 5rem; max-width: 100%; flex: 1; }
+    .app { display: block; }
+    .main-wrap { display: block; width: 100%; }
+    .main { padding: 1rem 1rem 5rem; max-width: 100%; width: 100%; }
+    .sidebar { display: none; }
     .top-bar { display: none; }
     .stats { grid-template-columns: repeat(2, 1fr); }
     .mobile-section { display: block; }
