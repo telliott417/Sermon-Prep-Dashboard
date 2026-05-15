@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Migrate Data</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 560px; margin: 2rem auto; padding: 1rem; background: #fafaf9; }
+  h2 { font-size: 18px; margin-bottom: 6px; }
+  p { font-size: 13px; color: #78716c; margin-bottom: 1.5rem; line-height: 1.6; }
+  button { padding: 10px 20px; margin: 6px 4px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-family: inherit; }
+  .btn-google { background: #4285f4; color: white; }
+  .btn-migrate { background: #eaf3de; color: #3b6d11; font-weight: 600; }
+  .btn-migrate:disabled { opacity: 0.5; cursor: not-allowed; }
+  .status { margin: 8px 0; padding: 10px 14px; border-radius: 8px; background: #f0f0ef; font-size: 13px; line-height: 1.5; }
+  .success { background: #eaf3de; color: #3b6d11; }
+  .error { background: #fcebeb; color: #a32d2d; }
+  .info { background: #e6f1fb; color: #185fa5; }
+  #migrate-btn { display: none; }
+</style>
+</head>
+<body>
+
+<h2>📦 Migrate sermons to Firebase</h2>
+<p>This page reads your sermons from Google Sheets and copies them into Firestore. Run it once. Your existing data will not be deleted from Google Sheets — this is a copy operation only.</p>
+
+<div id="auth-section">
+  <button class="btn-google" onclick="signIn()">Sign in with Google first</button>
+</div>
+
+<button class="btn-migrate" id="migrate-btn" onclick="migrate()">Start migration</button>
+
+<div id="log"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiyNYEPE58ym5RBrgOd5IszBMfk7X-ykJ306KqPHD3twEVZSm08_13j3z5aFiYmn-f/exec';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
+  authDomain: "sermon-prep-dashboard.firebaseapp.com",
+  projectId: "sermon-prep-dashboard",
+  storageBucket: "sermon-prep-dashboard.firebasestorage.app",
+  messagingSenderId: "769289223341",
+  appId: "1:769289223341:web:3dc1d53e57d96b3c55da24"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+let currentUser = null;
+
+function log(msg, type='') {
+  const el = document.getElementById('log');
+  el.innerHTML += `<div class="status ${type}">${msg}</div>`;
+}
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('auth-section').innerHTML = `<div class="status success">✓ Signed in as ${user.displayName}</div>`;
+    document.getElementById('migrate-btn').style.display = 'inline-block';
+  }
+});
+
+window.signIn = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch(e) {
+    log('Sign-in failed: ' + e.message, 'error');
+  }
+};
+
+window.migrate = async () => {
+  const btn = document.getElementById('migrate-btn');
+  btn.disabled = true;
+  btn.textContent = 'Migrating...';
+  log('Fetching sermons from Google Sheets...', 'info');
+
+  try {
+    // Fetch from Google Sheets
+    const res = await fetch(SCRIPT_URL);
+    if (!res.ok) throw new Error(`Sheets fetch failed: HTTP ${res.status}`);
+    const data = await res.json();
+    const sermons = (data.data || []).filter(s => s.id && s.date).map(s => ({
+      ...s,
+      date: s.date.includes('T') ? s.date.split('T')[0] : s.date,
+      context: s.context || '',
+      doc: s.doc || ''
+    }));
+
+    log(`Found ${sermons.length} sermon(s) in Google Sheets.`, 'info');
+
+    if (sermons.length === 0) {
+      log('No sermons found to migrate.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Start migration';
+      return;
+    }
+
+    // Write each sermon to Firestore
+    let count = 0;
+    for (const sermon of sermons) {
+      await setDoc(doc(db, 'users', currentUser.uid, 'sermons', sermon.id), sermon);
+      count++;
+      log(`✓ Migrated: ${sermon.title}`, 'success');
+    }
+
+    log(`🎉 Done! ${count} sermon(s) migrated to Firestore.`, 'success');
+    log('You can now close this page and delete migrate.html from GitHub.', 'info');
+    btn.textContent = 'Migration complete!';
+
+  } catch(e) {
+    log('Migration failed: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Try again';
+  }
+};
+</script>
+</body>
+</html>
