@@ -8,8 +8,8 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
-
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+  
 const firebaseConfig = {
   apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
   authDomain: "sermon-prep-dashboard.firebaseapp.com",
@@ -453,28 +453,16 @@ let currentUser = null;
     <div class="form-field"><label>Context</label>
       <div class="context-row">
         <select id="f-context-select" onchange="handleContextSelect()">
-          <option value="">— Select —</option>
-          <option value="Salt">Salt</option>
-          <option value="Candeo">Candeo</option>
-          <option value="other">Other...</option>
-        </select>
+  <option value="">— Select —</option>
+</select>
         <input type="text" id="f-context-other" placeholder="Type context..." style="display:none;" />
       </div>
     </div>
     <div class="form-field"><label>Sermon date</label><input type="date" id="f-date" /></div>
     <div class="form-field"><label>Google Docs link (optional)</label><input type="url" id="f-doc" placeholder="https://docs.google.com/..." /></div>
     <div class="form-field"><label>Current status</label>
-      <select id="f-status">
-        <option value="not-started">Not yet started</option>
-        <option value="study">Study</option>
-        <option value="idea">Main idea</option>
-        <option value="outline">Outline</option>
-        <option value="draft">Draft</option>
-        <option value="final">Final</option>
-        <option value="run">Run-through</option>
-        <option value="completed">Completed</option>
-      </select>
-    </div>
+  <select id="f-status"></select>
+</div>
     <div class="modal-actions">
       <button class="action-btn" onclick="closeModal()">Cancel</button>
       <button class="action-btn primary" id="save-btn" onclick="saveSermon()">Save sermon</button>
@@ -625,7 +613,22 @@ function isActive(s) {
   if (s.status!=='not-started') return true;
   return daysUntil(parseDate(s.date)) <= 21;
 }
-
+// ── USER SETTINGS ─────────────────────────────────────────────────────────────
+async function loadUserSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'settings'));
+    if (snap.exists()) {
+      const s = snap.data();
+      buildStagesFromSettings(s.stages);
+      if (s.contexts && s.contexts.length > 0) userContexts = s.contexts;
+    } else {
+      buildStagesFromSettings(DEFAULT_STAGES);
+    }
+  } catch(e) {
+    console.error('Could not load settings:', e);
+    buildStagesFromSettings(DEFAULT_STAGES);
+  }
+}
 // ── SYNC ─────────────────────────────────────────────────────────────────────
 function setSyncStatus(state, label) {
   document.getElementById('sync-dot').className = 'sync-dot '+state;
@@ -1014,11 +1017,21 @@ function setContextValue(val) {
   if (val==='Salt'||val==='Candeo'){sel.value=val;other.style.display='none';}
   else{sel.value='other';other.style.display='block';other.value=val;}
 }
+function buildContextOptions() {
+  const sel = document.getElementById('f-context-select');
+  sel.innerHTML = '<option value="">— Select —</option>' +
+    userContexts.map(c => `<option value="${c}">${c}</option>`).join('') +
+    '<option value="other">Other...</option>';
+  const statusSel = document.getElementById('f-status');
+  statusSel.innerHTML = STATUS_ORDER.map(k => `<option value="${k}">${STATUS_LABELS[k]}</option>`).join('');
+}
+
 window.openAdd = function() {
   editingId=null;
   document.getElementById('modal-title').textContent='Add sermon';
   ['f-title','f-text','f-series','f-date','f-doc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-status').value='not-started';
+  buildContextOptions();
   setContextValue('');
   document.getElementById('modal').classList.add('open');
 };
@@ -1026,6 +1039,7 @@ window.openEdit = function(id) {
   const s=allSermons.find(x=>x.id===id);
   if (!s) return;
   editingId=id;
+  buildContextOptions();
   document.getElementById('modal-title').textContent='Edit sermon';
   document.getElementById('f-title').value=s.title||'';
   document.getElementById('f-text').value=s.text||'';
