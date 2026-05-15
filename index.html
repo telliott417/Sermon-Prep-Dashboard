@@ -502,19 +502,43 @@ const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 let currentUser = null;
 
-const STAGES = [
-  { key: 'not-started', label: 'Not yet started', dueDay: null, weeksBack: null },
-  { key: 'study',       label: 'Study',            dueDay: 2, weeksBack: 2 },
-  { key: 'idea',        label: 'Main idea',        dueDay: 2, weeksBack: 2 },
-  { key: 'outline',     label: 'Outline',          dueDay: 3, weeksBack: 2 },
-  { key: 'draft',       label: 'Draft',            dueDay: 2, weeksBack: 1 },
-  { key: 'final',       label: 'Final',            dueDay: 3, weeksBack: 1 },
-  { key: 'run',         label: 'Run-through',      dueDay: 4, weeksBack: 1 },
-  { key: 'completed',   label: 'Completed',        dueDay: 0, weeksBack: 0 },
+const DEFAULT_STAGES = [
+  { key: 'study',   label: 'Study',        dueDay: 2, weeksBack: 2 },
+  { key: 'idea',    label: 'Main idea',     dueDay: 2, weeksBack: 2 },
+  { key: 'outline', label: 'Outline',       dueDay: 3, weeksBack: 2 },
+  { key: 'draft',   label: 'Draft',         dueDay: 2, weeksBack: 1 },
+  { key: 'final',   label: 'Final',         dueDay: 3, weeksBack: 1 },
+  { key: 'run',     label: 'Run-through',   dueDay: 4, weeksBack: 1 },
 ];
-const STATUS_ORDER = ['not-started','study','idea','outline','draft','final','run','completed'];
-const STATUS_LABELS = {'not-started':'Not yet started',study:'Study',idea:'Main idea',outline:'Outline',draft:'Draft',final:'Final',run:'Run-through',completed:'Completed'};
-const STATUS_CLASSES = {'not-started':'sp-not-started',study:'sp-study',idea:'sp-idea',outline:'sp-outline',draft:'sp-draft',final:'sp-final',run:'sp-run',completed:'sp-completed'};
+const DEFAULT_CONTEXTS = ['Salt','Candeo','Youth'];
+
+let STAGES = [];
+let STATUS_ORDER = [];
+let STATUS_LABELS = {};
+let STATUS_CLASSES = {};
+let userContexts = [...DEFAULT_CONTEXTS];
+
+const STAGE_CLASS_MAP = {
+  'not-started':'sp-not-started','study':'sp-study','idea':'sp-idea',
+  'outline':'sp-outline','draft':'sp-draft','final':'sp-final',
+  'run':'sp-run','completed':'sp-completed'
+};
+
+function buildStagesFromSettings(settingsStages) {
+  const middle = settingsStages || DEFAULT_STAGES;
+  STAGES = [
+    { key: 'not-started', label: 'Not yet started', dueDay: null, weeksBack: null },
+    ...middle,
+    { key: 'completed', label: 'Completed', dueDay: 0, weeksBack: 0 },
+  ];
+  STATUS_ORDER = STAGES.map(s => s.key);
+  STATUS_LABELS = {};
+  STATUS_CLASSES = {};
+  STAGES.forEach(s => {
+    STATUS_LABELS[s.key] = s.label;
+    STATUS_CLASSES[s.key] = STAGE_CLASS_MAP[s.key] || 'sp-study';
+  });
+}
 
 let editingId = null;
 let allSermons = [];
@@ -524,11 +548,12 @@ let calWeekOffset = 0;
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 const loginScreen = document.getElementById('login-screen');
 
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
     loginScreen.style.display = 'none';
     document.getElementById('nav-user').textContent = user.displayName || user.email;
+    await loadUserSettings();
     loadSermons();
   } else {
     currentUser = null;
