@@ -193,7 +193,17 @@
 </head>
 <body>
 <div class="app">
-
+<div id="login-screen" style="display:none; position:fixed; inset:0; background:var(--bg-tertiary); z-index:500; align-items:center; justify-content:center; flex-direction:column; gap:20px;">
+  <div style="text-align:center;">
+    <div style="font-size:32px; margin-bottom:8px;">🎨</div>
+    <h1 style="font-size:22px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">Color</h1>
+    <p style="font-size:14px; color:var(--text-secondary);">Sign in to access your ideas</p>
+  </div>
+  <button onclick="signIn()" style="display:flex; align-items:center; gap:10px; padding:12px 24px; background:white; border:0.5px solid rgba(28,25,23,0.2); border-radius:10px; font-size:14px; font-weight:500; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <img src="https://www.google.com/favicon.ico" width="18" height="18"/>
+    Sign in with Google
+  </button>
+</div>
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 
   <!-- LEFT NAV -->
@@ -310,8 +320,25 @@
   </div>
 </div>
 
-<script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiyNYEPE58ym5RBrgOd5IszBMfk7X-ykJ306KqPHD3twEVZSm08_13j3z5aFiYmn-f/exec';
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
+  authDomain: "sermon-prep-dashboard.firebaseapp.com",
+  projectId: "sermon-prep-dashboard",
+  storageBucket: "sermon-prep-dashboard.firebasestorage.app",
+  messagingSenderId: "769289223341",
+  appId: "1:769289223341:web:3dc1d53e57d96b3c55da24"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+let currentUser = null;
 
 const PRESET_TAGS = [
   'Grace','Suffering','Faith','Hope','Prayer','Family','Culture',
@@ -327,17 +354,45 @@ let selectedTags = new Set();
 let editingId = null;
 let customTags = new Set();
 
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+const loginScreen = document.getElementById('login-screen');
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = user;
+    if (loginScreen) loginScreen.style.display = 'none';
+    loadIdeas();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('capture') === '1') openCapture();
+  } else {
+    currentUser = null;
+    if (loginScreen) loginScreen.style.display = 'flex';
+  }
+});
+
+window.signIn = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch(e) {
+    console.error(e);
+  }
+};
+
+window.signOut = async () => {
+  await fbSignOut(auth);
+};
+
 // ── NAV ───────────────────────────────────────────────────────────────────────
-function openNav() {
+window.openNav = function() {
   document.getElementById('main-nav').classList.add('open');
   document.getElementById('nav-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-}
-function closeNav() {
+};
+window.closeNav = function() {
   document.getElementById('main-nav').classList.remove('open');
   document.getElementById('nav-overlay').classList.remove('open');
   document.body.style.overflow = '';
-}
+};
 
 function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
 function formatDateShort(str) {
@@ -346,6 +401,7 @@ function formatDateShort(str) {
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 }
 
+// ── SYNC ─────────────────────────────────────────────────────────────────────
 function setSyncStatus(state, label) {
   document.getElementById('sync-dot').className = 'sync-dot '+state;
   document.getElementById('sync-label').textContent = label;
@@ -353,14 +409,18 @@ function setSyncStatus(state, label) {
 function showError(msg) { const el=document.getElementById('error-banner'); el.textContent=msg; el.classList.add('show'); }
 function hideError() { document.getElementById('error-banner').classList.remove('show'); }
 
-async function loadIdeas() {
+// ── FIRESTORE ─────────────────────────────────────────────────────────────────
+function ideasRef() {
+  return collection(db, 'users', currentUser.uid, 'ideas');
+}
+
+window.loadIdeas = async function() {
+  if (!currentUser) return;
   setSyncStatus('syncing','Loading...');
   document.getElementById('ideas-grid').innerHTML = `<div class="loading-state"><i class="ti ti-loader"></i>Loading your color...</div>`;
   try {
-    const res = await fetch(SCRIPT_URL+'?type=ideas');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    allIdeas = (data.ideas||[]).filter(i=>i.id);
+    const snap = await getDocs(ideasRef());
+    allIdeas = snap.docs.map(d => ({id: d.id, ...d.data()}));
     allIdeas.forEach(idea => {
       if (idea.tags) idea.tags.split(',').map(t=>t.trim()).filter(Boolean).forEach(t => {
         if (!PRESET_TAGS.includes(t)) customTags.add(t);
@@ -376,16 +436,12 @@ async function loadIdeas() {
     showError('Could not load ideas. '+e.message);
     document.getElementById('ideas-grid').innerHTML = `<div class="empty-state"><i class="ti ti-alert-circle"></i>Could not load data.</div>`;
   }
-}
+};
 
-async function writeIdeas() {
+async function saveIdeaToDb(idea) {
   setSyncStatus('syncing','Saving...');
   try {
-    const res = await fetch(SCRIPT_URL, {
-      method:'POST',
-      body: JSON.stringify({type:'ideas', data:allIdeas})
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    await setDoc(doc(db, 'users', currentUser.uid, 'ideas', idea.id), idea);
     setSyncStatus('synced','Saved ✓');
     hideError();
   } catch(e) {
@@ -394,6 +450,19 @@ async function writeIdeas() {
   }
 }
 
+async function deleteIdeaFromDb(id) {
+  setSyncStatus('syncing','Deleting...');
+  try {
+    await deleteDoc(doc(db, 'users', currentUser.uid, 'ideas', id));
+    setSyncStatus('synced','Deleted ✓');
+    hideError();
+  } catch(e) {
+    setSyncStatus('error','Delete failed');
+    showError('Could not delete: '+e.message);
+  }
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
 function updateStats() {
   document.getElementById('stat-total').textContent = allIdeas.length;
   document.getElementById('stat-illustrations').textContent = allIdeas.filter(i=>i.type==='illustration').length;
@@ -401,20 +470,21 @@ function updateStats() {
   document.getElementById('stat-stories').textContent = allIdeas.filter(i=>i.type==='story').length;
 }
 
-function setTypeFilter(type) {
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+window.setTypeFilter = function(type) {
   activeTypeFilter = type;
   ['all','illustration','quote','story'].forEach(t => {
     const btn = document.getElementById('filter-'+t);
     if (btn) btn.classList.toggle('active', t===type);
   });
   renderIdeas();
-}
+};
 
-function setTagFilter(tag) {
+window.setTagFilter = function(tag) {
   activeTagFilter = activeTagFilter===tag ? null : tag;
   renderTagFilter();
   renderIdeas();
-}
+};
 
 function getAllTags() {
   const tags = new Set();
@@ -446,10 +516,10 @@ function renderIdeas() {
     }
     return true;
   });
-  filtered.sort((a,b) => b.created.localeCompare(a.created));
+  filtered.sort((a,b) => (b.created||'').localeCompare(a.created||''));
   const grid = document.getElementById('ideas-grid');
   if (filtered.length===0) {
-    grid.innerHTML = `<div class="empty-state"><i class="ti ti-palette"></i>${allIdeas.length===0?'No color yet — hit "Add Color" to get started.':'No ideas match your filters.'}</div>`;
+    grid.innerHTML = `<div class="empty-state"><i class="ti ti-palette"></i>${allIdeas.length===0?'No color yet — hit "Capture idea" to get started.':'No ideas match your filters.'}</div>`;
     return;
   }
   grid.innerHTML = filtered.map(idea => {
@@ -471,7 +541,8 @@ function renderIdeas() {
   }).join('');
 }
 
-function selectType(type) {
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+window.selectType = function(type) {
   selectedType = type;
   ['illustration','quote','story'].forEach(t => {
     const el = document.getElementById('type-'+t);
@@ -485,7 +556,7 @@ function selectType(type) {
     story:'Tell the story...'
   };
   document.getElementById('f-content').placeholder = placeholders[type]||'Write your idea here...';
-}
+};
 
 function renderTagPicker() {
   const allTags = [...new Set([...PRESET_TAGS, ...customTags])].sort();
@@ -494,13 +565,13 @@ function renderTagPicker() {
   ).join('');
 }
 
-function toggleTag(tag) {
+window.toggleTag = function(tag) {
   if (selectedTags.has(tag)) selectedTags.delete(tag);
   else selectedTags.add(tag);
   renderTagPicker();
-}
+};
 
-function addCustomTag() {
+window.addCustomTag = function() {
   const input = document.getElementById('custom-tag-input');
   const tag = input.value.trim();
   if (!tag) return;
@@ -508,21 +579,21 @@ function addCustomTag() {
   selectedTags.add(tag);
   input.value = '';
   renderTagPicker();
-}
+};
 
-function openCapture() {
+window.openCapture = function() {
   editingId = null;
-  document.getElementById('modal-title').textContent = 'Add Color';
+  document.getElementById('modal-title').textContent = 'Capture idea';
   document.getElementById('f-content').value = '';
   document.getElementById('f-source').value = '';
   document.getElementById('custom-tag-input').value = '';
   selectedTags = new Set();
-  selectType('illustration');
+  window.selectType('illustration');
   renderTagPicker();
   document.getElementById('modal').classList.add('open');
-}
+};
 
-function openEdit(id) {
+window.openEdit = function(id) {
   const idea = allIdeas.find(i=>i.id===id);
   if (!idea) return;
   editingId = id;
@@ -530,61 +601,56 @@ function openEdit(id) {
   document.getElementById('f-content').value = idea.content||'';
   document.getElementById('f-source').value = idea.source||'';
   selectedTags = new Set(idea.tags ? idea.tags.split(',').map(t=>t.trim()).filter(Boolean) : []);
-  selectType(idea.type||'illustration');
+  window.selectType(idea.type||'illustration');
   renderTagPicker();
   document.getElementById('modal').classList.add('open');
-}
+};
 
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
+window.closeModal = function() { document.getElementById('modal').classList.remove('open'); };
 
-async function saveIdea() {
+window.saveIdea = async function() {
   const content = document.getElementById('f-content').value.trim();
   if (!content) { alert('Please enter some content.'); return; }
   const btn = document.getElementById('save-btn');
   btn.textContent='Saving...'; btn.disabled=true;
   const source = document.getElementById('f-source').value.trim();
   const tags = [...selectedTags].join(',');
+  let idea;
   if (editingId) {
-    const idea = allIdeas.find(i=>i.id===editingId);
+    idea = allIdeas.find(i=>i.id===editingId);
     if (idea) { idea.type=selectedType; idea.content=content; idea.source=source; idea.tags=tags; }
   } else {
-    allIdeas.push({
+    idea = {
       id: 'i'+Date.now(),
       type: selectedType,
       content,
       source,
       tags,
       created: new Date().toISOString().split('T')[0]
-    });
+    };
+    allIdeas.push(idea);
   }
-  await writeIdeas();
+  await saveIdeaToDb(idea);
   updateStats();
   renderTagFilter();
   renderIdeas();
-  closeModal();
+  window.closeModal();
   btn.textContent='Save idea'; btn.disabled=false;
-}
+};
 
-async function deleteIdea(id) {
+window.deleteIdea = async function(id) {
   if (!confirm('Delete this idea?')) return;
   allIdeas = allIdeas.filter(i=>i.id!==id);
-  await writeIdeas();
+  await deleteIdeaFromDb(id);
   updateStats();
   renderTagFilter();
   renderIdeas();
-}
+};
 
-document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeNav();closeModal();}});
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)window.closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){window.closeNav();window.closeModal();}});
 
 document.getElementById('nav-date').textContent = today().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-
-// Auto-open capture form if redirected from dashboard
-const params = new URLSearchParams(window.location.search);
-
-loadIdeas().then(() => {
-  if (params.get('capture')==='1') openCapture();
-});
 </script>
 </body>
 </html>
