@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Settings — Sermon Prep</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #fafaf9;
+    --text-primary: #1c1917; --text-secondary: #78716c; --text-tertiary: #a8a29e;
+    --border: rgba(28,25,23,0.12); --border-md: rgba(28,25,23,0.2);
+    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+    --blue-bg: #e6f1fb; --blue-text: #185fa5;
+    --green-bg: #eaf3de; --green-text: #3b6d11;
+    --amber-bg: #faeeda; --amber-text: #854f0b;
+    --red-bg: #fcebeb; --red-text: #a32d2d;
+    --gray-bg: #f0f0ef; --gray-text: #57534e;
+    --nav-width: 200px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1917; --bg-secondary: #292524; --bg-tertiary: #1c1917;
+      --text-primary: #fafaf9; --text-secondary: #a8a29e; --text-tertiary: #78716c;
+      --border: rgba(250,250,249,0.12); --border-md: rgba(250,250,249,0.22);
+      --blue-bg: #0c3d6e; --blue-text: #93c5fd;
+      --green-bg: #14401a; --green-text: #86efac;
+      --amber-bg: #451a03; --amber-text: #fcd34d;
+      --red-bg: #450a0a; --red-text: #fca5a5;
+      --gray-bg: #292524; --gray-text: #a8a29e;
+    }
+  }
+  html { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); font-size: 16px; }
+  body { min-height: 100vh; }
+  .app { display: flex; min-height: 100vh; }
+  .nav { width: var(--nav-width); flex-shrink: 0; background: var(--bg); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 100; transition: transform 0.25s ease; }
+  .nav-logo { padding: 0 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
+  .nav-logo-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .nav-logo-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .nav-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 0 1.25rem; margin-bottom: 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 1.25rem; font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; border-left: 2px solid transparent; transition: background 0.15s; }
+  .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .nav-item.active { color: var(--blue-text); background: var(--blue-bg); border-left-color: var(--blue-text); }
+  .nav-item i { font-size: 16px; flex-shrink: 0; }
+  .nav-bottom { margin-top: auto; padding: 1rem 1.25rem 0; border-top: 0.5px solid var(--border); }
+  .sync-status { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; }
+  .sync-dot.synced { background: var(--green-text); }
+  .sync-dot.syncing { background: var(--amber-text); animation: pulse 1s infinite; }
+  .sync-dot.error { background: var(--red-text); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .mobile-topbar { display: none; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-bottom: 0.5px solid var(--border); position: sticky; top: 0; z-index: 50; }
+  .mobile-topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
+  .hamburger { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 6px 8px; cursor: pointer; color: var(--text-primary); font-size: 18px; display: flex; align-items: center; }
+  .nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+  .nav-overlay.open { display: block; }
+  .main { flex: 1; padding: 2rem 2.5rem 6rem; max-width: 700px; }
+  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; }
+  .top-bar h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+  .top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+  .settings-section { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 1.25rem; overflow: hidden; }
+  .settings-section-header { padding: 14px 18px; border-bottom: 0.5px solid var(--border); }
+  .settings-section-title { font-size: 14px; font-weight: 600; }
+  .settings-section-sub { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+  .settings-section-body { padding: 16px 18px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+  .btn:hover { background: var(--bg-secondary); }
+  .btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+  .btn.success { background: var(--green-bg); color: var(--green-text); border-color: transparent; font-weight: 500; }
+  .btn.success:hover { opacity: 0.85; }
+
+  /* STAGE LIST */
+  .stage-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .stage-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--bg-secondary); border-radius: var(--radius-md); border: 0.5px solid var(--border); transition: border-color 0.15s; }
+  .stage-item.drag-over { border-color: var(--blue-text); background: var(--blue-bg); }
+  .stage-item.dragging { opacity: 0.35; }
+  .drag-handle { cursor: grab; color: var(--text-tertiary); font-size: 16px; flex-shrink: 0; touch-action: none; }
+  .drag-handle:active { cursor: grabbing; }
+  .stage-name-input { flex: 1; min-width: 80px; padding: 5px 8px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-family: var(--font); font-size: 13px; outline: none; }
+  .stage-name-input:focus { border-color: var(--blue-text); }
+  .stage-name-input:disabled { background: transparent; border-color: transparent; color: var(--text-secondary); cursor: default; padding-left: 0; }
+  .deadline-selects { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+  .deadline-selects select { padding: 5px 6px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-family: var(--font); font-size: 11px; outline: none; cursor: pointer; }
+  .deadline-selects select:disabled { opacity: 0.4; cursor: default; }
+  .stage-delete { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 15px; padding: 3px; border-radius: var(--radius-md); flex-shrink: 0; }
+  .stage-delete:hover { color: var(--red-text); background: var(--red-bg); }
+  .locked-tag { font-size: 10px; color: var(--text-tertiary); padding: 2px 7px; background: var(--bg); border-radius: 20px; border: 0.5px solid var(--border); flex-shrink: 0; }
+
+  /* CONTEXTS */
+  .context-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .context-chip { display: flex; align-items: center; gap: 6px; padding: 5px 12px; background: var(--bg-secondary); border: 0.5px solid var(--border-md); border-radius: 20px; font-size: 13px; }
+  .context-chip.is-default { border-color: var(--blue-text); background: var(--blue-bg); color: var(--blue-text); }
+  .context-delete { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 14px; padding: 0; line-height: 1; display: flex; align-items: center; }
+  .context-delete:hover { color: var(--red-text); }
+  .add-row { display: flex; gap: 8px; }
+  .add-row input { flex: 1; padding: 8px 11px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; outline: none; }
+  .add-row input:focus { border-color: var(--blue-text); }
+
+  /* SAVE BAR */
+  .save-bar { position: fixed; bottom: 0; left: var(--nav-width); right: 0; background: var(--bg); border-top: 0.5px solid var(--border); padding: 12px 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 50; }
+  .save-msg { font-size: 13px; color: var(--text-tertiary); }
+  .save-msg.saved { color: var(--green-text); font-weight: 500; }
+  .save-msg.error { color: var(--red-text); }
+
+  #login-screen { display: none; position: fixed; inset: 0; background: var(--bg-tertiary); z-index: 500; align-items: center; justify-content: center; flex-direction: column; gap: 20px; }
+
+  .loading-state { text-align: center; padding: 3rem; color: var(--text-secondary); font-size: 13px; }
+  .loading-state i { font-size: 28px; display: block; margin-bottom: 8px; opacity: 0.35; animation: spin 1s linear infinite; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  @media (max-width: 768px) {
+    .nav { position: fixed; left: 0; top: 0; bottom: 0; width: var(--nav-width); transform: translateX(-100%); z-index: 250; height: 100vh; }
+    .nav.open { transform: translateX(0); }
+    .mobile-topbar { display: flex; }
+    .app { display: block; }
+    .main { padding: 1rem 1rem 6rem; max-width: 100%; width: 100%; }
+    .top-bar { display: none; }
+    .save-bar { left: 0; padding: 12px 1rem; }
+    .deadline-selects { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div style="text-align:center;">
+    <div style="font-size:32px;margin-bottom:8px;">⚙️</div>
+    <h1 style="font-size:22px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">Settings</h1>
+    <p style="font-size:14px;color:var(--text-secondary);">Sign in to access your settings</p>
+  </div>
+  <button onclick="signIn()" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:white;border:0.5px solid rgba(28,25,23,0.2);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <img src="https://www.google.com/favicon.ico" width="18" height="18"/> Sign in with Google
+  </button>
+</div>
+
+<div class="app">
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+  <nav class="nav" id="main-nav">
+    <div class="nav-logo">
+      <div class="nav-logo-title">Sermon Prep</div>
+      <div class="nav-logo-sub" id="nav-date"></div>
+    </div>
+    <div class="nav-section-label" style="margin-bottom:8px;">Pages</div>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/color.html">🎨 Color</a>
+    <a class="nav-item active" href="/Sermon-Prep-Dashboard/settings.html"><i class="ti ti-settings"></i> Settings</a>
+    <div class="nav-bottom">
+      <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Loading...</span></div>
+      <div id="nav-user" style="font-size:11px;color:var(--text-tertiary);margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+      <button class="btn" style="width:100%;justify-content:center;font-size:12px;margin-top:6px;" onclick="signOut()"><i class="ti ti-logout"></i> Sign out</button>
+    </div>
+  </nav>
+
+  <div class="mobile-topbar">
+    <button class="hamburger" onclick="openNav()"><i class="ti ti-menu-2"></i></button>
+    <h1>⚙️ Settings</h1>
+  </div>
+
+  <main class="main">
+    <div class="top-bar">
+      <div>
+        <h1>⚙️ Settings</h1>
+        <div class="subtitle" id="user-subtitle"></div>
+      </div>
+    </div>
+    <div id="settings-body"><div class="loading-state"><i class="ti ti-loader"></i>Loading your settings...</div></div>
+  </main>
+</div>
+
+<div class="save-bar">
+  <span class="save-msg" id="save-msg"></span>
+  <button class="btn success" onclick="saveSettings()"><i class="ti ti-device-floppy"></i> Save settings</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
+  authDomain: "sermon-prep-dashboard.firebaseapp.com",
+  projectId: "sermon-prep-dashboard",
+  storageBucket: "sermon-prep-dashboard.firebasestorage.app",
+  messagingSenderId: "769289223341",
+  appId: "1:769289223341:web:3dc1d53e57d96b3c55da24"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+let currentUser = null;
+
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const WEEKS = [
+  {value:0, label:'Week of sermon'},
+  {value:1, label:'Week before sermon'},
+  {value:2, label:'2 weeks before'},
+  {value:3, label:'3 weeks before'},
+  {value:4, label:'4 weeks before'},
+];
+
+const DEFAULT_STAGES = [
+  { key: 'study',   label: 'Study',        dueDay: 2, weeksBack: 2 },
+  { key: 'idea',    label: 'Main idea',     dueDay: 2, weeksBack: 2 },
+  { key: 'outline', label: 'Outline',       dueDay: 3, weeksBack: 2 },
+  { key: 'draft',   label: 'Draft',         dueDay: 2, weeksBack: 1 },
+  { key: 'final',   label: 'Final',         dueDay: 3, weeksBack: 1 },
+  { key: 'run',     label: 'Run-through',   dueDay: 4, weeksBack: 1 },
+];
+
+const DEFAULT_CONTEXTS = ['Salt','Candeo','Youth'];
+
+let settings = null;
+let dragSrcIdx = null;
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('nav-user').textContent = user.displayName || user.email;
+    document.getElementById('user-subtitle').textContent = user.email;
+    await loadSettings();
+  } else {
+    currentUser = null;
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+});
+
+window.signIn = async () => { try { await signInWithPopup(auth, provider); } catch(e) { console.error(e); } };
+window.signOut = async () => { await fbSignOut(auth); };
+window.openNav = () => { document.getElementById('main-nav').classList.add('open'); document.getElementById('nav-overlay').classList.add('open'); document.body.style.overflow='hidden'; };
+window.closeNav = () => { document.getElementById('main-nav').classList.remove('open'); document.getElementById('nav-overlay').classList.remove('open'); document.body.style.overflow=''; };
+
+function setSyncStatus(state, label) {
+  document.getElementById('sync-dot').className = 'sync-dot '+state;
+  document.getElementById('sync-label').textContent = label;
+}
+
+// ── LOAD / SAVE SETTINGS ─────────────────────────────────────────────────────
+async function loadSettings() {
+  setSyncStatus('syncing','Loading...');
+  try {
+    const snap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'settings'));
+    if (snap.exists()) {
+      settings = snap.data();
+    } else {
+      settings = { stages: DEFAULT_STAGES, contexts: DEFAULT_CONTEXTS };
+    }
+    setSyncStatus('synced','Synced');
+    renderSettings();
+  } catch(e) {
+    setSyncStatus('error','Error');
+    document.getElementById('settings-body').innerHTML = `<p style="color:var(--red-text);font-size:13px;">Could not load settings: ${e.message}</p>`;
+  }
+}
+
+window.saveSettings = async () => {
+  const btn = document.querySelector('.btn.success');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  const msg = document.getElementById('save-msg');
+  try {
+    // Read current stage values from DOM
+    const stageItems = document.querySelectorAll('.stage-item[data-idx]');
+    const newStages = [];
+    stageItems.forEach(item => {
+      const idx = parseInt(item.dataset.idx);
+      const nameInput = item.querySelector('.stage-name-input');
+      const daySelect = item.querySelector('.day-select');
+      const weekSelect = item.querySelector('.week-select');
+      newStages.push({
+        key: settings.stages[idx].key,
+        label: nameInput.value.trim() || settings.stages[idx].label,
+        dueDay: parseInt(daySelect.value),
+        weeksBack: parseInt(weekSelect.value),
+      });
+    });
+    settings.stages = newStages;
+
+    await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'settings'), settings);
+
+    // Apply deadline changes to all non-completed sermons
+    await applySettingsToSermons();
+
+    setSyncStatus('synced','Saved ✓');
+    msg.textContent = 'Settings saved!'; msg.className = 'save-msg saved';
+    setTimeout(() => { msg.textContent = ''; msg.className = 'save-msg'; }, 3000);
+  } catch(e) {
+    setSyncStatus('error','Error');
+    msg.textContent = 'Save failed: ' + e.message; msg.className = 'save-msg error';
+  }
+  btn.innerHTML = '<i class="ti ti-device-floppy"></i> Save settings'; btn.disabled = false;
+};
+
+async function applySettingsToSermons() {
+  // Just saves the settings — sermon deadline calculations are done on the fly in the dashboard
+  // so no sermon documents need updating. Deadlines are computed from settings at render time.
+}
+
+// ── RENDER SETTINGS ───────────────────────────────────────────────────────────
+function renderSettings() {
+  document.getElementById('settings-body').innerHTML = `
+    ${renderStagesSection()}
+    ${renderContextsSection()}
+  `;
+  bindStageDrag();
+}
+
+function renderStagesSection() {
+  const stages = settings.stages || DEFAULT_STAGES;
+  const stageRows = stages.map((stage, idx) => `
+    <div class="stage-item" data-idx="${idx}" draggable="true">
+      <i class="ti ti-grip-vertical drag-handle"></i>
+      <input class="stage-name-input" value="${stage.label}" placeholder="Stage name" />
+      <div class="deadline-selects">
+        <select class="day-select">
+          ${DAYS.map((d,i) => `<option value="${i}" ${stage.dueDay===i?'selected':''}>${d}</option>`).join('')}
+        </select>
+        <select class="week-select">
+          ${WEEKS.map(w => `<option value="${w.value}" ${stage.weeksBack===w.value?'selected':''}>${w.label}</option>`).join('')}
+        </select>
+      </div>
+      <button class="stage-delete" onclick="deleteStage(${idx})" title="Remove stage"><i class="ti ti-trash"></i></button>
+    </div>
+  `).join('');
+
+  return `
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <div class="settings-section-title">Prep stages</div>
+        <div class="settings-section-sub">Drag to reorder. Not Yet Started and Completed are always fixed.</div>
+      </div>
+      <div class="settings-section-body">
+        <div class="stage-list">
+          <div class="stage-item" style="opacity:0.5;">
+            <i class="ti ti-lock" style="font-size:15px;color:var(--text-tertiary);flex-shrink:0;"></i>
+            <input class="stage-name-input" value="Not yet started" disabled />
+            <span class="locked-tag">Fixed</span>
+          </div>
+          ${stageRows}
+          <div class="stage-item" style="opacity:0.5;">
+            <i class="ti ti-lock" style="font-size:15px;color:var(--text-tertiary);flex-shrink:0;"></i>
+            <input class="stage-name-input" value="Completed" disabled />
+            <span class="locked-tag">Fixed</span>
+          </div>
+        </div>
+        <button class="btn primary" onclick="addStage()"><i class="ti ti-plus"></i> Add stage</button>
+      </div>
+    </div>`;
+}
+
+function renderContextsSection() {
+  const contexts = settings.contexts || DEFAULT_CONTEXTS;
+  return `
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <div class="settings-section-title">Contexts</div>
+        <div class="settings-section-sub">Where you preach. These appear in the sermon form.</div>
+      </div>
+      <div class="settings-section-body">
+        <div class="context-list" id="context-list">
+          ${contexts.map((c,i) => `
+            <div class="context-chip ${i<3?'is-default':''}">
+              ${c}
+              <button class="context-delete" onclick="deleteContext(${i})" title="Remove"><i class="ti ti-x"></i></button>
+            </div>`).join('')}
+        </div>
+        <div class="add-row">
+          <input type="text" id="new-context-input" placeholder="Add a context..." onkeydown="if(event.key==='Enter')addContext()" />
+          <button class="btn primary" onclick="addContext()"><i class="ti ti-plus"></i> Add</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── STAGE ACTIONS ─────────────────────────────────────────────────────────────
+window.addStage = () => {
+  settings.stages.push({ key: 'stage_'+Date.now(), label: 'New stage', dueDay: 2, weeksBack: 1 });
+  renderSettings();
+};
+
+window.deleteStage = async (idx) => {
+  const removed = settings.stages[idx];
+  settings.stages.splice(idx, 1);
+
+  // Bump sermons at removed stage back to previous stage
+  try {
+    const allStageKeys = ['not-started', ...settings.stages.map(s=>s.key), 'completed'];
+    const removedKey = removed.key;
+    const prevKey = idx > 0 ? settings.stages[idx-1]?.key || 'not-started' : 'not-started';
+    const snap = await getDocs(collection(db, 'users', currentUser.uid, 'sermons'));
+    const batch = writeBatch(db);
+    snap.docs.forEach(d => {
+      if (d.data().status === removedKey) {
+        batch.update(d.ref, { status: prevKey });
+      }
+    });
+    await batch.commit();
+  } catch(e) { console.error('Could not bump sermons:', e); }
+
+  renderSettings();
+};
+
+// ── DRAG TO REORDER ───────────────────────────────────────────────────────────
+function bindStageDrag() {
+  const items = document.querySelectorAll('.stage-item[data-idx]');
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragSrcIdx = parseInt(item.dataset.idx);
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      document.querySelectorAll('.stage-item').forEach(i => i.classList.remove('drag-over'));
+    });
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('.stage-item[data-idx]').forEach(i => i.classList.remove('drag-over'));
+      item.classList.add('drag-over');
+    });
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      const destIdx = parseInt(item.dataset.idx);
+      if (dragSrcIdx === null || dragSrcIdx === destIdx) return;
+      // Read current labels from DOM before reorder
+      syncStagesFromDOM();
+      const moved = settings.stages.splice(dragSrcIdx, 1)[0];
+      settings.stages.splice(destIdx, 0, moved);
+      dragSrcIdx = null;
+      renderSettings();
+    });
+  });
+}
+
+function syncStagesFromDOM() {
+  const items = document.querySelectorAll('.stage-item[data-idx]');
+  items.forEach(item => {
+    const idx = parseInt(item.dataset.idx);
+    if (idx >= settings.stages.length) return;
+    settings.stages[idx].label = item.querySelector('.stage-name-input').value.trim() || settings.stages[idx].label;
+    settings.stages[idx].dueDay = parseInt(item.querySelector('.day-select').value);
+    settings.stages[idx].weeksBack = parseInt(item.querySelector('.week-select').value);
+  });
+}
+
+// ── CONTEXT ACTIONS ───────────────────────────────────────────────────────────
+window.addContext = () => {
+  const input = document.getElementById('new-context-input');
+  const val = input.value.trim();
+  if (!val) return;
+  if (!settings.contexts) settings.contexts = [...DEFAULT_CONTEXTS];
+  if (settings.contexts.includes(val)) { input.value=''; return; }
+  settings.contexts.push(val);
+  input.value = '';
+  renderSettings();
+};
+
+window.deleteContext = (idx) => {
+  settings.contexts.splice(idx, 1);
+  renderSettings();
+};
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.getElementById('nav-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+document.addEventListener('keydown', e => { if(e.key==='Escape') window.closeNav(); });
+</script>
+</body>
+</html>
