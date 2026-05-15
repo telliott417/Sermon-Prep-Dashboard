@@ -180,11 +180,12 @@
   .action-btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
 
   @media (max-width: 768px) {
-    .nav { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); z-index: 250; height: 100vh; }
+    .nav { position: fixed; left: 0; top: 0; bottom: 0; width: var(--nav-width); transform: translateX(-100%); z-index: 250; height: 100vh; }
     .nav.open { transform: translateX(0); }
     .mobile-topbar { display: flex; }
+    .app { display: block; }
+    .main { padding: 1rem 1rem 4rem; max-width: 100%; width: 100%; }
     .top-bar { display: none; }
-    .main { padding: 1rem 1rem 4rem; }
     .stats { grid-template-columns: repeat(2,1fr); }
     .ideas-grid { grid-template-columns: 1fr; }
   }
