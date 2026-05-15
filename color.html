@@ -228,8 +228,12 @@
         <span id="sync-label">Loading...</span>
       </div>
       <button class="btn" style="width:100%;justify-content:center;font-size:12px;" onclick="loadIdeas()">
-        <i class="ti ti-refresh"></i> Refresh
-      </button>
+  <i class="ti ti-refresh"></i> Refresh
+</button>
+<div id="nav-user" style="font-size:11px; color:var(--text-tertiary); margin-top:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
+<button class="btn" style="width:100%;justify-content:center;font-size:12px;margin-top:6px;" onclick="signOut()">
+  <i class="ti ti-logout"></i> Sign out
+</button>
     </div>
   </nav>
 
@@ -361,7 +365,9 @@ onAuthStateChanged(auth, user => {
   if (user) {
     currentUser = user;
     if (loginScreen) loginScreen.style.display = 'none';
-    loadIdeas();
+const navUser = document.getElementById('nav-user');
+if (navUser) navUser.textContent = user.displayName || user.email;
+loadIdeas();
     const params = new URLSearchParams(window.location.search);
     if (params.get('capture') === '1') openCapture();
   } else {
