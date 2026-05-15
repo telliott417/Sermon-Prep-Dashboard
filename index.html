@@ -5,6 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sermon Prep Dashboard</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
+  authDomain: "sermon-prep-dashboard.firebaseapp.com",
+  projectId: "sermon-prep-dashboard",
+  storageBucket: "sermon-prep-dashboard.firebasestorage.app",
+  messagingSenderId: "769289223341",
+  appId: "1:769289223341:web:3dc1d53e57d96b3c55da24"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+let currentUser = null;
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -300,6 +320,20 @@
 <body>
 <div class="app">
 
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="display:none; position:fixed; inset:0; background:var(--bg-tertiary); z-index:500; align-items:center; justify-content:center; flex-direction:column; gap:20px;">
+  <div style="text-align:center;">
+    <div style="font-size:32px; margin-bottom:8px;">📖</div>
+    <h1 style="font-size:22px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">Sermon Prep Dashboard</h1>
+    <p style="font-size:14px; color:var(--text-secondary);">Sign in to access your dashboard</p>
+  </div>
+  <button onclick="signIn()" style="display:flex; align-items:center; gap:10px; padding:12px 24px; background:white; border:0.5px solid rgba(28,25,23,0.2); border-radius:10px; font-size:14px; font-weight:500; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <img src="https://www.google.com/favicon.ico" width="18" height="18"/>
+    Sign in with Google
+  </button>
+  <div id="login-error" style="font-size:13px; color:var(--red-text); display:none;"></div>
+</div>
+ 
   <!-- NAV OVERLAY (mobile) -->
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 
@@ -324,8 +358,12 @@
         <span id="sync-label">Loading...</span>
       </div>
       <button class="btn" style="width:100%;justify-content:center;font-size:12px;" onclick="loadSermons()">
-        <i class="ti ti-refresh"></i> Refresh
-      </button>
+  <i class="ti ti-refresh"></i> Refresh
+</button>
+<div id="nav-user" style="font-size:11px; color:var(--text-tertiary); margin-top:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
+<button class="btn" style="width:100%;justify-content:center;font-size:12px;margin-top:6px;" onclick="signOut()">
+  <i class="ti ti-logout"></i> Sign out
+</button>
     </div>
   </nav>
 
@@ -445,8 +483,25 @@
   </div>
 </div>
 
-<script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiyNYEPE58ym5RBrgOd5IszBMfk7X-ykJ306KqPHD3twEVZSm08_13j3z5aFiYmn-f/exec';
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
+  authDomain: "sermon-prep-dashboard.firebaseapp.com",
+  projectId: "sermon-prep-dashboard",
+  storageBucket: "sermon-prep-dashboard.firebasestorage.app",
+  messagingSenderId: "769289223341",
+  appId: "1:769289223341:web:3dc1d53e57d96b3c55da24"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+let currentUser = null;
 
 const STAGES = [
   { key: 'not-started', label: 'Not yet started', dueDay: null, weeksBack: null },
@@ -467,22 +522,50 @@ let allSermons = [];
 let openCards = new Set();
 let calWeekOffset = 0;
 
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+const loginScreen = document.getElementById('login-screen');
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = user;
+    loginScreen.style.display = 'none';
+    document.getElementById('nav-user').textContent = user.displayName || user.email;
+    loadSermons();
+  } else {
+    currentUser = null;
+    loginScreen.style.display = 'flex';
+  }
+});
+
+window.signIn = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch(e) {
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
+    err.textContent = 'Sign-in failed: ' + e.message;
+  }
+};
+
+window.signOut = async () => {
+  await fbSignOut(auth);
+};
+
 // ── NAV DRAWER ────────────────────────────────────────────────────────────────
-function openNav() {
+window.openNav = function() {
   document.getElementById('main-nav').classList.add('open');
   document.getElementById('nav-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-}
-function closeNav() {
+};
+window.closeNav = function() {
   document.getElementById('main-nav').classList.remove('open');
   document.getElementById('nav-overlay').classList.remove('open');
   document.body.style.overflow = '';
-}
+};
 
-// ── COLOR NAV ─────────────────────────────────────────────────────────────────
-function goAddColor() {
-  window.location.href = '/Sermon-Prep-Dashboard/color.html';
-}
+window.goAddColor = function() {
+  window.location.href = '/Sermon-Prep-Dashboard/color.html?capture=1';
+};
 
 // ── DATE HELPERS ─────────────────────────────────────────────────────────────
 function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
@@ -527,19 +610,18 @@ function setSyncStatus(state, label) {
 function showError(msg) { const el=document.getElementById('error-banner'); el.textContent=msg; el.classList.add('show'); }
 function hideError() { document.getElementById('error-banner').classList.remove('show'); }
 
-async function loadSermons() {
+// ── FIRESTORE DATA ────────────────────────────────────────────────────────────
+function sermonsRef() {
+  return collection(db, 'users', currentUser.uid, 'sermons');
+}
+
+window.loadSermons = async function() {
+  if (!currentUser) return;
   setSyncStatus('syncing','Loading...');
   document.getElementById('active-section').innerHTML = `<div class="loading-state"><i class="ti ti-loader"></i>Loading...</div>`;
   try {
-    const res = await fetch(SCRIPT_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    allSermons = (data.data||[]).filter(s=>s.id&&s.date).map(s=>({
-      ...s,
-      date: s.date.includes('T') ? s.date.split('T')[0] : s.date,
-      context: s.context||'',
-      doc: s.doc||''
-    }));
+    const snap = await getDocs(sermonsRef());
+    allSermons = snap.docs.map(d => ({id: d.id, ...d.data()}));
     allSermons.sort((a,b)=>a.date.localeCompare(b.date));
     hideError();
     setSyncStatus('synced','Synced');
@@ -550,18 +632,29 @@ async function loadSermons() {
     showError('Could not load sermons. '+e.message);
     document.getElementById('active-section').innerHTML = `<div class="empty-state"><i class="ti ti-alert-circle"></i>Could not load data.</div>`;
   }
-}
+};
 
-async function writeSermons(sermons) {
+async function saveSermonToDb(sermon) {
   setSyncStatus('syncing','Saving...');
   try {
-    const res = await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify({data:sermons})});
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    await setDoc(doc(db, 'users', currentUser.uid, 'sermons', sermon.id), sermon);
     setSyncStatus('synced','Saved ✓');
     hideError();
   } catch(e) {
     setSyncStatus('error','Save failed');
     showError('Could not save: '+e.message);
+  }
+}
+
+async function deleteSermonFromDb(id) {
+  setSyncStatus('syncing','Deleting...');
+  try {
+    await deleteDoc(doc(db, 'users', currentUser.uid, 'sermons', id));
+    setSyncStatus('synced','Deleted ✓');
+    hideError();
+  } catch(e) {
+    setSyncStatus('error','Delete failed');
+    showError('Could not delete: '+e.message);
   }
 }
 
@@ -761,6 +854,7 @@ function buildCalendarEvents() {
   });
   return events;
 }
+
 function renderCalendar() {
   const t = today();
   const events = buildCalendarEvents();
@@ -789,11 +883,11 @@ function renderCalendar() {
   }
   document.getElementById('cal-grid').innerHTML=html;
 }
-function calPrev(){calWeekOffset--;renderCalendar();}
-function calNext(){calWeekOffset++;renderCalendar();}
-function calReset(){calWeekOffset=0;renderCalendar();}
+window.calPrev = function(){calWeekOffset--;renderCalendar();};
+window.calNext = function(){calWeekOffset++;renderCalendar();};
+window.calReset = function(){calWeekOffset=0;renderCalendar();};
 
-// ── SIDEBAR + MOBILE SECTIONS ─────────────────────────────────────────────────
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
 function renderSidebarSection(elId, title, sermons, mode, firstSection=false) {
   const el = document.getElementById(elId);
   if (!el) return;
@@ -821,7 +915,6 @@ function renderAll() {
 
   renderTodo();
 
-  // Active sermons (middle column)
   const activeEl = document.getElementById('active-section');
   if (active.length===0) {
     activeEl.innerHTML = `
@@ -842,28 +935,24 @@ function renderAll() {
   }
 
   renderCalendar();
-
-  // Desktop sidebar
   renderSidebarSection('sidebar-active', 'Active', active, 'active', true);
   renderSidebarSection('sidebar-upcoming', 'Upcoming', upcoming, 'upcoming');
   renderSidebarSection('sidebar-completed', 'Completed', completed, 'completed');
-
-  // Mobile-only sections (below calendar)
   renderSidebarSection('mobile-upcoming-section', 'Upcoming Sermons', upcoming, 'upcoming');
   renderSidebarSection('mobile-completed-section', 'Completed Sermons', completed, 'completed');
 }
 
 // ── CARD TOGGLE ───────────────────────────────────────────────────────────────
-function toggleCard(id) {
+window.toggleCard = function(id) {
   const body=document.getElementById('body-'+id);
   const chev=document.getElementById('chev-'+id);
   if (!body||!chev) return;
   if (openCards.has(id)) { openCards.delete(id); body.classList.remove('open'); chev.classList.remove('open'); }
   else { openCards.add(id); body.classList.add('open'); chev.classList.add('open'); }
-}
+};
 
 // ── ACTIONS ───────────────────────────────────────────────────────────────────
-async function advanceStatus(id) {
+window.advanceStatus = async function(id) {
   const s=allSermons.find(x=>x.id===id);
   if (!s) return;
   const idx=STATUS_ORDER.indexOf(s.status);
@@ -872,22 +961,23 @@ async function advanceStatus(id) {
     if (newStatus==='completed') openCards.delete(id);
     s.status=newStatus;
     renderAll();
-    await writeSermons(allSermons);
+    await saveSermonToDb(s);
   }
-}
-async function deleteSermon(id) {
+};
+
+window.deleteSermon = async function(id) {
   if (!confirm('Delete this sermon?')) return;
   openCards.delete(id);
   allSermons=allSermons.filter(s=>s.id!==id);
   renderAll();
-  await writeSermons(allSermons);
-}
+  await deleteSermonFromDb(id);
+};
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
-function handleContextSelect() {
+window.handleContextSelect = function() {
   const sel=document.getElementById('f-context-select').value;
   document.getElementById('f-context-other').style.display=sel==='other'?'block':'none';
-}
+};
 function getContextValue() {
   const sel=document.getElementById('f-context-select').value;
   if (sel==='other') return document.getElementById('f-context-other').value.trim();
@@ -900,15 +990,15 @@ function setContextValue(val) {
   if (val==='Salt'||val==='Candeo'){sel.value=val;other.style.display='none';}
   else{sel.value='other';other.style.display='block';other.value=val;}
 }
-function openAdd() {
+window.openAdd = function() {
   editingId=null;
   document.getElementById('modal-title').textContent='Add sermon';
   ['f-title','f-text','f-series','f-date','f-doc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-status').value='not-started';
   setContextValue('');
   document.getElementById('modal').classList.add('open');
-}
-function openEdit(id) {
+};
+window.openEdit = function(id) {
   const s=allSermons.find(x=>x.id===id);
   if (!s) return;
   editingId=id;
@@ -921,39 +1011,43 @@ function openEdit(id) {
   document.getElementById('f-status').value=s.status||'not-started';
   setContextValue(s.context||'');
   document.getElementById('modal').classList.add('open');
-}
-function closeModal(){document.getElementById('modal').classList.remove('open');}
-async function saveSermon() {
+};
+window.closeModal = function(){document.getElementById('modal').classList.remove('open');};
+window.saveSermon = async function() {
   const title=document.getElementById('f-title').value.trim();
   const date=document.getElementById('f-date').value;
   if (!title||!date){alert('Please enter a title and sermon date.');return;}
   const btn=document.getElementById('save-btn');
   btn.textContent='Saving...';btn.disabled=true;
   const context=getContextValue();
-  const doc=document.getElementById('f-doc').value.trim();
+  const doc_link=document.getElementById('f-doc').value.trim();
+  const status=document.getElementById('f-status').value;
+  const text=document.getElementById('f-text').value.trim();
+  const series=document.getElementById('f-series').value.trim();
+
+  let sermon;
   if (editingId!==null) {
-    const s=allSermons.find(x=>x.id===editingId);
-    if (s){s.title=title;s.text=document.getElementById('f-text').value.trim();s.series=document.getElementById('f-series').value.trim();s.date=date;s.status=document.getElementById('f-status').value;s.context=context;s.doc=doc;}
+    sermon=allSermons.find(x=>x.id===editingId);
+    if (sermon){sermon.title=title;sermon.text=text;sermon.series=series;sermon.date=date;sermon.status=status;sermon.context=context;sermon.doc=doc_link;}
   } else {
-    allSermons.push({id:'s'+Date.now(),title,text:document.getElementById('f-text').value.trim(),series:document.getElementById('f-series').value.trim(),date,status:document.getElementById('f-status').value,context,doc});
+    sermon={id:'s'+Date.now(),title,text,series,date,status,context,doc:doc_link};
+    allSermons.push(sermon);
     allSermons.sort((a,b)=>a.date.localeCompare(b.date));
   }
-  await writeSermons(allSermons);
+  await saveSermonToDb(sermon);
   renderAll();
-  closeModal();
+  window.closeModal();
   btn.textContent='Save sermon';btn.disabled=false;
-}
-document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+};
 
-// Close nav on escape
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeNav();closeModal();}});
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)window.closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){window.closeNav();window.closeModal();}});
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 const t=today();
 document.getElementById('nav-date').textContent=t.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-const todayLabelEl = document.getElementById('today-label');
-if (todayLabelEl) todayLabelEl.textContent=t.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-loadSermons();
+const todayLabelEl=document.getElementById('today-label');
+if(todayLabelEl) todayLabelEl.textContent=t.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 </script>
 </body>
 </html>
