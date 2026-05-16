@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Archive — Sermon Prep</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #fafaf9;
+    --text-primary: #1c1917; --text-secondary: #78716c; --text-tertiary: #a8a29e;
+    --border: rgba(28,25,23,0.12); --border-md: rgba(28,25,23,0.2);
+    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+    --blue-bg: #e6f1fb; --blue-text: #185fa5;
+    --green-bg: #eaf3de; --green-text: #3b6d11;
+    --amber-bg: #faeeda; --amber-text: #854f0b;
+    --red-bg: #fcebeb; --red-text: #a32d2d;
+    --purple-bg: #eeedfe; --purple-text: #534ab7;
+    --gray-bg: #f0f0ef; --gray-text: #57534e;
+    --nav-width: 200px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1917; --bg-secondary: #292524; --bg-tertiary: #1c1917;
+      --text-primary: #fafaf9; --text-secondary: #a8a29e; --text-tertiary: #78716c;
+      --border: rgba(250,250,249,0.12); --border-md: rgba(250,250,249,0.22);
+      --blue-bg: #0c3d6e; --blue-text: #93c5fd;
+      --green-bg: #14401a; --green-text: #86efac;
+      --amber-bg: #451a03; --amber-text: #fcd34d;
+      --red-bg: #450a0a; --red-text: #fca5a5;
+      --purple-bg: #2e1065; --purple-text: #c4b5fd;
+      --gray-bg: #292524; --gray-text: #a8a29e;
+    }
+  }
+  html { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); font-size: 16px; }
+  body { min-height: 100vh; }
+  .app { display: flex; min-height: 100vh; }
+
+  /* NAV */
+  .nav { width: var(--nav-width); flex-shrink: 0; background: var(--bg); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 100; transition: transform 0.25s ease; }
+  .nav-logo { padding: 0 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
+  .nav-logo-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .nav-logo-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .nav-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 0 1.25rem; margin-bottom: 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 1.25rem; font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; border-left: 2px solid transparent; transition: background 0.15s; }
+  .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .nav-item.active { color: var(--blue-text); background: var(--blue-bg); border-left-color: var(--blue-text); }
+  .nav-item i { font-size: 16px; flex-shrink: 0; }
+  .nav-bottom { margin-top: auto; padding: 1rem 1.25rem 0; border-top: 0.5px solid var(--border); }
+  .sync-status { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; }
+  .sync-dot.synced { background: var(--green-text); }
+  .sync-dot.syncing { background: var(--amber-text); animation: pulse 1s infinite; }
+  .sync-dot.error { background: var(--red-text); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* MOBILE */
+  .mobile-topbar { display: none; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-bottom: 0.5px solid var(--border); position: sticky; top: 0; z-index: 50; }
+  .mobile-topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
+  .hamburger { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 6px 8px; cursor: pointer; color: var(--text-primary); font-size: 18px; display: flex; align-items: center; }
+  .nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+  .nav-overlay.open { display: block; }
+
+  /* MAIN */
+  .main { flex: 1; padding: 2rem 2.5rem 4rem; max-width: 900px; }
+  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 12px; }
+  .top-bar h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+  .top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
+  .stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .stat-num { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1; }
+  .stat-num.small { font-size: 14px; font-weight: 500; padding-top: 3px; }
+  .stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+  /* FILTERS */
+  .filter-bar { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+  .filter-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+  .filter-input { padding: 7px 10px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; outline: none; width: 100%; }
+  .filter-input:focus { border-color: var(--blue-text); }
+  .filter-search-group { flex: 2; min-width: 200px; }
+  .filter-clear { padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: transparent; color: var(--text-secondary); font-family: var(--font); font-size: 12px; cursor: pointer; white-space: nowrap; align-self: flex-end; display: flex; align-items: center; gap: 5px; }
+  .filter-clear:hover { background: var(--bg-secondary); }
+
+  /* BOOKS FILTER */
+  .books-bar { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 1.25rem; }
+  .books-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+  .books-label span { font-size: 11px; color: var(--text-tertiary); font-weight: 400; }
+  .books-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+  .book-pill { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; border: 0.5px solid var(--border-md); background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .book-pill:hover { border-color: var(--blue-text); color: var(--blue-text); }
+  .book-pill.active { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; }
+  .book-pill.ot { }
+  .book-pill.nt { }
+
+  /* RESULTS */
+  .results-label { font-size: 12px; color: var(--text-tertiary); margin-bottom: 10px; }
+
+  /* ARCHIVE CARDS */
+  .archive-list { display: flex; flex-direction: column; gap: 8px; }
+  .archive-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; display: flex; align-items: flex-start; gap: 14px; transition: border-color 0.15s; }
+  .archive-card:hover { border-color: var(--border-md); }
+  .archive-date-col { flex-shrink: 0; width: 54px; text-align: center; background: var(--bg-secondary); border-radius: var(--radius-md); padding: 6px 4px; }
+  .archive-date-month { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); }
+  .archive-date-day { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1.1; }
+  .archive-date-year { font-size: 10px; color: var(--text-tertiary); }
+  .archive-content { flex: 1; min-width: 0; }
+  .archive-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; }
+  .archive-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .archive-text { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; }
+  .archive-text i { font-size: 12px; }
+  .archive-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+  .archive-badge.series { background: var(--blue-bg); color: var(--blue-text); }
+  .archive-badge.context { background: var(--purple-bg); color: var(--purple-text); }
+  .archive-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .doc-link { font-size: 11px; color: var(--blue-text); display: flex; align-items: center; gap: 4px; text-decoration: none; padding: 4px 10px; border: 0.5px solid var(--blue-text); border-radius: var(--radius-md); white-space: nowrap; }
+  .doc-link:hover { background: var(--blue-bg); }
+
+  /* EMPTY / LOADING */
+  .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-secondary); font-size: 14px; }
+  .empty-state i { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.3; }
+  .loading-state { text-align: center; padding: 3rem; color: var(--text-secondary); font-size: 14px; }
+  .loading-state i { font-size: 28px; display: block; margin-bottom: 8px; opacity: 0.35; animation: spin 1s linear infinite; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  #login-screen { display: none; position: fixed; inset: 0; background: var(--bg-tertiary); z-index: 500; align-items: center; justify-content: center; flex-direction: column; gap: 20px; }
+
+  @media (max-width: 768px) {
+    .nav { position: fixed; left: 0; top: 0; bottom: 0; width: var(--nav-width); transform: translateX(-100%); z-index: 250; height: 100vh; }
+    .nav.open { transform: translateX(0); }
+    .mobile-topbar { display: flex; }
+    .app { display: block; }
+    .main { padding: 1rem 1rem 4rem; max-width: 100%; width: 100%; }
+    .top-bar { display: none; }
+    .stats { grid-template-columns: repeat(2,1fr); }
+    .archive-card { flex-wrap: wrap; }
+    .archive-actions { width: 100%; margin-top: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div style="text-align:center;">
+    <div style="font-size:32px;margin-bottom:8px;">📚</div>
+    <h1 style="font-size:22px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">Archive</h1>
+    <p style="font-size:14px;color:var(--text-secondary);">Sign in to view your sermon archive</p>
+  </div>
+  <button onclick="signIn()" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:white;border:0.5px solid rgba(28,25,23,0.2);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <img src="https://www.google.com/favicon.ico" width="18" height="18"/> Sign in with Google
+  </button>
+</div>
+
+<div class="app">
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+  <nav class="nav" id="main-nav">
+    <div class="nav-logo">
+      <div class="nav-logo-title">Sermon Prep</div>
+      <div class="nav-logo-sub" id="nav-date"></div>
+    </div>
+    <div class="nav-section-label" style="margin-bottom:8px;">Pages</div>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/"><i class="ti ti-bible"></i> Dashboard</a>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/color.html"><i class="ti ti-plus"></i> Color</a>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/accountability.html"><i class="ti ti-users"></i> Accountability</a>
+    <a class="nav-item active" href="/Sermon-Prep-Dashboard/archive.html"><i class="ti ti-archive"></i> Archive</a>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/settings.html"><i class="ti ti-settings"></i> Settings</a>
+    <div class="nav-bottom">
+      <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Loading...</span></div>
+      <div id="nav-user" style="font-size:11px;color:var(--text-tertiary);margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+      <button class="filter-clear" style="width:100%;margin-top:6px;justify-content:center;" onclick="signOut()"><i class="ti ti-logout"></i> Sign out</button>
+    </div>
+  </nav>
+
+  <div class="mobile-topbar">
+    <button class="hamburger" onclick="openNav()"><i class="ti ti-menu-2"></i></button>
+    <h1><i class="ti ti-archive" style="font-size:16px;vertical-align:-2px;margin-right:4px;"></i> Archive</h1>
+    <button class="filter-clear" style="font-size:12px;padding:6px 10px;" onclick="loadArchive()"><i class="ti ti-refresh"></i></button>
+  </div>
+
+  <main class="main">
+    <div class="top-bar">
+      <div>
+        <h1><i class="ti ti-archive" style="font-size:18px;vertical-align:-2px;margin-right:6px;"></i>Archive</h1>
+        <div class="subtitle">Every sermon you've preached</div>
+      </div>
+      <button class="filter-clear" onclick="loadArchive()"><i class="ti ti-refresh"></i> Refresh</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Total sermons</div><div class="stat-num" id="stat-total">—</div></div>
+      <div class="stat"><div class="stat-label">This year</div><div class="stat-num" id="stat-year">—</div></div>
+      <div class="stat"><div class="stat-label" id="stat-ctx1-label">—</div><div class="stat-num" id="stat-ctx1">—</div><div class="stat-sub" id="stat-ctx1-sub"></div></div>
+      <div class="stat"><div class="stat-label" id="stat-ctx2-label">—</div><div class="stat-num" id="stat-ctx2">—</div><div class="stat-sub" id="stat-ctx2-sub"></div></div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-bar">
+      <div class="filter-group filter-search-group">
+        <div class="filter-label">Search</div>
+        <input class="filter-input" type="text" id="filter-search" placeholder="Title, passage, series..." oninput="applyFilters()" />
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Context</div>
+        <select class="filter-input" id="filter-context" onchange="applyFilters()">
+          <option value="">All contexts</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Series</div>
+        <select class="filter-input" id="filter-series" onchange="applyFilters()">
+          <option value="">All series</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Year</div>
+        <select class="filter-input" id="filter-year" onchange="applyFilters()">
+          <option value="">All years</option>
+        </select>
+      </div>
+      <button class="filter-clear" onclick="clearFilters()"><i class="ti ti-x"></i> Clear</button>
+    </div>
+
+    <!-- BOOKS FILTER -->
+    <div class="books-bar" id="books-bar" style="display:none;">
+      <div class="books-label">
+        Books of the Bible
+        <span>Click to filter</span>
+      </div>
+      <div class="books-pills" id="books-pills"></div>
+    </div>
+
+    <div class="results-label" id="results-label"></div>
+    <div id="archive-list"><div class="loading-state"><i class="ti ti-loader"></i>Loading your archive...</div></div>
+  </main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
+  authDomain: "sermon-prep-dashboard.firebaseapp.com",
+  projectId: "sermon-prep-dashboard",
+  storageBucket: "sermon-prep-dashboard.firebasestorage.app",
+  messagingSenderId: "769289223341",
+  appId: "1:769289223341:web:3dc1d53e57d96b3c55da24"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+let currentUser = null;
+let allSermons = [];
+let activeBook = null;
+
+// ── BIBLE BOOKS ───────────────────────────────────────────────────────────────
+const BIBLE_BOOKS = [
+  // OT
+  { name: 'Genesis',       abbr: ['gen','ge','gn'],                       short: 'Gen',  testament: 'ot' },
+  { name: 'Exodus',        abbr: ['ex','exo','exod'],                     short: 'Exo',  testament: 'ot' },
+  { name: 'Leviticus',     abbr: ['lev','le','lv'],                       short: 'Lev',  testament: 'ot' },
+  { name: 'Numbers',       abbr: ['num','nu','nm','nb'],                   short: 'Num',  testament: 'ot' },
+  { name: 'Deuteronomy',   abbr: ['deut','de','dt'],                      short: 'Deu',  testament: 'ot' },
+  { name: 'Joshua',        abbr: ['josh','jos','jsh'],                    short: 'Josh', testament: 'ot' },
+  { name: 'Judges',        abbr: ['judg','jdg','jg','jdgs'],              short: 'Judg', testament: 'ot' },
+  { name: 'Ruth',          abbr: ['rut','ru'],                            short: 'Ruth', testament: 'ot' },
+  { name: '1 Samuel',      abbr: ['1sam','1sa','1s','isa','1samuel'],     short: '1Sam', testament: 'ot' },
+  { name: '2 Samuel',      abbr: ['2sam','2sa','2s','2samuel'],           short: '2Sam', testament: 'ot' },
+  { name: '1 Kings',       abbr: ['1kgs','1ki','1k','1kings'],            short: '1Kgs', testament: 'ot' },
+  { name: '2 Kings',       abbr: ['2kgs','2ki','2k','2kings'],            short: '2Kgs', testament: 'ot' },
+  { name: '1 Chronicles',  abbr: ['1chr','1ch','1chron','1chronicles'],   short: '1Chr', testament: 'ot' },
+  { name: '2 Chronicles',  abbr: ['2chr','2ch','2chron','2chronicles'],   short: '2Chr', testament: 'ot' },
+  { name: 'Ezra',          abbr: ['ezr','ez'],                            short: 'Ezra', testament: 'ot' },
+  { name: 'Nehemiah',      abbr: ['neh','ne'],                            short: 'Neh',  testament: 'ot' },
+  { name: 'Esther',        abbr: ['est','es','esth'],                     short: 'Est',  testament: 'ot' },
+  { name: 'Job',           abbr: ['job','jb'],                            short: 'Job',  testament: 'ot' },
+  { name: 'Psalms',        abbr: ['ps','psa','psm','pss','psalm','psalms'],short: 'Psa', testament: 'ot' },
+  { name: 'Proverbs',      abbr: ['prov','pro','prv','pr'],               short: 'Pro',  testament: 'ot' },
+  { name: 'Ecclesiastes',  abbr: ['eccl','ecc','ec','qoh'],               short: 'Ecc',  testament: 'ot' },
+  { name: 'Song of Solomon',abbr: ['song','sos','ss','sng','cant'],       short: 'SoS',  testament: 'ot' },
+  { name: 'Isaiah',        abbr: ['isa','is'],                            short: 'Isa',  testament: 'ot' },
+  { name: 'Jeremiah',      abbr: ['jer','je','jr'],                       short: 'Jer',  testament: 'ot' },
+  { name: 'Lamentations',  abbr: ['lam','la'],                            short: 'Lam',  testament: 'ot' },
+  { name: 'Ezekiel',       abbr: ['ezek','eze','ezk'],                    short: 'Eze',  testament: 'ot' },
+  { name: 'Daniel',        abbr: ['dan','da','dn'],                       short: 'Dan',  testament: 'ot' },
+  { name: 'Hosea',         abbr: ['hos','ho'],                            short: 'Hos',  testament: 'ot' },
+  { name: 'Joel',          abbr: ['joel','jl'],                           short: 'Joel', testament: 'ot' },
+  { name: 'Amos',          abbr: ['amos','am'],                           short: 'Amos', testament: 'ot' },
+  { name: 'Obadiah',       abbr: ['obad','ob'],                           short: 'Oba',  testament: 'ot' },
+  { name: 'Jonah',         abbr: ['jonah','jon','jnh'],                   short: 'Jon',  testament: 'ot' },
+  { name: 'Micah',         abbr: ['mic','mi'],                            short: 'Mic',  testament: 'ot' },
+  { name: 'Nahum',         abbr: ['nah','na'],                            short: 'Nah',  testament: 'ot' },
+  { name: 'Habakkuk',      abbr: ['hab','hb'],                            short: 'Hab',  testament: 'ot' },
+  { name: 'Zephaniah',     abbr: ['zeph','zep','zp'],                     short: 'Zep',  testament: 'ot' },
+  { name: 'Haggai',        abbr: ['hag','hg'],                            short: 'Hag',  testament: 'ot' },
+  { name: 'Zechariah',     abbr: ['zech','zec','zc'],                     short: 'Zec',  testament: 'ot' },
+  { name: 'Malachi',       abbr: ['mal','ml'],                            short: 'Mal',  testament: 'ot' },
+  // NT
+  { name: 'Matthew',       abbr: ['matt','mat','mt'],                     short: 'Matt', testament: 'nt' },
+  { name: 'Mark',          abbr: ['mark','mrk','mar','mk','mr'],          short: 'Mark', testament: 'nt' },
+  { name: 'Luke',          abbr: ['luke','luk','lk'],                     short: 'Luke', testament: 'nt' },
+  { name: 'John',          abbr: ['john','joh','jhn','jn'],               short: 'John', testament: 'nt' },
+  { name: 'Acts',          abbr: ['acts','act','ac'],                     short: 'Acts', testament: 'nt' },
+  { name: 'Romans',        abbr: ['rom','ro','rm'],                       short: 'Rom',  testament: 'nt' },
+  { name: '1 Corinthians', abbr: ['1cor','1co','1corinthians'],           short: '1Cor', testament: 'nt' },
+  { name: '2 Corinthians', abbr: ['2cor','2co','2corinthians'],           short: '2Cor', testament: 'nt' },
+  { name: 'Galatians',     abbr: ['gal','ga'],                            short: 'Gal',  testament: 'nt' },
+  { name: 'Ephesians',     abbr: ['eph','ephes'],                         short: 'Eph',  testament: 'nt' },
+  { name: 'Philippians',   abbr: ['phil','php','pp','philippians'],       short: 'Phil', testament: 'nt' },
+  { name: 'Colossians',    abbr: ['col','co'],                            short: 'Col',  testament: 'nt' },
+  { name: '1 Thessalonians',abbr: ['1thess','1th','1thessalonians'],      short: '1The', testament: 'nt' },
+  { name: '2 Thessalonians',abbr: ['2thess','2th','2thessalonians'],      short: '2The', testament: 'nt' },
+  { name: '1 Timothy',     abbr: ['1tim','1ti','1timothy'],               short: '1Tim', testament: 'nt' },
+  { name: '2 Timothy',     abbr: ['2tim','2ti','2timothy'],               short: '2Tim', testament: 'nt' },
+  { name: 'Titus',         abbr: ['titus','tit','ti'],                    short: 'Tit',  testament: 'nt' },
+  { name: 'Philemon',      abbr: ['phlm','phm','pm'],                     short: 'Phm',  testament: 'nt' },
+  { name: 'Hebrews',       abbr: ['heb','he'],                            short: 'Heb',  testament: 'nt' },
+  { name: 'James',         abbr: ['jas','jm'],                            short: 'Jas',  testament: 'nt' },
+  { name: '1 Peter',       abbr: ['1pet','1pe','1pt','1p','1peter'],      short: '1Pet', testament: 'nt' },
+  { name: '2 Peter',       abbr: ['2pet','2pe','2pt','2p','2peter'],      short: '2Pet', testament: 'nt' },
+  { name: '1 John',        abbr: ['1jn','1jo','1john'],                   short: '1Jn',  testament: 'nt' },
+  { name: '2 John',        abbr: ['2jn','2jo','2john'],                   short: '2Jn',  testament: 'nt' },
+  { name: '3 John',        abbr: ['3jn','3jo','3john'],                   short: '3Jn',  testament: 'nt' },
+  { name: 'Jude',          abbr: ['jude','jud'],                          short: 'Jude', testament: 'nt' },
+  { name: 'Revelation',    abbr: ['rev','re','rv'],                       short: 'Rev',  testament: 'nt' },
+];
+
+function detectBook(textStr) {
+  if (!textStr) return null;
+  const normalized = textStr.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').trim();
+  // Try full name match first
+  for (const book of BIBLE_BOOKS) {
+    if (normalized.startsWith(book.name.toLowerCase())) return book.name;
+  }
+  // Try abbreviation match — word at start
+  const firstWord = normalized.split(/[\s:]/)[0];
+  // Handle numbered books like "1cor", "2tim"
+  const firstTwo = normalized.split(/[\s:]/)[0] + (normalized.split(/[\s:]/)[1] || '');
+  for (const book of BIBLE_BOOKS) {
+    for (const abbr of book.abbr) {
+      if (firstWord === abbr || firstTwo.replace(/\s/,'') === abbr) return book.name;
+    }
+  }
+  return null;
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('nav-user').textContent = user.displayName || user.email;
+    await loadArchive();
+  } else {
+    currentUser = null;
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+});
+
+window.signIn = async () => { try { await signInWithPopup(auth, provider); } catch(e) { console.error(e); } };
+window.signOut = async () => { await fbSignOut(auth); };
+window.openNav = () => { document.getElementById('main-nav').classList.add('open'); document.getElementById('nav-overlay').classList.add('open'); document.body.style.overflow='hidden'; };
+window.closeNav = () => { document.getElementById('main-nav').classList.remove('open'); document.getElementById('nav-overlay').classList.remove('open'); document.body.style.overflow=''; };
+
+function setSyncStatus(state, label) {
+  document.getElementById('sync-dot').className = 'sync-dot '+state;
+  document.getElementById('sync-label').textContent = label;
+}
+
+// ── LOAD ──────────────────────────────────────────────────────────────────────
+window.loadArchive = async function() {
+  setSyncStatus('syncing','Loading...');
+  try {
+    const snap = await getDocs(collection(db, 'users', currentUser.uid, 'sermons'));
+    allSermons = snap.docs
+      .map(d => ({id: d.id, ...d.data()}))
+      .filter(s => s.status === 'completed' && s.date)
+      .sort((a,b) => b.date.localeCompare(a.date));
+    setSyncStatus('synced','Synced');
+    updateStats();
+    buildFilters();
+    buildBooksFilter();
+    applyFilters();
+  } catch(e) {
+    setSyncStatus('error','Error');
+    document.getElementById('archive-list').innerHTML = `<div class="empty-state"><i class="ti ti-alert-circle"></i>Could not load archive.</div>`;
+  }
+};
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const total = allSermons.length;
+  const thisYear = new Date().getFullYear();
+  const yearCount = allSermons.filter(s => s.date?.startsWith(String(thisYear))).length;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-year').textContent = yearCount;
+
+  // Top 2 contexts
+  const ctxCounts = {};
+  allSermons.forEach(s => { if (s.context) ctxCounts[s.context] = (ctxCounts[s.context]||0)+1; });
+  const sorted = Object.entries(ctxCounts).sort((a,b)=>b[1]-a[1]);
+
+  if (sorted[0]) {
+    document.getElementById('stat-ctx1-label').textContent = sorted[0][0];
+    document.getElementById('stat-ctx1').textContent = sorted[0][1];
+    document.getElementById('stat-ctx1-sub').textContent = `sermon${sorted[0][1]!==1?'s':''}`;
+  } else {
+    document.getElementById('stat-ctx1-label').textContent = 'Top context';
+    document.getElementById('stat-ctx1').textContent = '—';
+  }
+  if (sorted[1]) {
+    document.getElementById('stat-ctx2-label').textContent = sorted[1][0];
+    document.getElementById('stat-ctx2').textContent = sorted[1][1];
+    document.getElementById('stat-ctx2-sub').textContent = `sermon${sorted[1][1]!==1?'s':''}`;
+  } else {
+    document.getElementById('stat-ctx2-label').textContent = '2nd context';
+    document.getElementById('stat-ctx2').textContent = '—';
+  }
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+function buildFilters() {
+  const contexts = [...new Set(allSermons.map(s=>s.context).filter(Boolean))].sort();
+  const series = [...new Set(allSermons.map(s=>s.series).filter(Boolean))].sort();
+  const years = [...new Set(allSermons.map(s=>s.date?.substring(0,4)).filter(Boolean))].sort().reverse();
+
+  document.getElementById('filter-context').innerHTML =
+    '<option value="">All contexts</option>' + contexts.map(c=>`<option value="${c}">${c}</option>`).join('');
+  document.getElementById('filter-series').innerHTML =
+    '<option value="">All series</option>' + series.map(s=>`<option value="${s}">${s}</option>`).join('');
+  document.getElementById('filter-year').innerHTML =
+    '<option value="">All years</option>' + years.map(y=>`<option value="${y}">${y}</option>`).join('');
+}
+
+// ── BOOKS FILTER ──────────────────────────────────────────────────────────────
+function buildBooksFilter() {
+  // Find which books have been preached from
+  const preachedBooks = new Set();
+  allSermons.forEach(s => {
+    const book = detectBook(s.text);
+    if (book) preachedBooks.add(book);
+  });
+
+  if (preachedBooks.size === 0) {
+    document.getElementById('books-bar').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('books-bar').style.display = 'block';
+  const booksInOrder = BIBLE_BOOKS.filter(b => preachedBooks.has(b.name));
+
+  document.getElementById('books-pills').innerHTML = booksInOrder.map(book =>
+    `<span class="book-pill ${book.testament} ${activeBook===book.name?'active':''}"
+      onclick="toggleBook('${book.name}')">${book.short}</span>`
+  ).join('');
+}
+
+window.toggleBook = function(bookName) {
+  activeBook = activeBook === bookName ? null : bookName;
+  buildBooksFilter();
+  applyFilters();
+};
+
+window.applyFilters = function() {
+  const search = document.getElementById('filter-search').value.toLowerCase().trim();
+  const context = document.getElementById('filter-context').value;
+  const series = document.getElementById('filter-series').value;
+  const year = document.getElementById('filter-year').value;
+
+  const filtered = allSermons.filter(s => {
+    if (context && s.context !== context) return false;
+    if (series && s.series !== series) return false;
+    if (year && !s.date?.startsWith(year)) return false;
+    if (activeBook && detectBook(s.text) !== activeBook) return false;
+    if (search) {
+      const hay = `${s.title} ${s.text} ${s.series} ${s.context}`.toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('results-label').textContent =
+    filtered.length === allSermons.length
+      ? `${allSermons.length} sermon${allSermons.length!==1?'s':''}`
+      : `${filtered.length} of ${allSermons.length} sermons`;
+
+  renderArchive(filtered);
+};
+
+window.clearFilters = function() {
+  document.getElementById('filter-search').value = '';
+  document.getElementById('filter-context').value = '';
+  document.getElementById('filter-series').value = '';
+  document.getElementById('filter-year').value = '';
+  activeBook = null;
+  buildBooksFilter();
+  applyFilters();
+};
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderArchive(sermons) {
+  const el = document.getElementById('archive-list');
+  if (sermons.length === 0) {
+    el.innerHTML = allSermons.length === 0
+      ? `<div class="empty-state"><i class="ti ti-archive"></i>No completed sermons yet. Sermons marked as Completed will appear here.</div>`
+      : `<div class="empty-state"><i class="ti ti-search"></i>No sermons match your filters.</div>`;
+    return;
+  }
+
+  el.innerHTML = sermons.map(s => {
+    const [y,m,d] = (s.date||'').split('-').map(Number);
+    const date = new Date(y,m-1,d);
+    const month = date.toLocaleDateString('en-US',{month:'short'}).toUpperCase();
+    const day = date.getDate();
+    const year = date.getFullYear();
+
+    return `<div class="archive-card">
+      <div class="archive-date-col">
+        <div class="archive-date-month">${month}</div>
+        <div class="archive-date-day">${day}</div>
+        <div class="archive-date-year">${year}</div>
+      </div>
+      <div class="archive-content">
+        <div class="archive-title">${s.title||'Untitled'}</div>
+        <div class="archive-meta">
+          ${s.text?`<span class="archive-text"><i class="ti ti-book-2"></i>${s.text}</span>`:''}
+          ${s.series?`<span class="archive-badge series">${s.series}</span>`:''}
+          ${s.context?`<span class="archive-badge context">${s.context}</span>`:''}
+        </div>
+      </div>
+      <div class="archive-actions">
+        ${s.doc?`<a class="doc-link" href="${s.doc}" target="_blank"><i class="ti ti-file-text"></i> Sermon doc</a>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.getElementById('nav-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+document.addEventListener('keydown', e => { if(e.key==='Escape') window.closeNav(); });
+</script>
+</body>
+</html>
