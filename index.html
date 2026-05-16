@@ -414,7 +414,7 @@ let currentUser = null;
 
       <!-- PREP CALENDAR -->
       <div class="section-header">
-        <div class="section-title">Prep calendar</div>
+        <div class="section-title">Calendar</div>
         <div class="section-line"></div>
       </div>
       <div class="cal-widget">
@@ -591,18 +591,24 @@ function getStageDueDate(sermonDateStr, stageKey) {
   const stage = STAGES.find(s=>s.key===stageKey);
   if (!stage||stage.dueDay===null) return null;
   const sermonDate = parseDate(sermonDateStr);
-  // Find the Monday of the sermon's week
-  const sermonDay = sermonDate.getDay(); // 0=Sun
-  const daysToMonday = sermonDay === 0 ? -6 : 1 - sermonDay;
-  const monday = new Date(sermonDate);
-  monday.setDate(sermonDate.getDate() + daysToMonday);
-  // Go back weeksBack weeks from that Monday
-  const weekStart = new Date(monday);
-  weekStart.setDate(monday.getDate() - (stage.weeksBack * 7));
-  // Add dueDay offset (0=Sun, 1=Mon, 2=Tue, etc.)
-  // Adjust so 0=Mon, 1=Tue ... 6=Sun to match natural week feel
-  const result = new Date(weekStart);
-  result.setDate(weekStart.getDate() + (stage.dueDay === 0 ? 6 : stage.dueDay - 1));
+
+  // Start from sermon date and go back weeksBack * 7 days
+  const base = new Date(sermonDate);
+  base.setDate(sermonDate.getDate() - (stage.weeksBack * 7));
+
+  // Now find the most recent occurrence of dueDay on or before base
+  // dueDay: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+  const baseDow = base.getDay();
+  let diff = baseDow - stage.dueDay;
+  if (diff < 0) diff += 7;
+  const result = new Date(base);
+  result.setDate(base.getDate() - diff);
+
+    // Safety check — only final, run-through, and completed can land on sermon date
+  if (result >= sermonDate && stage.key !== 'completed' && stage.key !== 'run' && stage.key !== 'final') {
+    result.setDate(result.getDate() - 7);
+  }
+
   return result;
 }
 
@@ -818,7 +824,7 @@ function renderSidebarCard(s, mode) {
 // ── TO-DO ─────────────────────────────────────────────────────────────────────
 function renderTodo() {
   const t = today();
-  const threeWeeks = new Date(t); threeWeeks.setDate(t.getDate()+21);
+  const threeWeeks = new Date(t); threeWeeks.setDate(t.getDate()+7);
   const items = [];
   const activeSermons = allSermons.filter(s=>isActive(s)&&s.status!=='completed');
   activeSermons.forEach(s => {
@@ -897,13 +903,13 @@ function renderCalendar() {
   const daysToMon = dow===0?-6:1-dow;
   const startDate = new Date(t);
   startDate.setDate(t.getDate()+daysToMon+(calWeekOffset*7));
-  const endDate = new Date(startDate); endDate.setDate(startDate.getDate()+20);
+  const endDate = new Date(startDate); endDate.setDate(startDate.getDate()+27);
   document.getElementById('cal-title').textContent =
     `${startDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${endDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
   const todayStr = toYMD(t);
   let html='';
   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d=>{html+=`<div class="cal-day-header">${d}</div>`;});
-  for (let i=0;i<21;i++) {
+  for (let i=0;i<28;i++) {
     const d=new Date(startDate); d.setDate(startDate.getDate()+i);
     const dateStr=toYMD(d);
     const dow2=d.getDay();
