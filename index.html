@@ -619,6 +619,7 @@ function isBehind(sermon) {
   return daysUntil(due) < 0;
 }
 function getProgressPct(status) {
+  if (status === 'not-started' || status === 'study') return 0;
   const idx = STATUS_ORDER.indexOf(status);
   return idx<0 ? 0 : Math.round((idx/(STATUS_ORDER.length-1))*100);
 }
