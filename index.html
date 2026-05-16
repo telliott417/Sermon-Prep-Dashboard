@@ -333,7 +333,21 @@ let currentUser = null;
   </button>
   <div id="login-error" style="font-size:13px; color:var(--red-text); display:none;"></div>
 </div>
- 
+
+<!-- WELCOME OVERLAY -->
+<div id="welcome-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:400; align-items:center; justify-content:center; padding:1rem;">
+  <div style="background:var(--bg); border-radius:var(--radius-xl); border:0.5px solid var(--border-md); width:100%; max-width:380px; overflow:hidden;">
+    <div id="welcome-body" style="padding:1.5rem;"></div>
+    <div style="padding:1rem 1.5rem; border-top:0.5px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+      <div style="display:flex;gap:6px;" id="welcome-dots"></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button onclick="dismissWelcome()" style="font-size:12px;color:var(--text-tertiary);background:none;border:none;cursor:pointer;padding:4px;font-family:var(--font);">Skip</button>
+        <button id="welcome-next-btn" onclick="welcomeNext()" style="font-size:13px;font-weight:500;padding:8px 18px;border-radius:var(--radius-md);background:#185fa5;color:white;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--font);"><i class="ti ti-arrow-right"></i> Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+  
   <!-- NAV OVERLAY (mobile) -->
   <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
 
@@ -543,6 +557,7 @@ onAuthStateChanged(auth, async user => {
     loginScreen.style.display = 'none';
     document.getElementById('nav-user').textContent = user.displayName || user.email;
     await loadUserSettings();
+    await checkWelcome();
     loadSermons();
   } else {
     currentUser = null;
@@ -562,6 +577,113 @@ window.signIn = async () => {
 
 window.signOut = async () => {
   await fbSignOut(auth);
+};
+
+// ── WELCOME ───────────────────────────────────────────────────────────────────
+const WELCOME_STEPS = [
+  {
+    icon: 'ti-layout-dashboard',
+    title: 'Welcome to your Sermon Prep Dashboard',
+    body: `This is your personal space to plan, track, and finish every sermon well. Your data is completely your own — no one else can see it except on the Accountability page, where your team gets a summary view of your progress.`
+  },
+  {
+    icon: 'ti-book',
+    title: 'Your sermon prep, stage by stage',
+    body: `Every sermon moves through stages — from Study all the way to preaching. Due dates are calculated automatically based on your sermon date. You can customize your stages and deadlines anytime in Settings.`,
+    stages: true
+  },
+  {
+    icon: 'ti-plus',
+    title: 'Capture your Color',
+    body: `The Color page is your personal library of illustrations, quotes, and stories. Any time you hear a great illustration, read a powerful quote, or think of a story that might preach — capture it. Tag it by theme and find it later when you need it.`
+  },
+  {
+    icon: 'ti-users',
+    title: 'Stay accountable together',
+    body: `Head to the Accountability page and enter your team code to connect with your staff. You'll be able to see each other's prep status at a glance — green means on track, red means behind. Iron sharpens iron.`,
+    code: true
+  }
+];
+
+let welcomeStep = 0;
+
+async function checkWelcome() {
+  if (!currentUser) return;
+  try {
+    const snap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'welcome'));
+    if (!snap.exists() || !snap.data().seen) {
+      showWelcome();
+    }
+  } catch(e) { console.error(e); }
+}
+
+function showWelcome() {
+  welcomeStep = 0;
+  document.getElementById('welcome-overlay').style.display = 'flex';
+  renderWelcomeStep();
+}
+
+function renderWelcomeStep() {
+  const step = WELCOME_STEPS[welcomeStep];
+  const total = WELCOME_STEPS.length;
+  const isLast = welcomeStep === total - 1;
+
+  // Dots
+  document.getElementById('welcome-dots').innerHTML = WELCOME_STEPS.map((_,i) =>
+    `<div style="width:7px;height:7px;border-radius:50%;background:${i===welcomeStep?'#185fa5':'var(--border-md)'};transition:background 0.2s;"></div>`
+  ).join('');
+
+  // Next button
+  const btn = document.getElementById('welcome-next-btn');
+  btn.innerHTML = isLast
+    ? `<i class="ti ti-check"></i> Get started`
+    : `<i class="ti ti-arrow-right"></i> Next`;
+
+  // Stage flow for step 2
+  const stageFlow = step.stages ? `
+    <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:12px 0;">
+      ${(STAGES.length > 2 ? STAGES.slice(1, STAGES.length-1) : [
+        {key:'study',label:'Study'},{key:'idea',label:'Main idea'},{key:'outline',label:'Outline'},
+        {key:'draft',label:'Draft'},{key:'final',label:'Final'},{key:'run',label:'Run-through'}
+      ]).map((s,i,arr) => `
+        <span style="font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--bg-secondary);color:var(--text-secondary);border:0.5px solid var(--border);white-space:nowrap;">${s.label}</span>
+        ${i < arr.length-1 ? `<span style="font-size:11px;color:var(--text-tertiary);">›</span>` : ''}
+      `).join('')}
+    </div>` : '';
+
+  // Team code for step 4
+  const codeBox = step.code ? `
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px;margin:12px 0;border:0.5px solid var(--border);">
+      <i class="ti ti-key" style="color:var(--text-tertiary);font-size:16px;"></i>
+      <span style="font-size:18px;font-weight:600;letter-spacing:0.12em;color:#185fa5;">CANDEO</span>
+    </div>` : '';
+
+  document.getElementById('welcome-body').innerHTML = `
+    <div style="width:48px;height:48px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+      <i class="ti ${step.icon}" style="font-size:22px;color:var(--blue-text);"></i>
+    </div>
+    <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-tertiary);margin-bottom:6px;">Step ${welcomeStep+1} of ${total}</div>
+    <div style="font-size:17px;font-weight:500;color:var(--text-primary);margin-bottom:8px;line-height:1.3;">${step.title}</div>
+    ${stageFlow}
+    <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">${step.body}</div>
+    ${codeBox}
+  `;
+}
+
+window.welcomeNext = function() {
+  if (welcomeStep < WELCOME_STEPS.length - 1) {
+    welcomeStep++;
+    renderWelcomeStep();
+  } else {
+    dismissWelcome();
+  }
+};
+
+window.dismissWelcome = async function() {
+  document.getElementById('welcome-overlay').style.display = 'none';
+  try {
+    await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'welcome'), { seen: true });
+  } catch(e) { console.error(e); }
 };
 
 // ── NAV DRAWER ────────────────────────────────────────────────────────────────
