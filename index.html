@@ -509,12 +509,12 @@ const provider = new GoogleAuthProvider();
 let currentUser = null;
 
 const DEFAULT_STAGES = [
-  { key: 'study',   label: 'Study',        dueDay: 2, weeksBack: 2 },
-  { key: 'idea',    label: 'Main idea',     dueDay: 2, weeksBack: 2 },
-  { key: 'outline', label: 'Outline',       dueDay: 3, weeksBack: 2 },
-  { key: 'draft',   label: 'Draft',         dueDay: 2, weeksBack: 1 },
-  { key: 'final',   label: 'Final',         dueDay: 3, weeksBack: 1 },
-  { key: 'run',     label: 'Run-through',   dueDay: 4, weeksBack: 1 },
+  { key: 'study',   label: 'Study',        dueDay: 1, weeksBack: 1 },
+  { key: 'idea',    label: 'Main idea',     dueDay: 2, weeksBack: 1 },
+  { key: 'outline', label: 'Outline',       dueDay: 3, weeksBack: 1 },
+  { key: 'draft',   label: 'Draft',         dueDay: 1, weeksBack: 0 },
+  { key: 'final',   label: 'Final',         dueDay: 2, weeksBack: 0 },
+  { key: 'run',     label: 'Run-through',   dueDay: 3, weeksBack: 0 },
 ];
 const DEFAULT_CONTEXTS = ['Salt','Candeo','Youth'];
 
