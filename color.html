@@ -221,8 +221,12 @@
 <a class="nav-item" href="/Sermon-Prep-Dashboard/accountability.html"><i class="ti ti-users"></i> Accountability</a>
 <a class="nav-item" href="/Sermon-Prep-Dashboard/archive.html"><i class="ti ti-archive"></i> Archive</a>
 <a class="nav-item" href="/Sermon-Prep-Dashboard/settings.html"><i class="ti ti-settings"></i> Settings</a>
-    
-   
+<div id="admin-nav-section" style="display:none;">
+  <div class="nav-section-label" style="margin-bottom:8px;margin-top:1rem;">My Pages</div>
+  <a class="nav-item" href="/Sermon-Prep-Dashboard/library.html"><i class="ti ti-books"></i> My Library</a>
+</div>
+
+
     <div class="nav-bottom">
       <div class="sync-status">
         <div class="sync-dot" id="sync-dot"></div>
@@ -328,7 +332,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
@@ -362,12 +366,18 @@ let customTags = new Set();
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 const loginScreen = document.getElementById('login-screen');
 
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
     if (loginScreen) loginScreen.style.display = 'none';
 const navUser = document.getElementById('nav-user');
 if (navUser) navUser.textContent = user.displayName || user.email;
+    try {
+      const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
+      if (profileSnap.exists() && profileSnap.data().role === 'admin') {
+        document.getElementById('admin-nav-section').style.display = 'block';
+      }
+    } catch(e) { console.error('Role check failed:', e); }
 loadIdeas();
     const params = new URLSearchParams(window.location.search);
     if (params.get('capture') === '1') openCapture();

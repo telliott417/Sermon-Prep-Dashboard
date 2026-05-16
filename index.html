@@ -366,6 +366,10 @@ let currentUser = null;
 <a class="nav-item" href="/Sermon-Prep-Dashboard/accountability.html"><i class="ti ti-users"></i> Accountability</a>
 <a class="nav-item" href="/Sermon-Prep-Dashboard/archive.html"><i class="ti ti-archive"></i> Archive</a>
 <a class="nav-item" href="/Sermon-Prep-Dashboard/settings.html"><i class="ti ti-settings"></i> Settings</a>
+<div id="admin-nav-section" style="display:none;">
+  <div class="nav-section-label" style="margin-bottom:8px;margin-top:1rem;">My Pages</div>
+  <a class="nav-item" href="/Sermon-Prep-Dashboard/library.html"><i class="ti ti-books"></i> My Library</a>
+</div>
 
     <div class="nav-bottom">
       <div class="sync-status">
@@ -557,6 +561,12 @@ onAuthStateChanged(auth, async user => {
     currentUser = user;
     loginScreen.style.display = 'none';
     document.getElementById('nav-user').textContent = user.displayName || user.email;
+    try {
+      const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
+      if (profileSnap.exists() && profileSnap.data().role === 'admin') {
+        document.getElementById('admin-nav-section').style.display = 'block';
+      }
+    } catch(e) { console.error('Role check failed:', e); }
     await loadUserSettings();
     await checkWelcome();
     loadSermons();
