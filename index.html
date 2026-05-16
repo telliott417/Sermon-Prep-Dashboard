@@ -591,10 +591,18 @@ function getStageDueDate(sermonDateStr, stageKey) {
   const stage = STAGES.find(s=>s.key===stageKey);
   if (!stage||stage.dueDay===null) return null;
   const sermonDate = parseDate(sermonDateStr);
-  const base = new Date(sermonDate);
-  base.setDate(base.getDate()-(stage.weeksBack*7));
-  const result = new Date(base);
-  result.setDate(base.getDate()+stage.dueDay);
+  // Find the Monday of the sermon's week
+  const sermonDay = sermonDate.getDay(); // 0=Sun
+  const daysToMonday = sermonDay === 0 ? -6 : 1 - sermonDay;
+  const monday = new Date(sermonDate);
+  monday.setDate(sermonDate.getDate() + daysToMonday);
+  // Go back weeksBack weeks from that Monday
+  const weekStart = new Date(monday);
+  weekStart.setDate(monday.getDate() - (stage.weeksBack * 7));
+  // Add dueDay offset (0=Sun, 1=Mon, 2=Tue, etc.)
+  // Adjust so 0=Mon, 1=Tue ... 6=Sun to match natural week feel
+  const result = new Date(weekStart);
+  result.setDate(weekStart.getDate() + (stage.dueDay === 0 ? 6 : stage.dueDay - 1));
   return result;
 }
 
