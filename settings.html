@@ -234,7 +234,7 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('user-subtitle').textContent = user.email;
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
-      if (profileSnap.exists() && profileSnap.data().role === 'admin') {
+      if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
         document.getElementById('admin-nav-section').style.display = 'block';
       }
     } catch(e) { console.error('Role check failed:', e); }
