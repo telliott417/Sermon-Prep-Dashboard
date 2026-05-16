@@ -81,7 +81,7 @@
   .stage-name-input { flex: 1; min-width: 80px; padding: 5px 8px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-family: var(--font); font-size: 13px; outline: none; }
   .stage-name-input:focus { border-color: var(--blue-text); }
   .stage-name-input:disabled { background: transparent; border-color: transparent; color: var(--text-secondary); cursor: default; padding-left: 0; }
-  .deadline-selects { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+  ..deadline-selects { display: flex; gap: 5px; align-items: center; flex-shrink: 0; flex-wrap: wrap; max-width: 100%; }
   .deadline-selects select { padding: 5px 6px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-family: var(--font); font-size: 11px; outline: none; cursor: pointer; }
   .deadline-selects select:disabled { opacity: 0.4; cursor: default; }
   .stage-delete { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 15px; padding: 3px; border-radius: var(--radius-md); flex-shrink: 0; }
@@ -166,13 +166,14 @@
       </div>
     </div>
     <div id="settings-body"><div class="loading-state"><i class="ti ti-loader"></i>Loading your settings...</div></div>
+<div style="margin-top:1.25rem; display:flex; align-items:center; gap:16px;">
+  <button class="btn success" onclick="saveSettings()"><i class="ti ti-device-floppy"></i> Save settings</button>
+  <span class="save-msg" id="save-msg"></span>
+</div>
   </main>
 </div>
 
-<div class="save-bar">
-  <span class="save-msg" id="save-msg"></span>
-  <button class="btn success" onclick="saveSettings()"><i class="ti ti-device-floppy"></i> Save settings</button>
-</div>
+<div class="save-bar" style="display:none;"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
