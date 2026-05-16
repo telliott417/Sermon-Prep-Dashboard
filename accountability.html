@@ -306,6 +306,19 @@ const TEAM_DOC = doc(db, 'teams', TEAM_CODE);
 async function init() {
   setSyncStatus('syncing', 'Loading...');
   try {
+    // Check role — family members see a read-only message instead of team join
+    const profileSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'));
+    const role = profileSnap.exists() ? profileSnap.data().role : 'member';
+    if (role === 'family') {
+      document.getElementById('main-content').innerHTML = `
+        <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:2rem;max-width:480px;">
+          <div style="font-size:24px;margin-bottom:12px;">🤝</div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:8px;">Team Accountability</div>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">This page is for the sermon prep team. You can view the dashboard and other pages but the accountability team is for staff members only.</div>
+        </div>`;
+      setSyncStatus('synced', '');
+      return;
+    }
     const snap = await getDoc(TEAM_DOC);
     if (!snap.exists()) {
       renderOnboard(false);
