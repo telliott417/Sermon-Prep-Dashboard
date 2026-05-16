@@ -849,7 +849,7 @@ function renderTodo() {
   });
   const el = document.getElementById('todo-list');
   if (items.length===0) {
-    el.innerHTML = `<div class="todo-empty">No tasks in the next 3 weeks — you're ahead! 🎉</div>`;
+    el.innerHTML = `<div class="todo-empty">No tasks in the next 7 days — you're ahead! 🎉</div>`;
     return;
   }
   el.innerHTML = items.map(item => {
