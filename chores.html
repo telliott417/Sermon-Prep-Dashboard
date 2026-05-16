@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My Chores — Sermon Prep</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #fafaf9;
+    --text-primary: #1c1917; --text-secondary: #78716c; --text-tertiary: #a8a29e;
+    --border: rgba(28,25,23,0.12); --border-md: rgba(28,25,23,0.2);
+    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+    --blue-bg: #e6f1fb; --blue-text: #185fa5;
+    --green-bg: #eaf3de; --green-text: #3b6d11;
+    --amber-bg: #faeeda; --amber-text: #854f0b;
+    --red-bg: #fcebeb; --red-text: #a32d2d;
+    --purple-bg: #eeedfe; --purple-text: #534ab7;
+    --gray-bg: #f0f0ef; --gray-text: #57534e;
+    --nav-width: 200px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1917; --bg-secondary: #292524; --bg-tertiary: #1c1917;
+      --text-primary: #fafaf9; --text-secondary: #a8a29e; --text-tertiary: #78716c;
+      --border: rgba(250,250,249,0.12); --border-md: rgba(250,250,249,0.22);
+      --blue-bg: #0c3d6e; --blue-text: #93c5fd;
+      --green-bg: #14401a; --green-text: #86efac;
+      --amber-bg: #451a03; --amber-text: #fcd34d;
+      --red-bg: #450a0a; --red-text: #fca5a5;
+      --purple-bg: #2e1065; --purple-text: #c4b5fd;
+      --gray-bg: #292524; --gray-text: #a8a29e;
+    }
+  }
+  html { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); font-size: 16px; }
+  body { min-height: 100vh; }
+  .app { display: flex; min-height: 100vh; }
+
+  /* NAV */
+  .nav { width: var(--nav-width); flex-shrink: 0; background: var(--bg); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 100; transition: transform 0.25s ease; }
+  .nav-logo { padding: 0 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
+  .nav-logo-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .nav-logo-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .nav-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 0 1.25rem; margin-bottom: 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 1.25rem; font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; border-left: 2px solid transparent; transition: background 0.15s; }
+  .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .nav-item.active { color: var(--blue-text); background: var(--blue-bg); border-left-color: var(--blue-text); }
+  .nav-item i { font-size: 16px; flex-shrink: 0; }
+  .nav-bottom { margin-top: auto; padding: 1rem 1.25rem 0; border-top: 0.5px solid var(--border); }
+  .sync-status { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; }
+  .sync-dot.synced { background: var(--green-text); }
+  .sync-dot.syncing { background: var(--amber-text); animation: pulse 1s infinite; }
+  .sync-dot.error { background: var(--red-text); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* MOBILE */
+  .mobile-topbar { display: none; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-bottom: 0.5px solid var(--border); position: sticky; top: 0; z-index: 50; }
+  .mobile-topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
+  .hamburger { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 6px 8px; cursor: pointer; color: var(--text-primary); font-size: 18px; display: flex; align-items: center; }
+  .nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+  .nav-overlay.open { display: block; }
+
+  /* MAIN */
+  .main { flex: 1; padding: 2rem 2.5rem 4rem; max-width: 900px; min-width: 0; }
+  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 12px; }
+  .top-bar h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+  .top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+  .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+  .btn:hover { background: var(--bg-secondary); }
+  .btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+  .btn.primary:hover { opacity: 0.85; }
+  .btn.green { background: var(--green-bg); color: var(--green-text); border-color: transparent; font-weight: 500; }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
+  .stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+  .stat-num { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1; }
+
+  /* SECTION HEADERS */
+  .section-header { display: flex; align-items: center; gap: 10px; margin: 1.75rem 0 1rem; }
+  .section-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .section-line { flex: 1; height: 0.5px; background: var(--border); }
+  .section-count { font-size: 11px; background: var(--bg-secondary); color: var(--text-secondary); padding: 2px 8px; border-radius: 20px; }
+
+  /* WEEKLY TO-DO */
+  .week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px; }
+  .week-nav { display: flex; align-items: center; gap: 8px; }
+  .week-nav-btn { background: none; border: 0.5px solid var(--border-md); cursor: pointer; color: var(--text-secondary); font-size: 14px; padding: 4px 9px; border-radius: var(--radius-md); font-family: var(--font); }
+  .week-nav-btn:hover { background: var(--bg-secondary); }
+  .week-label { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .week-today-btn { font-size: 11px; padding: 4px 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: none; cursor: pointer; color: var(--text-secondary); font-family: var(--font); }
+  .week-today-btn:hover { background: var(--bg-secondary); }
+
+  .week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
+  .day-col { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; min-height: 120px; }
+  .day-col.today { border-color: var(--blue-text); border-width: 1.5px; }
+  .day-header { padding: 8px 10px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .day-name { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); }
+  .day-date { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
+  .day-col.today .day-name { color: var(--blue-text); }
+  .day-col.today .day-date { color: var(--blue-text); }
+  .day-tasks { padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .day-task { padding: 5px 7px; border-radius: var(--radius-md); font-size: 11px; font-weight: 500; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: opacity 0.15s; border: 0.5px solid transparent; }
+  .day-task.done { opacity: 0.45; text-decoration: line-through; }
+  .day-task-check { width: 13px; height: 13px; border-radius: 3px; border: 1.5px solid currentColor; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+  .day-task.done .day-task-check { background: currentColor; }
+  .day-task.done .day-task-check::after { content: '✓'; color: white; }
+
+  /* Task urgency colors based on day of week */
+  .day-task.urgent-high { background: #eaf3de; color: #2d5a0e; border-color: #c5e0a0; }
+  .day-task.urgent-mid { background: #f3f7e8; color: #4a7a1a; border-color: #d4e8a8; }
+  .day-task.urgent-low { background: #faeeda; color: #854f0b; border-color: #f0d090; }
+  .day-task.urgent-gone { background: var(--red-bg); color: var(--red-text); border-color: var(--red-text); }
+  .day-task.oneoff { background: var(--blue-bg); color: var(--blue-text); border-color: #a8c8e8; }
+
+  /* CALENDAR */
+  .cal-widget { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 0.5px solid var(--border); gap: 8px; }
+  .cal-nav-title { font-size: 13px; font-weight: 600; flex: 1; text-align: center; }
+  .cal-nav-btn { background: none; border: 0.5px solid var(--border-md); cursor: pointer; color: var(--text-secondary); font-size: 14px; padding: 3px 8px; border-radius: var(--radius-md); }
+  .cal-nav-btn:hover { background: var(--bg-secondary); }
+  .cal-nav-today { font-size: 11px; padding: 3px 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: none; cursor: pointer; color: var(--text-secondary); font-family: var(--font); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); }
+  .cal-day-header { text-align: center; font-size: 10px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; padding: 7px 2px 5px; border-bottom: 0.5px solid var(--border); }
+  .cal-day { min-height: 80px; padding: 4px; border-bottom: 0.5px solid var(--border); border-right: 0.5px solid var(--border); }
+  .cal-day:nth-child(7n) { border-right: none; }
+  .cal-day:nth-last-child(-n+7) { border-bottom: none; }
+  .cal-day.today { background: var(--blue-bg); }
+  .cal-day.other-month { opacity: 0.4; }
+  .cal-day-num { font-size: 10px; font-weight: 500; color: var(--text-secondary); margin-bottom: 3px; }
+  .cal-day.today .cal-day-num { color: var(--blue-text); font-weight: 700; }
+  .cal-event { font-size: 9px; font-weight: 500; padding: 1px 5px; border-radius: 3px; margin-bottom: 2px; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .cal-event.cat-house { background: var(--blue-bg); color: var(--blue-text); }
+  .cal-event.cat-yard { background: var(--green-bg); color: var(--green-text); }
+  .cal-event.cat-car { background: var(--amber-bg); color: var(--amber-text); }
+  .cal-event.cat-admin { background: var(--purple-bg); color: var(--purple-text); }
+  .cal-event.cat-family { background: var(--coral-bg, #faece7); color: var(--coral-text, #993c1d); }
+  .cal-event.cat-other { background: var(--gray-bg); color: var(--gray-text); }
+  .cal-event.done-event { opacity: 0.4; text-decoration: line-through; }
+
+  /* ALL CHORES LIST */
+  .chore-list { display: flex; flex-direction: column; gap: 6px; }
+  .chore-item { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; display: flex; align-items: center; gap: 12px; transition: border-color 0.15s; }
+  .chore-item:hover { border-color: var(--border-md); }
+  .chore-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .chore-cat-dot.house { background: var(--blue-text); }
+  .chore-cat-dot.yard { background: var(--green-text); }
+  .chore-cat-dot.car { background: var(--amber-text); }
+  .chore-cat-dot.admin { background: var(--purple-text); }
+  .chore-cat-dot.family { background: var(--coral-text, #993c1d); }
+  .chore-cat-dot.other { background: var(--text-tertiary); }
+  .chore-info { flex: 1; min-width: 0; }
+  .chore-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .chore-meta { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .chore-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .chore-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+  .chore-badge.house { background: var(--blue-bg); color: var(--blue-text); }
+  .chore-badge.yard { background: var(--green-bg); color: var(--green-text); }
+  .chore-badge.car { background: var(--amber-bg); color: var(--amber-text); }
+  .chore-badge.admin { background: var(--purple-bg); color: var(--purple-text); }
+  .chore-badge.family { background: #faece7; color: #993c1d; }
+  .chore-badge.other { background: var(--gray-bg); color: var(--gray-text); }
+  .icon-btn { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 15px; padding: 3px; border-radius: var(--radius-md); }
+  .icon-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .icon-btn.danger:hover { color: var(--red-text); background: var(--red-bg); }
+
+  /* EMPTY / LOADING */
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-secondary); font-size: 14px; }
+  .empty-state i { font-size: 32px; display: block; margin-bottom: 10px; opacity: 0.3; }
+  .loading-state { text-align: center; padding: 3rem; color: var(--text-secondary); font-size: 14px; }
+  .loading-state i { font-size: 28px; display: block; margin-bottom: 8px; opacity: 0.35; animation: spin 1s linear infinite; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .error-banner { background: var(--red-bg); color: var(--red-text); border: 0.5px solid var(--red-text); border-radius: var(--radius-md); padding: 10px 14px; font-size: 13px; margin-bottom: 1rem; display: none; }
+  .error-banner.show { display: block; }
+
+  /* LOGIN */
+  #login-screen { display: none; position: fixed; inset: 0; background: var(--bg-tertiary); z-index: 500; align-items: center; justify-content: center; flex-direction: column; gap: 20px; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg); border-radius: var(--radius-xl); border: 0.5px solid var(--border-md); padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 18px; }
+  .form-field { margin-bottom: 13px; }
+  .form-field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
+  .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 8px 11px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 14px; outline: none; transition: border-color 0.15s; }
+  .form-field input:focus, .form-field select:focus { border-color: var(--blue-text); }
+  .modal-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-top: 18px; }
+  .modal-actions-right { display: flex; gap: 8px; }
+  .action-btn { font-size: 12px; padding: 6px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: transparent; color: var(--text-primary); font-family: var(--font); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .action-btn:hover { background: var(--bg-secondary); }
+  .action-btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+  .action-btn.danger { color: var(--red-text); border-color: var(--red-text); }
+  .action-btn.danger:hover { background: var(--red-bg); }
+
+  @media (max-width: 768px) {
+    .nav { position: fixed; left: 0; top: 0; bottom: 0; width: var(--nav-width); transform: translateX(-100%); z-index: 250; height: 100vh; }
+    .nav.open { transform: translateX(0); }
+    .mobile-topbar { display: flex; }
+    .app { display: block; }
+    .main { padding: 1rem 1rem 4rem; max-width: 100%; width: 100%; }
+    .top-bar { display: none; }
+    .stats { grid-template-columns: repeat(2,1fr); }
+    .week-grid { grid-template-columns: repeat(2,1fr); gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div style="text-align:center;">
+    <div style="font-size:32px;margin-bottom:8px;">🏠</div>
+    <h1 style="font-size:22px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">My Chores</h1>
+    <p style="font-size:14px;color:var(--text-secondary);">Sign in to access your chores</p>
+  </div>
+  <button onclick="signIn()" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:white;border:0.5px solid rgba(28,25,23,0.2);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <img src="https://www.google.com/favicon.ico" width="18" height="18"/> Sign in with Google
+  </button>
+</div>
+
+<div class="app">
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+  <nav class="nav" id="main-nav">
+    <div class="nav-logo">
+      <div class="nav-logo-title">Sermon Prep</div>
+      <div class="nav-logo-sub" id="nav-date"></div>
+    </div>
+    <div class="nav-section-label" style="margin-bottom:8px;">Pages</div>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/"><i class="ti ti-bible"></i> Dashboard</a>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/color.html"><i class="ti ti-plus"></i> Color</a>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/accountability.html"><i class="ti ti-users"></i> Accountability</a>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/archive.html"><i class="ti ti-archive"></i> Archive</a>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/settings.html"><i class="ti ti-settings"></i> Settings</a>
+    <div id="admin-nav-section" style="display:block;">
+      <div class="nav-section-label" style="margin-bottom:8px;margin-top:1rem;">My Pages</div>
+      <a class="nav-item" href="/Sermon-Prep-Dashboard/library.html"><i class="ti ti-books"></i> My Library</a>
+      <a class="nav-item active" href="/Sermon-Prep-Dashboard/chores.html"><i class="ti ti-home-check"></i> My Chores</a>
+    </div>
+    <div class="nav-bottom">
+      <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Loading...</span></div>
+      <div id="nav-user" style="font-size:11px;color:var(--text-tertiary);margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+      <button class="btn" style="width:100%;justify-content:center;font-size:12px;margin-top:6px;" onclick="signOut()"><i class="ti ti-logout"></i> Sign out</button>
+    </div>
+  </nav>
+
+  <div class="mobile-topbar">
+    <button class="hamburger" onclick="openNav()"><i class="ti ti-menu-2"></i></button>
+    <h1><i class="ti ti-home-check" style="font-size:16px;vertical-align:-2px;margin-right:4px;"></i> My Chores</h1>
+    <button class="btn primary" style="font-size:12px;padding:6px 10px;" onclick="openAddChore()"><i class="ti ti-plus"></i> Add</button>
+  </div>
+
+  <main class="main">
+    <div class="top-bar">
+      <div>
+        <h1><i class="ti ti-home-check" style="font-size:18px;vertical-align:-2px;margin-right:6px;"></i>My Chores</h1>
+        <div class="subtitle">Recurring tasks and one-offs</div>
+      </div>
+      <div class="top-actions">
+        <button class="btn green" onclick="openAddChore()"><i class="ti ti-plus"></i> Add chore</button>
+        <button class="btn" onclick="openAddOneoff()"><i class="ti ti-bolt"></i> One-off task</button>
+      </div>
+    </div>
+
+    <div class="error-banner" id="error-banner"></div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Total chores</div><div class="stat-num" id="stat-total">—</div></div>
+      <div class="stat"><div class="stat-label">Due this week</div><div class="stat-num" id="stat-week">—</div></div>
+      <div class="stat"><div class="stat-label">Done this week</div><div class="stat-num" id="stat-done">—</div></div>
+      <div class="stat"><div class="stat-label">One-offs pending</div><div class="stat-num" id="stat-oneoffs">—</div></div>
+    </div>
+
+    <!-- WEEKLY TO-DO -->
+    <div class="section-header" style="margin-top:0;">
+      <div class="section-title">This Week</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="week-header">
+      <div class="week-nav">
+        <button class="week-nav-btn" onclick="weekPrev()"><i class="ti ti-chevron-left"></i></button>
+        <span class="week-label" id="week-label"></span>
+        <button class="week-nav-btn" onclick="weekNext()"><i class="ti ti-chevron-right"></i></button>
+      </div>
+      <button class="week-today-btn" onclick="weekReset()">This week</button>
+    </div>
+    <div class="week-grid" id="week-grid"></div>
+
+    <!-- CALENDAR -->
+    <div class="section-header">
+      <div class="section-title">Calendar</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="cal-widget">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="calPrev()"><i class="ti ti-chevron-left"></i></button>
+        <div class="cal-nav-title" id="cal-title"></div>
+        <button class="cal-nav-today" onclick="calReset()">Today</button>
+        <button class="cal-nav-btn" onclick="calNext()"><i class="ti ti-chevron-right"></i></button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <!-- ALL CHORES -->
+    <div class="section-header">
+      <div class="section-title">All Chores</div>
+      <div class="section-line"></div>
+      <div class="section-count" id="all-chores-count">0</div>
+    </div>
+    <div id="chores-list"><div class="loading-state"><i class="ti ti-loader"></i>Loading...</div></div>
+
+  </main>
+</div>
+
+<!-- ADD/EDIT CHORE MODAL -->
+<div class="modal-overlay" id="chore-modal">
+  <div class="modal">
+    <h2 id="chore-modal-title">Add chore</h2>
+    <div class="form-field"><label>Name</label><input type="text" id="f-chore-name" placeholder="e.g. Mow the lawn" /></div>
+    <div class="form-field">
+      <label>Category</label>
+      <select id="f-chore-cat">
+        <option value="house">🏠 House</option>
+        <option value="yard">🌿 Yard</option>
+        <option value="car">🚗 Car</option>
+        <option value="admin">📋 Admin</option>
+        <option value="family">👨‍👩‍👧 Family</option>
+        <option value="other">📌 Other</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Frequency</label>
+      <select id="f-chore-freq">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Every 2 weeks</option>
+        <option value="monthly">Monthly</option>
+        <option value="bimonthly">Every 2 months</option>
+        <option value="quarterly">Every 3 months</option>
+        <option value="biannual">Every 6 months</option>
+        <option value="yearly">Yearly</option>
+      </select>
+    </div>
+    <div class="form-field" id="f-dow-wrap">
+      <label>Day of week</label>
+      <select id="f-chore-dow">
+        <option value="1">Monday</option>
+        <option value="2">Tuesday</option>
+        <option value="3">Wednesday</option>
+        <option value="4">Thursday</option>
+        <option value="5">Friday</option>
+        <option value="6">Saturday</option>
+        <option value="0">Sunday</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Start date</label>
+      <input type="date" id="f-chore-start" />
+    </div>
+    <div class="form-field">
+      <label>Notes <span style="color:var(--text-tertiary);font-weight:400;">(optional)</span></label>
+      <input type="text" id="f-chore-notes" placeholder="Any extra details..." />
+    </div>
+    <div class="modal-actions">
+      <div><button class="action-btn danger" id="chore-delete-btn" onclick="deleteCurrentChore()" style="display:none;"><i class="ti ti-trash"></i> Delete</button></div>
+      <div class="modal-actions-right">
+        <button class="action-btn" onclick="closeChoreModal()">Cancel</button>
+        <button class="action-btn primary" id="chore-save-btn" onclick="saveChore()">Save chore</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ONE-OFF MODAL -->
+<div class="modal-overlay" id="oneoff-modal">
+  <div class="modal">
+    <h2 id="oneoff-modal-title">One-off task</h2>
+    <div class="form-field"><label>Task name</label><input type="text" id="f-oneoff-name" placeholder="e.g. Fix the bathroom faucet" /></div>
+    <div class="form-field">
+      <label>Category</label>
+      <select id="f-oneoff-cat">
+        <option value="house">🏠 House</option>
+        <option value="yard">🌿 Yard</option>
+        <option value="car">🚗 Car</option>
+        <option value="admin">📋 Admin</option>
+        <option value="family">👨‍👩‍👧 Family</option>
+        <option value="other">📌 Other</option>
+      </select>
+    </div>
+    <div class="form-field"><label>Due date</label><input type="date" id="f-oneoff-date" /></div>
+    <div class="form-field">
+      <label>Notes <span style="color:var(--text-tertiary);font-weight:400;">(optional)</span></label>
+      <input type="text" id="f-oneoff-notes" placeholder="Any extra details..." />
+    </div>
+    <div class="modal-actions">
+      <div><button class="action-btn danger" id="oneoff-delete-btn" onclick="deleteCurrentOneoff()" style="display:none;"><i class="ti ti-trash"></i> Delete</button></div>
+      <div class="modal-actions-right">
+        <button class="action-btn" onclick="closeOneoffModal()">Cancel</button>
+        <button class="action-btn primary" id="oneoff-save-btn" onclick="saveOneoff()">Save task</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
+  authDomain: "sermon-prep-dashboard.firebaseapp.com",
+  projectId: "sermon-prep-dashboard",
+  storageBucket: "sermon-prep-dashboard.firebasestorage.app",
+  messagingSenderId: "769289223341",
+  appId: "1:769289223341:web:3dc1d53e57d96b3c55da24"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+let currentUser = null;
+let allChores = [];
+let allOneoffs = [];
+let completions = {}; // { "choreId_YYYY-MM-DD": true }
+let weekOffset = 0;
+let calMonthOffset = 0;
+let editingChoreId = null;
+let editingOneoffId = null;
+
+const FREQ_LABELS = {
+  daily:'Daily', weekly:'Weekly', biweekly:'Every 2 weeks',
+  monthly:'Monthly', bimonthly:'Every 2 months', quarterly:'Every 3 months',
+  biannual:'Every 6 months', yearly:'Yearly'
+};
+const CAT_LABELS = { house:'House', yard:'Yard', car:'Car', admin:'Admin', family:'Family', other:'Other' };
+const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYS_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// ── DATES ─────────────────────────────────────────────────────────────────────
+function today() { const d=new Date(); d.setHours(0,0,0,0); return d; }
+function toYMD(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function parseDate(s) { if(!s) return null; const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function getMondayOf(d) { const t=new Date(d); const dow=t.getDay(); const diff=dow===0?-6:1-dow; t.setDate(t.getDate()+diff); return t; }
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('nav-user').textContent = user.displayName || user.email;
+    await loadAll();
+  } else {
+    currentUser = null;
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+});
+
+window.signIn = async () => { try { await signInWithPopup(auth, provider); } catch(e) { console.error(e); } };
+window.signOut = async () => { await fbSignOut(auth); };
+window.openNav = () => { document.getElementById('main-nav').classList.add('open'); document.getElementById('nav-overlay').classList.add('open'); document.body.style.overflow='hidden'; };
+window.closeNav = () => { document.getElementById('main-nav').classList.remove('open'); document.getElementById('nav-overlay').classList.remove('open'); document.body.style.overflow=''; };
+
+function setSyncStatus(state, label) { document.getElementById('sync-dot').className='sync-dot '+state; document.getElementById('sync-label').textContent=label; }
+function showError(msg) { const el=document.getElementById('error-banner'); el.textContent=msg; el.classList.add('show'); }
+function hideError() { document.getElementById('error-banner').classList.remove('show'); }
+
+// ── LOAD ──────────────────────────────────────────────────────────────────────
+async function loadAll() {
+  setSyncStatus('syncing','Loading...');
+  try {
+    const [choresSnap, oneofsSnap, compSnap] = await Promise.all([
+      getDocs(collection(db,'users',currentUser.uid,'chores')),
+      getDocs(collection(db,'users',currentUser.uid,'oneoffs')),
+      getDoc(doc(db,'users',currentUser.uid,'meta','chore_completions'))
+    ]);
+    allChores = choresSnap.docs.map(d=>({id:d.id,...d.data()}));
+    allOneoffs = oneofsSnap.docs.map(d=>({id:d.id,...d.data()})).filter(o=>!o.done);
+    completions = compSnap.exists() ? compSnap.data() : {};
+    setSyncStatus('synced','Synced');
+    hideError();
+    renderAll();
+  } catch(e) {
+    setSyncStatus('error','Error');
+    showError('Could not load chores: '+e.message);
+  }
+}
+
+async function saveCompletions() {
+  await setDoc(doc(db,'users',currentUser.uid,'meta','chore_completions'), completions);
+}
+
+// ── SCHEDULE LOGIC ────────────────────────────────────────────────────────────
+function getChoreOccurrences(chore, fromDate, toDate) {
+  // Returns array of dates (as YMD strings) when this chore is due
+  const dates = [];
+  const start = parseDate(chore.startDate);
+  if (!start) return dates;
+  const freq = chore.frequency;
+  const dow = parseInt(chore.dayOfWeek ?? 1); // default Monday
+
+  let current = new Date(start);
+
+  // Align to correct day of week for weekly/biweekly
+  if (freq === 'daily') {
+    current = new Date(start);
+  } else {
+    // Move to first occurrence of the target day of week on or after start
+    while (current.getDay() !== dow) {
+      current.setDate(current.getDate() + 1);
+    }
+  }
+
+  const freqDays = { daily:1, weekly:7, biweekly:14, monthly:30, bimonthly:60, quarterly:90, biannual:180, yearly:365 };
+  const step = freqDays[freq] || 7;
+
+  // For monthly+ use month-based stepping
+  const useMonths = ['monthly','bimonthly','quarterly','biannual','yearly'].includes(freq);
+  const monthStep = { monthly:1, bimonthly:2, quarterly:3, biannual:6, yearly:12 }[freq] || 1;
+
+  let iter = new Date(current);
+  let safety = 0;
+
+  while (iter <= toDate && safety < 500) {
+    safety++;
+    if (iter >= fromDate) dates.push(toYMD(iter));
+    if (useMonths) {
+      iter = new Date(iter);
+      iter.setMonth(iter.getMonth() + monthStep);
+    } else {
+      iter = new Date(iter);
+      iter.setDate(iter.getDate() + step);
+    }
+  }
+  return dates;
+}
+
+function getWeekOccurrences(weekMonday) {
+  // Get all chore occurrences for a given week
+  const weekEnd = new Date(weekMonday); weekEnd.setDate(weekMonday.getDate() + 6);
+  const result = []; // [{chore, date}]
+  allChores.forEach(chore => {
+    const dates = getChoreOccurrences(chore, weekMonday, weekEnd);
+    dates.forEach(d => result.push({chore, date:d}));
+  });
+  // Add one-offs due this week
+  allOneoffs.forEach(o => {
+    if (o.dueDate >= toYMD(weekMonday) && o.dueDate <= toYMD(weekEnd)) {
+      result.push({chore:o, date:o.dueDate, isOneoff:true});
+    }
+  });
+  return result;
+}
+
+function isCompleted(choreId, dateStr) {
+  return !!completions[`${choreId}_${dateStr}`];
+}
+
+async function toggleComplete(choreId, dateStr) {
+  const key = `${choreId}_${dateStr}`;
+  if (completions[key]) delete completions[key];
+  else completions[key] = true;
+  await saveCompletions();
+  renderAll();
+}
+
+// ── RENDER ALL ─────────────────────────────────────────────────────────────────
+function renderAll() {
+  updateStats();
+  renderWeekGrid();
+  renderCalendar();
+  renderChoresList();
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const mon = getMondayOf(today());
+  const weekOccs = getWeekOccurrences(mon);
+  const doneThisWeek = weekOccs.filter(o=>isCompleted(o.chore.id, o.date)).length;
+  const pendingOneoffs = allOneoffs.length;
+
+  document.getElementById('stat-total').textContent = allChores.length;
+  document.getElementById('stat-week').textContent = weekOccs.length;
+  document.getElementById('stat-done').textContent = doneThisWeek;
+  document.getElementById('stat-oneoffs').textContent = pendingOneoffs;
+}
+
+// ── WEEK GRID ─────────────────────────────────────────────────────────────────
+window.weekPrev = () => { weekOffset--; renderWeekGrid(); };
+window.weekNext = () => { weekOffset++; renderWeekGrid(); };
+window.weekReset = () => { weekOffset=0; renderWeekGrid(); };
+
+function renderWeekGrid() {
+  const base = getMondayOf(today());
+  const monday = new Date(base); monday.setDate(base.getDate() + weekOffset*7);
+  const todayStr = toYMD(today());
+
+  // Week label
+  const sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+  document.getElementById('week-label').textContent =
+    `${monday.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${sunday.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+
+  // Today's day of week position (0=Mon ... 6=Sun)
+  const todayDow = today().getDay()===0?6:today().getDay()-1;
+  const isCurrentWeek = weekOffset===0;
+
+  const weekOccs = getWeekOccurrences(monday);
+
+  let html = '';
+  for (let i=0; i<7; i++) {
+    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    const dateStr = toYMD(d);
+    const isToday = dateStr===todayStr;
+    const dayOccs = weekOccs.filter(o=>o.date===dateStr);
+
+    // Determine urgency class for tasks
+    // daysLeft = days remaining in week (from today)
+    const daysLeft = isCurrentWeek ? (6-todayDow) : 6;
+    let urgencyClass = 'urgent-high';
+    if (isCurrentWeek) {
+      if (i < todayDow) urgencyClass = 'urgent-gone'; // past
+      else if (daysLeft >= 4) urgencyClass = 'urgent-high';
+      else if (daysLeft >= 2) urgencyClass = 'urgent-mid';
+      else urgencyClass = 'urgent-low';
+    }
+
+    const taskHtml = dayOccs.map(o => {
+      const done = isCompleted(o.chore.id, dateStr);
+      const cls = o.isOneoff ? 'oneoff' : urgencyClass;
+      return `<div class="day-task ${cls} ${done?'done':''}" onclick="toggleComplete('${o.chore.id}','${dateStr}')">
+        <div class="day-task-check"></div>
+        <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.chore.name||o.chore.taskName||'Task'}</span>
+      </div>`;
+    }).join('');
+
+    html += `<div class="day-col ${isToday?'today':''}">
+      <div class="day-header">
+        <span class="day-name">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i]}</span>
+        <span class="day-date">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
+      </div>
+      <div class="day-tasks">${taskHtml || `<span style="font-size:10px;color:var(--text-tertiary);padding:4px 2px;">Clear</span>`}</div>
+    </div>`;
+  }
+  document.getElementById('week-grid').innerHTML = html;
+}
+
+// ── CALENDAR ──────────────────────────────────────────────────────────────────
+window.calPrev = () => { calMonthOffset--; renderCalendar(); };
+window.calNext = () => { calMonthOffset++; renderCalendar(); };
+window.calReset = () => { calMonthOffset=0; renderCalendar(); };
+
+function renderCalendar() {
+  const now = today();
+  const viewDate = new Date(now.getFullYear(), now.getMonth()+calMonthOffset, 1);
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  document.getElementById('cal-title').textContent = `${MONTHS_FULL[month]} ${year}`;
+
+  const firstDay = new Date(year,month,1);
+  const lastDay = new Date(year,month+1,0);
+  // Start from Monday before first day
+  const startDow = firstDay.getDay()===0?6:firstDay.getDay()-1;
+  const calStart = new Date(firstDay); calStart.setDate(firstDay.getDate()-startDow);
+  const calEnd = new Date(lastDay);
+  const endDow = lastDay.getDay()===0?6:lastDay.getDay()-1;
+  calEnd.setDate(lastDay.getDate()+(6-endDow));
+
+  // Get all occurrences in this range
+  const occsByDate = {};
+  allChores.forEach(chore => {
+    getChoreOccurrences(chore, calStart, calEnd).forEach(d => {
+      if (!occsByDate[d]) occsByDate[d]=[];
+      occsByDate[d].push({chore, isOneoff:false});
+    });
+  });
+  allOneoffs.forEach(o => {
+    if (!occsByDate[o.dueDate]) occsByDate[o.dueDate]=[];
+    occsByDate[o.dueDate].push({chore:o, isOneoff:true});
+  });
+
+  const todayStr = toYMD(today());
+  let html = '';
+  ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d=>{html+=`<div class="cal-day-header">${d}</div>`;});
+
+  let iter = new Date(calStart);
+  while (iter <= calEnd) {
+    const dateStr = toYMD(iter);
+    const isToday = dateStr===todayStr;
+    const isOtherMonth = iter.getMonth()!==month;
+    const occs = occsByDate[dateStr]||[];
+    const evHtml = occs.slice(0,3).map(o=>{
+      const done = isCompleted(o.chore.id, dateStr);
+      const cat = o.chore.category||o.chore.category||'other';
+      return `<div class="cal-event cat-${cat} ${done?'done-event':''}">${o.chore.name||o.chore.taskName||'Task'}</div>`;
+    }).join('');
+    const more = occs.length>3?`<div style="font-size:9px;color:var(--text-tertiary);padding:0 2px;">+${occs.length-3} more</div>`:'';
+    html+=`<div class="cal-day ${isToday?'today':''} ${isOtherMonth?'other-month':''}">
+      <div class="cal-day-num">${iter.getDate()}</div>
+      ${evHtml}${more}
+    </div>`;
+    iter.setDate(iter.getDate()+1);
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
+// ── CHORES LIST ───────────────────────────────────────────────────────────────
+function renderChoresList() {
+  document.getElementById('all-chores-count').textContent = allChores.length + allOneoffs.length;
+  const el = document.getElementById('chores-list');
+  if (allChores.length===0 && allOneoffs.length===0) {
+    el.innerHTML = `<div class="empty-state"><i class="ti ti-home"></i>No chores yet — click "Add chore" to get started.</div>`;
+    return;
+  }
+  const rows = [
+    ...allChores.map(c=>({...c, isOneoff:false})),
+    ...allOneoffs.map(o=>({...o, name:o.taskName, isOneoff:true}))
+  ];
+  el.innerHTML = `<div class="chore-list">${rows.map(c=>`
+    <div class="chore-item">
+      <div class="chore-cat-dot ${c.category||'other'}"></div>
+      <div class="chore-info">
+        <div class="chore-name">${c.name||'Unnamed'}</div>
+        <div class="chore-meta">${c.isOneoff?`One-off · Due ${c.dueDate||'?'}`:FREQ_LABELS[c.frequency]||c.frequency} · ${CAT_LABELS[c.category]||c.category||'Other'}${c.notes?` · ${c.notes}`:''}</div>
+      </div>
+      <span class="chore-badge ${c.category||'other'}">${CAT_LABELS[c.category]||'Other'}</span>
+      <div class="chore-actions">
+        <button class="icon-btn" onclick="${c.isOneoff?`openEditOneoff('${c.id}')`:`openEditChore('${c.id}')`}" title="Edit"><i class="ti ti-edit"></i></button>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+// ── CHORE MODAL ───────────────────────────────────────────────────────────────
+document.getElementById('f-chore-freq').addEventListener('change', function() {
+  const showDow = ['daily','weekly','biweekly'].includes(this.value);
+  document.getElementById('f-dow-wrap').style.display = showDow?'block':'none';
+});
+
+window.openAddChore = function() {
+  editingChoreId=null;
+  document.getElementById('chore-modal-title').textContent='Add chore';
+  document.getElementById('f-chore-name').value='';
+  document.getElementById('f-chore-cat').value='house';
+  document.getElementById('f-chore-freq').value='weekly';
+  document.getElementById('f-chore-dow').value='1';
+  document.getElementById('f-chore-start').value=toYMD(today());
+  document.getElementById('f-chore-notes').value='';
+  document.getElementById('chore-delete-btn').style.display='none';
+  document.getElementById('f-dow-wrap').style.display='block';
+  document.getElementById('chore-modal').classList.add('open');
+};
+
+window.openEditChore = function(id) {
+  const c=allChores.find(x=>x.id===id);
+  if(!c) return;
+  editingChoreId=id;
+  document.getElementById('chore-modal-title').textContent='Edit chore';
+  document.getElementById('f-chore-name').value=c.name||'';
+  document.getElementById('f-chore-cat').value=c.category||'house';
+  document.getElementById('f-chore-freq').value=c.frequency||'weekly';
+  document.getElementById('f-chore-dow').value=c.dayOfWeek??1;
+  document.getElementById('f-chore-start').value=c.startDate||toYMD(today());
+  document.getElementById('f-chore-notes').value=c.notes||'';
+  document.getElementById('chore-delete-btn').style.display='flex';
+  const showDow=['daily','weekly','biweekly'].includes(c.frequency||'weekly');
+  document.getElementById('f-dow-wrap').style.display=showDow?'block':'none';
+  document.getElementById('chore-modal').classList.add('open');
+};
+
+window.closeChoreModal = () => document.getElementById('chore-modal').classList.remove('open');
+
+window.deleteCurrentChore = async function() {
+  if(!editingChoreId) return;
+  await deleteDoc(doc(db,'users',currentUser.uid,'chores',editingChoreId));
+  allChores=allChores.filter(c=>c.id!==editingChoreId);
+  window.closeChoreModal();
+  renderAll();
+};
+
+window.saveChore = async function() {
+  const name=document.getElementById('f-chore-name').value.trim();
+  if(!name){alert('Please enter a chore name.');return;}
+  const btn=document.getElementById('chore-save-btn');
+  btn.textContent='Saving...';btn.disabled=true;
+  const freq=document.getElementById('f-chore-freq').value;
+  const chore = {
+    id: editingChoreId||'c'+Date.now(),
+    name,
+    category: document.getElementById('f-chore-cat').value,
+    frequency: freq,
+    dayOfWeek: ['daily','weekly','biweekly'].includes(freq)?parseInt(document.getElementById('f-chore-dow').value):1,
+    startDate: document.getElementById('f-chore-start').value,
+    notes: document.getElementById('f-chore-notes').value.trim()
+  };
+  try {
+    await setDoc(doc(db,'users',currentUser.uid,'chores',chore.id),chore);
+    if(editingChoreId){const i=allChores.findIndex(c=>c.id===editingChoreId);if(i>=0)allChores[i]=chore;}
+    else allChores.push(chore);
+    window.closeChoreModal();
+    renderAll();
+    setSyncStatus('synced','Saved ✓');
+  } catch(e){showError('Could not save: '+e.message);}
+  btn.textContent='Save chore';btn.disabled=false;
+};
+
+// ── ONE-OFF MODAL ─────────────────────────────────────────────────────────────
+window.openAddOneoff = function() {
+  editingOneoffId=null;
+  document.getElementById('oneoff-modal-title').textContent='One-off task';
+  document.getElementById('f-oneoff-name').value='';
+  document.getElementById('f-oneoff-cat').value='house';
+  document.getElementById('f-oneoff-date').value=toYMD(today());
+  document.getElementById('f-oneoff-notes').value='';
+  document.getElementById('oneoff-delete-btn').style.display='none';
+  document.getElementById('oneoff-modal').classList.add('open');
+};
+
+window.openEditOneoff = function(id) {
+  const o=allOneoffs.find(x=>x.id===id);
+  if(!o) return;
+  editingOneoffId=id;
+  document.getElementById('oneoff-modal-title').textContent='Edit task';
+  document.getElementById('f-oneoff-name').value=o.taskName||'';
+  document.getElementById('f-oneoff-cat').value=o.category||'house';
+  document.getElementById('f-oneoff-date').value=o.dueDate||toYMD(today());
+  document.getElementById('f-oneoff-notes').value=o.notes||'';
+  document.getElementById('oneoff-delete-btn').style.display='flex';
+  document.getElementById('oneoff-modal').classList.add('open');
+};
+
+window.closeOneoffModal = () => document.getElementById('oneoff-modal').classList.remove('open');
+
+window.deleteCurrentOneoff = async function() {
+  if(!editingOneoffId) return;
+  await deleteDoc(doc(db,'users',currentUser.uid,'oneoffs',editingOneoffId));
+  allOneoffs=allOneoffs.filter(o=>o.id!==editingOneoffId);
+  window.closeOneoffModal();
+  renderAll();
+};
+
+window.saveOneoff = async function() {
+  const name=document.getElementById('f-oneoff-name').value.trim();
+  if(!name){alert('Please enter a task name.');return;}
+  const btn=document.getElementById('oneoff-save-btn');
+  btn.textContent='Saving...';btn.disabled=true;
+  const task = {
+    id: editingOneoffId||'o'+Date.now(),
+    taskName: name,
+    category: document.getElementById('f-oneoff-cat').value,
+    dueDate: document.getElementById('f-oneoff-date').value,
+    notes: document.getElementById('f-oneoff-notes').value.trim(),
+    done: false,
+    createdBy: currentUser.uid,
+    createdAt: new Date().toISOString()
+  };
+  try {
+    await setDoc(doc(db,'users',currentUser.uid,'oneoffs',task.id),task);
+    if(editingOneoffId){const i=allOneoffs.findIndex(o=>o.id===editingOneoffId);if(i>=0)allOneoffs[i]=task;}
+    else allOneoffs.push(task);
+    window.closeOneoffModal();
+    renderAll();
+    setSyncStatus('synced','Saved ✓');
+  } catch(e){showError('Could not save: '+e.message);}
+  btn.textContent='Save task';btn.disabled=false;
+};
+
+document.getElementById('chore-modal').addEventListener('click',function(e){if(e.target===this)window.closeChoreModal();});
+document.getElementById('oneoff-modal').addEventListener('click',function(e){if(e.target===this)window.closeOneoffModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){window.closeNav();window.closeChoreModal();window.closeOneoffModal();}});
+
+document.getElementById('nav-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+</script>
+</body>
+</html>
