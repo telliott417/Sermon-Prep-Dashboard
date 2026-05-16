@@ -203,21 +203,21 @@ const provider = new GoogleAuthProvider();
 let currentUser = null;
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const WEEKS = [
-  {value:0, label:'Week of sermon'},
-  {value:1, label:'Week before sermon'},
-  {value:2, label:'2 weeks before'},
-  {value:3, label:'3 weeks before'},
-  {value:4, label:'4 weeks before'},
+const S = [
+  {value:0, label:' of sermon'},
+  {value:1, label:' before sermon'},
+  {value:2, label:'2 s before'},
+  {value:3, label:'3 s before'},
+  {value:4, label:'4 s before'},
 ];
 
 const DEFAULT_STAGES = [
-  { key: 'study',   label: 'Study',        dueDay: 1, weeksBack: 1 },
-  { key: 'idea',    label: 'Main idea',     dueDay: 2, weeksBack: 1 },
-  { key: 'outline', label: 'Outline',       dueDay: 3, weeksBack: 1 },
-  { key: 'draft',   label: 'Draft',         dueDay: 1, weeksBack: 0 },
-  { key: 'final',   label: 'Final',         dueDay: 2, weeksBack: 0 },
-  { key: 'run',     label: 'Run-through',   dueDay: 3, weeksBack: 0 },
+  { key: 'study',   label: 'Study',        dueDay: 1, sBack: 1 },
+  { key: 'idea',    label: 'Main idea',     dueDay: 2, sBack: 1 },
+  { key: 'outline', label: 'Outline',       dueDay: 3, sBack: 1 },
+  { key: 'draft',   label: 'Draft',         dueDay: 1, sBack: 0 },
+  { key: 'final',   label: 'Final',         dueDay: 2, sBack: 0 },
+  { key: 'run',     label: 'Run-through',   dueDay: 3, sBack: 0 },
 ];
 
 const DEFAULT_CONTEXTS = ['Salt','Candeo','Youth'];
@@ -285,7 +285,7 @@ window.saveSettings = async () => {
       const idx = parseInt(item.dataset.idx);
       const nameInput = item.querySelector('.stage-name-input');
       const daySelect = item.querySelector('.day-select');
-      const weekSelect = item.querySelector('.week-select');
+      const Select = item.querySelector('.week-select');
       newStages.push({
         key: settings.stages[idx].key,
         label: nameInput.value.trim() || settings.stages[idx].label,
