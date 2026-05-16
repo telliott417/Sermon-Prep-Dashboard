@@ -99,7 +99,7 @@
   .add-row input:focus { border-color: var(--blue-text); }
 
   /* SAVE BAR */
-  .save-bar { position: fixed; bottom: 0; left: var(--nav-width); right: 0; background: var(--bg); border-top: 0.5px solid var(--border); padding: 12px 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 50; }
+  .save-bar { display: none; }
   .save-msg { font-size: 13px; color: var(--text-tertiary); }
   .save-msg.saved { color: var(--green-text); font-weight: 500; }
   .save-msg.error { color: var(--red-text); }
@@ -166,10 +166,10 @@
       </div>
     </div>
     <div id="settings-body"><div class="loading-state"><i class="ti ti-loader"></i>Loading your settings...</div></div>
-<div style="margin-top:1.25rem; display:flex; align-items:center; gap:16px;">
-  <button class="btn success" onclick="saveSettings()"><i class="ti ti-device-floppy"></i> Save settings</button>
-  <span class="save-msg" id="save-msg"></span>
-</div>
+    <div style="margin-top:1.25rem; display:flex; align-items:center; gap:16px;">
+      <button class="btn success" onclick="saveSettings()"><i class="ti ti-device-floppy"></i> Save settings</button>
+      <span class="save-msg" id="save-msg"></span>
+    </div>
   </main>
 </div>
 
