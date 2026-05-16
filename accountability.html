@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Accountability — Sermon Prep</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #fafaf9;
+    --text-primary: #1c1917; --text-secondary: #78716c; --text-tertiary: #a8a29e;
+    --border: rgba(28,25,23,0.12); --border-md: rgba(28,25,23,0.2);
+    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+    --blue-bg: #e6f1fb; --blue-text: #185fa5;
+    --green-bg: #eaf3de; --green-text: #3b6d11;
+    --amber-bg: #faeeda; --amber-text: #854f0b;
+    --red-bg: #fcebeb; --red-text: #a32d2d;
+    --gray-bg: #f0f0ef; --gray-text: #57534e;
+    --nav-width: 200px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1917; --bg-secondary: #292524; --bg-tertiary: #1c1917;
+      --text-primary: #fafaf9; --text-secondary: #a8a29e; --text-tertiary: #78716c;
+      --border: rgba(250,250,249,0.12); --border-md: rgba(250,250,249,0.22);
+      --blue-bg: #0c3d6e; --blue-text: #93c5fd;
+      --green-bg: #14401a; --green-text: #86efac;
+      --amber-bg: #451a03; --amber-text: #fcd34d;
+      --red-bg: #450a0a; --red-text: #fca5a5;
+      --gray-bg: #292524; --gray-text: #a8a29e;
+    }
+  }
+  html { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); font-size: 16px; }
+  body { min-height: 100vh; }
+  .app { display: flex; min-height: 100vh; }
+
+  /* NAV */
+  .nav { width: var(--nav-width); flex-shrink: 0; background: var(--bg); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 100; transition: transform 0.25s ease; }
+  .nav-logo { padding: 0 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
+  .nav-logo-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .nav-logo-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .nav-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 0 1.25rem; margin-bottom: 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 1.25rem; font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; border-left: 2px solid transparent; transition: background 0.15s; }
+  .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .nav-item.active { color: var(--blue-text); background: var(--blue-bg); border-left-color: var(--blue-text); }
+  .nav-item i { font-size: 16px; flex-shrink: 0; }
+  .nav-bottom { margin-top: auto; padding: 1rem 1.25rem 0; border-top: 0.5px solid var(--border); }
+  .sync-status { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; }
+  .sync-dot.synced { background: var(--green-text); }
+  .sync-dot.syncing { background: var(--amber-text); animation: pulse 1s infinite; }
+  .sync-dot.error { background: var(--red-text); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* MOBILE */
+  .mobile-topbar { display: none; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-bottom: 0.5px solid var(--border); position: sticky; top: 0; z-index: 50; }
+  .mobile-topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
+  .hamburger { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 6px 8px; cursor: pointer; color: var(--text-primary); font-size: 18px; display: flex; align-items: center; }
+  .nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+  .nav-overlay.open { display: block; }
+
+  /* MAIN */
+  .main { flex: 1; padding: 2rem 2.5rem 4rem; max-width: 900px; }
+  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 12px; }
+  .top-bar h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+  .top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+  .btn:hover { background: var(--bg-secondary); }
+  .btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+  .btn.primary:hover { opacity: 0.85; }
+  .btn.danger { color: var(--red-text); border-color: var(--red-text); }
+  .btn.danger:hover { background: var(--red-bg); }
+
+  /* JOIN / CREATE PANEL */
+  .onboard-panel { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; max-width: 480px; }
+  .onboard-panel h2 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .onboard-panel p { font-size: 13px; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.6; }
+  .onboard-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .onboard-row input { flex: 1; padding: 9px 12px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 14px; outline: none; text-transform: uppercase; letter-spacing: 0.08em; }
+  .onboard-row input:focus { border-color: var(--blue-text); }
+  .onboard-divider { display: flex; align-items: center; gap: 10px; margin: 1.25rem 0; }
+  .onboard-divider span { font-size: 12px; color: var(--text-tertiary); }
+  .onboard-divider::before, .onboard-divider::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
+  .onboard-error { font-size: 12px; color: var(--red-text); margin-top: 6px; min-height: 18px; }
+
+  /* TEAM HEADER */
+  .team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px; }
+  .team-code-badge { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 7px 14px; font-size: 13px; }
+  .team-code-value { font-weight: 700; letter-spacing: 0.1em; color: var(--blue-text); }
+  .copy-btn { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 15px; padding: 2px; }
+  .copy-btn:hover { color: var(--blue-text); }
+  .copied-msg { font-size: 11px; color: var(--green-text); }
+
+  /* MEMBER GRID */
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+
+  /* MEMBER CARD */
+  .member-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .member-card.on-track { border-top: 3px solid var(--green-text); }
+  .member-card.behind { border-top: 3px solid var(--red-text); }
+  .member-card.no-sermons { border-top: 3px solid var(--text-tertiary); }
+  .member-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid var(--border); }
+  .member-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg-secondary); }
+  .member-avatar-initials { width: 38px; height: 38px; border-radius: 50%; background: var(--blue-bg); color: var(--blue-text); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+  .member-info { flex: 1; min-width: 0; }
+  .member-name { font-size: 14px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .member-status-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .member-status-badge.on-track { background: var(--green-bg); color: var(--green-text); }
+  .member-status-badge.behind { background: var(--red-bg); color: var(--red-text); }
+  .member-status-badge.no-sermons { background: var(--gray-bg); color: var(--gray-text); }
+  .member-you { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
+
+  /* SERMON ROWS */
+  .sermon-rows { padding: 10px 0; }
+  .sermon-row { padding: 9px 16px; border-bottom: 0.5px solid var(--border); }
+  .sermon-row:last-child { border-bottom: none; }
+  .sermon-row-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sermon-row-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .sermon-row-date { font-size: 11px; color: var(--text-secondary); }
+  .sermon-row-stage { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+  .stage-on-track { background: var(--green-bg); color: var(--green-text); }
+  .stage-behind { background: var(--red-bg); color: var(--red-text); }
+  .stage-neutral { background: var(--gray-bg); color: var(--gray-text); }
+  .sermon-row-progress { margin-top: 6px; display: flex; align-items: center; gap: 8px; }
+  .prog-bg { flex: 1; height: 3px; background: var(--bg-secondary); border-radius: 2px; }
+  .prog-fill { height: 3px; border-radius: 2px; }
+  .prog-fill.on-track { background: var(--green-text); }
+  .prog-fill.behind { background: var(--red-text); }
+  .prog-fill.neutral { background: var(--text-tertiary); }
+  .prog-pct { font-size: 10px; color: var(--text-tertiary); white-space: nowrap; }
+  .no-sermons-msg { padding: 1.5rem 16px; font-size: 13px; color: var(--text-tertiary); text-align: center; }
+
+  /* MISC */
+  #login-screen { display: none; position: fixed; inset: 0; background: var(--bg-tertiary); z-index: 500; align-items: center; justify-content: center; flex-direction: column; gap: 20px; }
+  .loading-state { text-align: center; padding: 3rem; color: var(--text-secondary); font-size: 13px; }
+  .loading-state i { font-size: 28px; display: block; margin-bottom: 8px; opacity: 0.35; animation: spin 1s linear infinite; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .section-header { display: flex; align-items: center; gap: 10px; margin: 0 0 1rem; }
+  .section-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+  .section-line { flex: 1; height: 0.5px; background: var(--border); }
+  .section-count { font-size: 11px; background: var(--bg-secondary); color: var(--text-secondary); padding: 2px 8px; border-radius: 20px; }
+
+  @media (max-width: 768px) {
+    .nav { position: fixed; left: 0; top: 0; bottom: 0; width: var(--nav-width); transform: translateX(-100%); z-index: 250; height: 100vh; }
+    .nav.open { transform: translateX(0); }
+    .mobile-topbar { display: flex; }
+    .app { display: block; }
+    .main { padding: 1rem 1rem 4rem; max-width: 100%; width: 100%; }
+    .top-bar { display: none; }
+    .member-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div style="text-align:center;">
+    <div style="font-size:32px;margin-bottom:8px;">🤝</div>
+    <h1 style="font-size:22px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">Accountability</h1>
+    <p style="font-size:14px;color:var(--text-secondary);">Sign in to view your team</p>
+  </div>
+  <button onclick="signIn()" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:white;border:0.5px solid rgba(28,25,23,0.2);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <img src="https://www.google.com/favicon.ico" width="18" height="18"/> Sign in with Google
+  </button>
+</div>
+
+<div class="app">
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+  <nav class="nav" id="main-nav">
+    <div class="nav-logo">
+      <div class="nav-logo-title">Sermon Prep</div>
+      <div class="nav-logo-sub" id="nav-date"></div>
+    </div>
+    <div class="nav-section-label" style="margin-bottom:8px;">Pages</div>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/color.html">🎨 Color</a>
+    <a class="nav-item active" href="/Sermon-Prep-Dashboard/accountability.html">🤝 Accountability</a>
+    <a class="nav-item" href="/Sermon-Prep-Dashboard/settings.html"><i class="ti ti-settings"></i> Settings</a>
+    <div class="nav-bottom">
+      <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Loading...</span></div>
+      <div id="nav-user" style="font-size:11px;color:var(--text-tertiary);margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+      <button class="btn" style="width:100%;justify-content:center;font-size:12px;margin-top:6px;" onclick="signOut()"><i class="ti ti-logout"></i> Sign out</button>
+    </div>
+  </nav>
+
+  <div class="mobile-topbar">
+    <button class="hamburger" onclick="openNav()"><i class="ti ti-menu-2"></i></button>
+    <h1>🤝 Accountability</h1>
+    <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="refreshTeam()"><i class="ti ti-refresh"></i></button>
+  </div>
+
+  <main class="main">
+    <div class="top-bar">
+      <div>
+        <h1>🤝 Accountability</h1>
+        <div class="subtitle">Your team's sermon prep status</div>
+      </div>
+      <button class="btn" onclick="refreshTeam()"><i class="ti ti-refresh"></i> Refresh</button>
+    </div>
+    <div id="main-content">
+      <div class="loading-state"><i class="ti ti-loader"></i>Loading...</div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, query, where, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
+  authDomain: "sermon-prep-dashboard.firebaseapp.com",
+  projectId: "sermon-prep-dashboard",
+  storageBucket: "sermon-prep-dashboard.firebasestorage.app",
+  messagingSenderId: "769289223341",
+  appId: "1:769289223341:web:3dc1d53e57d96b3c55da24"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+let currentUser = null;
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('nav-user').textContent = user.displayName || user.email;
+    await init();
+  } else {
+    currentUser = null;
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+});
+
+window.signIn = async () => { try { await signInWithPopup(auth, provider); } catch(e) { console.error(e); } };
+window.signOut = async () => { await fbSignOut(auth); };
+window.openNav = () => { document.getElementById('main-nav').classList.add('open'); document.getElementById('nav-overlay').classList.add('open'); document.body.style.overflow='hidden'; };
+window.closeNav = () => { document.getElementById('main-nav').classList.remove('open'); document.getElementById('nav-overlay').classList.remove('open'); document.body.style.overflow=''; };
+
+function setSyncStatus(state, label) {
+  document.getElementById('sync-dot').className = 'sync-dot '+state;
+  document.getElementById('sync-label').textContent = label;
+}
+
+// ── DATE HELPERS ─────────────────────────────────────────────────────────────
+function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+function parseDate(str) { if (!str) return null; const [y,m,d] = str.split('-').map(Number); return new Date(y,m-1,d); }
+function daysUntil(d) { return Math.round((d - today()) / 86400000); }
+function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+
+function getStageDueDate(sermonDateStr, stage) {
+  if (!stage || stage.dueDay === null) return null;
+  const sermonDate = parseDate(sermonDateStr);
+  const base = new Date(sermonDate);
+  base.setDate(sermonDate.getDate() - (stage.weeksBack * 7));
+  const baseDow = base.getDay();
+  let diff = baseDow - stage.dueDay;
+  if (diff < 0) diff += 7;
+  const result = new Date(base);
+  result.setDate(base.getDate() - diff);
+  if (result >= sermonDate && stage.key !== 'completed' && stage.key !== 'run' && stage.key !== 'final') {
+    result.setDate(result.getDate() - 7);
+  }
+  return result;
+}
+
+function isSermonBehind(sermon, stages) {
+  if (sermon.status === 'completed' || sermon.status === 'not-started') return false;
+  const stage = stages.find(s => s.key === sermon.status);
+  if (!stage) return false;
+  const due = getStageDueDate(sermon.date, stage);
+  if (!due) return false;
+  return daysUntil(due) < 0;
+}
+
+function getProgressPct(status, statusOrder) {
+  if (status === 'not-started' || status === 'study') return 0;
+  const idx = statusOrder.indexOf(status);
+  return idx < 0 ? 0 : Math.round((idx / (statusOrder.length - 1)) * 100);
+}
+
+// ── TEAM LOGIC ────────────────────────────────────────────────────────────────
+const TEAM_CODE = 'CANDEO';
+const TEAM_DOC = doc(db, 'teams', TEAM_CODE);
+
+async function init() {
+  setSyncStatus('syncing', 'Loading...');
+  try {
+    const snap = await getDoc(TEAM_DOC);
+    if (!snap.exists()) {
+      renderOnboard(false);
+    } else {
+      const team = snap.data();
+      const members = team.members || [];
+      const isMember = members.some(m => m.uid === currentUser.uid);
+      if (!isMember) {
+        renderOnboard(true, team);
+      } else {
+        await renderTeam(team);
+      }
+    }
+    setSyncStatus('synced', 'Synced');
+  } catch(e) {
+    setSyncStatus('error', 'Error');
+    document.getElementById('main-content').innerHTML = `<p style="color:var(--red-text);font-size:13px;">Error: ${e.message}</p>`;
+  }
+}
+
+window.refreshTeam = async () => { await init(); };
+
+// ── ONBOARD ───────────────────────────────────────────────────────────────────
+function renderOnboard(teamExists, team) {
+  if (teamExists) {
+    document.getElementById('main-content').innerHTML = `
+      <div class="onboard-panel">
+        <h2>Join your team</h2>
+        <p>Enter the team code your team leader shared with you to join the accountability group.</p>
+        <div class="onboard-row">
+          <input type="text" id="join-code" placeholder="TEAM CODE" maxlength="20" />
+          <button class="btn primary" onclick="joinTeam()"><i class="ti ti-arrow-right"></i> Join</button>
+        </div>
+        <div class="onboard-error" id="join-error"></div>
+        <div class="onboard-divider"><span>or</span></div>
+        <button class="btn" onclick="showCreate()"><i class="ti ti-plus"></i> Create a new team</button>
+      </div>`;
+  } else {
+    document.getElementById('main-content').innerHTML = `
+      <div class="onboard-panel">
+        <h2>Join your team</h2>
+        <p>Enter the team code your team leader shared with you, or create a new team.</p>
+        <div class="onboard-row">
+          <input type="text" id="join-code" placeholder="TEAM CODE" maxlength="20" />
+          <button class="btn primary" onclick="joinTeam()"><i class="ti ti-arrow-right"></i> Join</button>
+        </div>
+        <div class="onboard-error" id="join-error"></div>
+        <div class="onboard-divider"><span>or</span></div>
+        <button class="btn" onclick="showCreate()"><i class="ti ti-plus"></i> Create a new team</button>
+      </div>`;
+  }
+}
+
+window.showCreate = () => {
+  document.getElementById('main-content').innerHTML = `
+    <div class="onboard-panel">
+      <h2>Create a team</h2>
+      <p>Choose a team code your staff will use to join. Keep it simple — like your church name.</p>
+      <div class="onboard-row">
+        <input type="text" id="create-code" placeholder="e.g. CANDEO" maxlength="20" style="text-transform:uppercase;" />
+        <button class="btn primary" onclick="createTeam()"><i class="ti ti-plus"></i> Create</button>
+      </div>
+      <div class="onboard-error" id="create-error"></div>
+      <div style="margin-top:12px;">
+        <button class="btn" onclick="init()">← Back</button>
+      </div>
+    </div>`;
+};
+
+window.createTeam = async () => {
+  const code = document.getElementById('create-code').value.trim().toUpperCase();
+  const errEl = document.getElementById('create-error');
+  if (!code) { errEl.textContent = 'Please enter a team code.'; return; }
+  try {
+    const existing = await getDoc(doc(db, 'teams', code));
+    if (existing.exists()) { errEl.textContent = 'That code is already taken. Try another.'; return; }
+    await setDoc(doc(db, 'teams', code), {
+      code,
+      createdBy: currentUser.uid,
+      createdAt: new Date().toISOString(),
+      members: [{ uid: currentUser.uid, name: currentUser.displayName, email: currentUser.email, photo: currentUser.photoURL || '' }]
+    });
+    await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'), { code });
+    await init();
+  } catch(e) { errEl.textContent = 'Error: ' + e.message; }
+};
+
+window.joinTeam = async () => {
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
+  const errEl = document.getElementById('join-error');
+  if (!code) { errEl.textContent = 'Please enter a team code.'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'teams', code));
+    if (!snap.exists()) { errEl.textContent = 'Team code not found. Check with your team leader.'; return; }
+    const team = snap.data();
+    if (team.members.some(m => m.uid === currentUser.uid)) { errEl.textContent = 'You are already in this team.'; return; }
+    await updateDoc(doc(db, 'teams', code), {
+      members: arrayUnion({ uid: currentUser.uid, name: currentUser.displayName, email: currentUser.email, photo: currentUser.photoURL || '' })
+    });
+    await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'), { code });
+    await init();
+  } catch(e) { errEl.textContent = 'Error: ' + e.message; }
+};
+
+// ── RENDER TEAM ───────────────────────────────────────────────────────────────
+async function renderTeam(team) {
+  const members = team.members || [];
+  const content = document.getElementById('main-content');
+  content.innerHTML = `
+    <div class="team-header">
+      <div class="team-code-badge">
+        Team code: <span class="team-code-value">${team.code}</span>
+        <button class="copy-btn" onclick="copyCode('${team.code}')" title="Copy code"><i class="ti ti-copy"></i></button>
+        <span class="copied-msg" id="copied-msg"></span>
+      </div>
+      <button class="btn danger" onclick="leaveTeam()"><i class="ti ti-logout"></i> Leave team</button>
+    </div>
+    <div class="section-header">
+      <div class="section-title">Team members</div>
+      <div class="section-line"></div>
+      <div class="section-count">${members.length}</div>
+    </div>
+    <div class="member-grid" id="member-grid">
+      <div class="loading-state"><i class="ti ti-loader"></i>Loading member data...</div>
+    </div>`;
+
+  // Load each member's sermons and settings
+  const memberData = await Promise.all(members.map(async member => {
+    try {
+      const [sermonsSnap, settingsSnap] = await Promise.all([
+        getDocs(collection(db, 'users', member.uid, 'sermons')),
+        getDoc(doc(db, 'users', member.uid, 'meta', 'settings'))
+      ]);
+      const sermons = sermonsSnap.docs.map(d => ({id: d.id, ...d.data()}));
+      const settings = settingsSnap.exists() ? settingsSnap.data() : null;
+      const stages = settings?.stages ? [
+        {key:'not-started',label:'Not yet started',dueDay:null,weeksBack:null},
+        ...settings.stages,
+        {key:'completed',label:'Completed',dueDay:0,weeksBack:0}
+      ] : [
+        {key:'not-started',label:'Not yet started',dueDay:null,weeksBack:null},
+        {key:'study',label:'Study',dueDay:2,weeksBack:2},
+        {key:'idea',label:'Main idea',dueDay:2,weeksBack:2},
+        {key:'outline',label:'Outline',dueDay:3,weeksBack:2},
+        {key:'draft',label:'Draft',dueDay:2,weeksBack:1},
+        {key:'final',label:'Final',dueDay:3,weeksBack:1},
+        {key:'run',label:'Run-through',dueDay:4,weeksBack:1},
+        {key:'completed',label:'Completed',dueDay:0,weeksBack:0}
+      ];
+      const statusOrder = stages.map(s=>s.key);
+      return { member, sermons, stages, statusOrder };
+    } catch(e) {
+      return { member, sermons: [], stages: [], statusOrder: [] };
+    }
+  }));
+
+  document.getElementById('member-grid').innerHTML = memberData.map(({member, sermons, stages, statusOrder}) => {
+    const isYou = member.uid === currentUser.uid;
+    const upcoming = sermons
+      .filter(s => s.status !== 'completed' && daysUntil(parseDate(s.date)) >= 0)
+      .sort((a,b) => a.date.localeCompare(b.date))
+      .slice(0, 3);
+
+    const anyBehind = upcoming.some(s => isSermonBehind(s, stages));
+    const trackClass = upcoming.length === 0 ? 'no-sermons' : anyBehind ? 'behind' : 'on-track';
+    const trackLabel = upcoming.length === 0 ? 'No sermons' : anyBehind ? 'Behind' : 'On track';
+
+    const initials = (member.name || member.email || '?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const avatar = member.photo
+      ? `<img class="member-avatar" src="${member.photo}" onerror="this.style.display='none'" />`
+      : `<div class="member-avatar-initials">${initials}</div>`;
+
+    const sermonRows = upcoming.length === 0
+      ? `<div class="no-sermons-msg">No upcoming sermons</div>`
+      : upcoming.map(s => {
+          const behind = isSermonBehind(s, stages);
+          const pct = getProgressPct(s.status, statusOrder);
+          const stageLabel = stages.find(st=>st.key===s.status)?.label || s.status;
+          const stageClass = s.status === 'not-started' ? 'stage-neutral' : behind ? 'stage-behind' : 'stage-on-track';
+          const progClass = s.status === 'not-started' ? 'neutral' : behind ? 'behind' : 'on-track';
+          return `<div class="sermon-row">
+            <div class="sermon-row-title">${s.title||'Untitled'}</div>
+            <div class="sermon-row-meta">
+              <span class="sermon-row-date">${formatDateFull(parseDate(s.date))}</span>
+              <span class="sermon-row-stage ${stageClass}">${stageLabel}</span>
+            </div>
+            <div class="sermon-row-progress">
+              <div class="prog-bg"><div class="prog-fill ${progClass}" style="width:${pct}%"></div></div>
+              <span class="prog-pct">${pct}%</span>
+            </div>
+          </div>`;
+        }).join('');
+
+    return `<div class="member-card ${trackClass}">
+      <div class="member-header">
+        ${avatar}
+        <div class="member-info">
+          <div class="member-name">${member.name || member.email}</div>
+          ${isYou ? '<div class="member-you">You</div>' : ''}
+        </div>
+        <span class="member-status-badge ${trackClass}">${trackLabel}</span>
+      </div>
+      <div class="sermon-rows">${sermonRows}</div>
+    </div>`;
+  }).join('');
+}
+
+window.copyCode = (code) => {
+  navigator.clipboard.writeText(code);
+  const el = document.getElementById('copied-msg');
+  el.textContent = 'Copied!';
+  setTimeout(() => { el.textContent = ''; }, 2000);
+};
+
+window.leaveTeam = async () => {
+  if (!confirm('Leave this team? You can rejoin with the team code.')) return;
+  try {
+    const teamSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'));
+    if (teamSnap.exists()) {
+      const code = teamSnap.data().code;
+      const teamDoc = await getDoc(doc(db, 'teams', code));
+      if (teamDoc.exists()) {
+        const member = teamDoc.data().members.find(m => m.uid === currentUser.uid);
+        if (member) await updateDoc(doc(db, 'teams', code), { members: arrayRemove(member) });
+      }
+    }
+    await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'), {});
+    await init();
+  } catch(e) { alert('Error leaving team: ' + e.message); }
+};
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.getElementById('nav-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+document.addEventListener('keydown', e => { if(e.key==='Escape') window.closeNav(); });
+</script>
+</body>
+</html>
