@@ -752,8 +752,21 @@ function isActive(s) {
   return daysUntil(parseDate(s.date)) <= 21;
 }
 // ── USER SETTINGS ─────────────────────────────────────────────────────────────
+let userRole = 'member';
+
 async function loadUserSettings() {
   try {
+    // Load role
+    const profileSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'));
+    if (profileSnap.exists()) {
+      userRole = profileSnap.data().role || 'member';
+    } else {
+      // First time user — create profile with member role
+      await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'), { role: 'member' });
+      userRole = 'member';
+    }
+
+    // Load settings
     const snap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'settings'));
     if (snap.exists()) {
       const s = snap.data();
