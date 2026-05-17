@@ -203,12 +203,12 @@ const provider = new GoogleAuthProvider();
 let currentUser = null;
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const S = [
-  {value:0, label:' of sermon'},
-  {value:1, label:' before sermon'},
-  {value:2, label:'2 s before'},
-  {value:3, label:'3 s before'},
-  {value:4, label:'4 s before'},
+const WEEKS = [
+  {value:0, label:'Week of sermon'},
+  {value:1, label:'1 week before'},
+  {value:2, label:'2 weeks before'},
+  {value:3, label:'3 weeks before'},
+  {value:4, label:'4 weeks before'},
 ];
 
 const DEFAULT_STAGES = [
@@ -285,13 +285,13 @@ window.saveSettings = async () => {
       const idx = parseInt(item.dataset.idx);
       const nameInput = item.querySelector('.stage-name-input');
       const daySelect = item.querySelector('.day-select');
-      const Select = item.querySelector('.week-select');
-      newStages.push({
-        key: settings.stages[idx].key,
-        label: nameInput.value.trim() || settings.stages[idx].label,
-        dueDay: parseInt(daySelect.value),
-        weeksBack: parseInt(weekSelect.value),
-      });
+      const weekSelect = item.querySelector('.week-select');
+newStages.push({
+  key: settings.stages[idx].key,
+  label: nameInput.value.trim() || settings.stages[idx].label,
+  dueDay: parseInt(daySelect.value),
+  weeksBack: parseInt(weekSelect.value),
+});
     });
     settings.stages = newStages;
 
