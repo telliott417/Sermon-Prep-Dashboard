@@ -499,12 +499,22 @@ async function renderTeam(team) {
           const stageLabel = stages.find(st=>st.key===s.status)?.label || s.status;
           const stageClass = s.status === 'not-started' ? 'stage-neutral' : behind ? 'stage-behind' : 'stage-on-track';
           const progClass = s.status === 'not-started' ? 'neutral' : behind ? 'behind' : 'on-track';
-          return `<div class="sermon-row">
+          return `<div class="sermon-row" onclick="toggleSermonExpand(this)" style="cursor:pointer;">
             <div class="sermon-row-title">${s.title||'Untitled'}${s.text ? ` <span class="sermon-row-scripture">· ${s.text}</span>` : ''}</div>
             <div class="sermon-row-meta">
               <span class="sermon-row-date">${formatDateFull(parseDate(s.date))}</span>
               <span class="sermon-row-stage ${stageClass}">${stageLabel}</span>
               ${s.context ? `<span class="sermon-row-context">${s.context}</span>` : ''}
+            </div>
+            <div class="sermon-row-stages" style="display:none;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);display:none;flex-wrap:wrap;align-items:center;gap:4px;">
+              ${stages.filter(st=>st.key!=='not-started').map(st => {
+                const idx = statusOrder.indexOf(st.key);
+                const currentIdx = statusOrder.indexOf(s.status);
+                const isDone = idx < currentIdx;
+                const isCurrent = st.key === s.status;
+                const isLast = idx === stages.length - 1;
+                return `<span style="font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;${isDone?'text-decoration:line-through;color:var(--text-tertiary);':''}${isCurrent?'border:1.5px solid rgba(255,255,255,0.5);color:var(--text-primary);padding:1px 7px;':'color:var(--text-tertiary);'}">${st.label}</span>${!isLast?`<span style="font-size:10px;color:var(--text-tertiary);">›</span>`:''}`
+              }).join('')}
             </div>
             <div class="sermon-row-progress">
               <div class="prog-bg"><div class="prog-fill ${progClass}" style="width:${pct}%"></div></div>
@@ -549,6 +559,14 @@ window.leaveTeam = async () => {
     await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'), {});
     await init();
   } catch(e) { alert('Error leaving team: ' + e.message); }
+};
+window.toggleSermonExpand = function(row) {
+  const stagesEl = row.querySelector('.sermon-row-stages');
+  const isOpen = stagesEl.style.display === 'flex';
+  // Close all open ones first
+  document.querySelectorAll('.sermon-row-stages').forEach(el => el.style.display = 'none');
+  // Open this one if it wasn't already open
+  if (!isOpen) stagesEl.style.display = 'flex';
 };
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
