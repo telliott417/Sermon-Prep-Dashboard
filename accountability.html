@@ -502,11 +502,11 @@ async function renderTeam(team) {
           const stageClass = s.status === 'not-started' ? 'stage-neutral' : behind ? 'stage-behind' : 'stage-on-track';
           const progClass = s.status === 'not-started' ? 'neutral' : behind ? 'behind' : 'on-track';
           return `<div class="sermon-row">
-            <div class="sermon-row-title">${s.title||'Untitled'}${s.scripture ? ` <span class="sermon-row-scripture">· ${s.scripture}</span>` : ''}</div>
-            ${s.context ? `<div><span class="sermon-row-context">${s.context}</span></div>` : ''}
+            <div class="sermon-row-title">${s.title||'Untitled'}${s.text ? ` <span class="sermon-row-scripture">· ${s.text}</span>` : ''}</div>
             <div class="sermon-row-meta">
               <span class="sermon-row-date">${formatDateFull(parseDate(s.date))}</span>
               <span class="sermon-row-stage ${stageClass}">${stageLabel}</span>
+              ${s.context ? `<span class="sermon-row-context">${s.context}</span>` : ''}
             </div>
             <div class="sermon-row-progress">
               <div class="prog-bg"><div class="prog-fill ${progClass}" style="width:${pct}%"></div></div>
