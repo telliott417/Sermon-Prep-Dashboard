@@ -475,6 +475,20 @@ async function renderTeam(team) {
     }
   }));
 
+  // Sort members: those with upcoming sermons first (by nearest date), then those without
+  memberData.sort((a, b) => {
+    const aNext = a.sermons
+      .filter(s => s.status !== 'completed' && daysUntil(parseDate(s.date)) >= 0)
+      .sort((x,y) => x.date.localeCompare(y.date))[0];
+    const bNext = b.sermons
+      .filter(s => s.status !== 'completed' && daysUntil(parseDate(s.date)) >= 0)
+      .sort((x,y) => x.date.localeCompare(y.date))[0];
+    if (aNext && bNext) return aNext.date.localeCompare(bNext.date);
+    if (aNext) return -1;
+    if (bNext) return 1;
+    return 0;
+  });
+
   document.getElementById('member-grid').innerHTML = memberData.map(({member, sermons, stages, statusOrder}) => {
     const isYou = member.uid === currentUser.uid;
     const upcoming = sermons
