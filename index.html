@@ -2208,7 +2208,7 @@ async function loadColorCard() {
       const src = item.source || '';
       return `<div class="color-item ${type}">
         <div class="color-type">${typeLabel}</div>
-        <div class="color-text">${text.length > 130 ? text.slice(0,130)+'…' : text}</div>
+        <div class="color-text">${text}</div>
         ${src ? `<div class="color-src">— ${src}</div>` : ''}
       </div>`;
     }).join('');
