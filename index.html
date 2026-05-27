@@ -2105,19 +2105,29 @@ async function loadTeamCard() {
   const el = document.getElementById('team-card-inner');
   if (!el || !currentUser) return;
   try {
-    // Get user's team code from profile
-    const profileSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'));
-    const teamCode = (profileSnap.exists() && profileSnap.data().teamCode) ? profileSnap.data().teamCode : 'CANDEO';
-    el.querySelector('.r-card-title').textContent = `Team · ${teamCode}`;
+    // Get user's team code from users/{uid}/meta/team → .code
+    const teamMetaSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'));
+    if (!teamMetaSnap.exists() || !teamMetaSnap.data().code) {
+      el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">Not on a team yet. <a href="/Sermon-Prep-Dashboard/accountability.html" style="color:var(--brand);">Join one →</a></div>`;
+      return;
+    }
+    const teamCode = teamMetaSnap.data().code;
 
-    // Load team members
-    const membersSnap = await getDocs(collection(db, 'teams', teamCode, 'members'));
-    if (membersSnap.empty) { el.innerHTML += '<div style="font-size:11px;color:var(--stone-light);padding:8px 0;">No team members yet.</div>'; return; }
+    // Load team document — members stored as array in teams/{code}
+    const teamSnap = await getDoc(doc(db, 'teams', teamCode));
+    if (!teamSnap.exists()) {
+      el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team · ${teamCode}</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">Team not found.</div>`;
+      return;
+    }
+    const teamMembers = teamSnap.data().members || [];
+    if (teamMembers.length === 0) {
+      el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team · ${teamCode}</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">No members yet.</div>`;
+      return;
+    }
 
     // Load each member's sermon data
-    const memberPromises = membersSnap.docs.map(async (mDoc) => {
-      const uid = mDoc.id;
-      const mData = mDoc.data();
+    const memberPromises = teamMembers.map(async (mData) => {
+      const uid = mData.uid;
       try {
         const sermonsSnap = await getDocs(collection(db, 'users', uid, 'sermons'));
         const sermons = sermonsSnap.docs.map(d => ({id:d.id,...d.data()}));
@@ -2127,31 +2137,27 @@ async function loadTeamCard() {
         const onTrack = inProg.filter(s => !isBehind(s));
         const score = inProg.length > 0 ? Math.round(onTrack.length / inProg.length * 100) : 100;
         const nextSermon = activeS.sort((a,b) => a.date.localeCompare(b.date))[0];
-        return { uid, name: mData.displayName || mData.name || 'Member', score, behind: behind.length, nextSermon };
-      } catch(e) { return { uid, name: mData.displayName || mData.name || 'Member', score: 0, behind: 0, nextSermon: null }; }
+        return { uid, name: mData.name || 'Member', score, behind: behind.length, nextSermon };
+      } catch(e) { return { uid, name: mData.name || 'Member', score: 100, behind: 0, nextSermon: null }; }
     });
     const members = await Promise.all(memberPromises);
     members.sort((a,b) => b.score - a.score);
 
     const itemsHtml = members.map(m => {
       const sc = getScoreColor(m.score);
-      const weekSc = getScoreColor(75); // default week score for team
-      const outerOffset = Math.round(131.9 * (1 - m.score/100));
-      const innerOffset = Math.round(81.7 * (1 - 75/100));
+      const outerOffset = (131.9 * (1 - m.score/100)).toFixed(1);
       const isYou = m.uid === currentUser.uid;
       const stageBg = m.behind > 0 ? 'var(--red-light)' : 'var(--green-light)';
       const stageFg = m.behind > 0 ? 'var(--red)' : 'var(--green)';
-      const stageLabel = m.nextSermon ? `${STATUS_LABELS[m.nextSermon.status]||m.nextSermon.status} · ${m.behind > 0 ? m.behind+' behind' : 'On track'}` : 'No active sermon';
+      const stageLabel = m.nextSermon
+        ? `${STATUS_LABELS[m.nextSermon.status] || m.nextSermon.status} · ${m.behind > 0 ? m.behind + ' behind' : 'On track'}`
+        : 'No active sermon';
       return `<div class="team-item">
         <div class="team-rings-wrap">
           <svg class="team-rings-svg" viewBox="0 0 52 52">
             <circle cx="26" cy="26" r="21" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="5"/>
             <circle cx="26" cy="26" r="21" fill="none" stroke="${sc}" stroke-width="5" stroke-linecap="round"
               stroke-dasharray="131.9 131.9" stroke-dashoffset="${outerOffset}" transform="rotate(-90 26 26)"/>
-            <circle cx="26" cy="26" r="17" fill="none" stroke="var(--bg)" stroke-width="1.5"/>
-            <circle cx="26" cy="26" r="13" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="4"/>
-            <circle cx="26" cy="26" r="13" fill="none" stroke="${weekSc}" stroke-width="4" stroke-linecap="round"
-              stroke-dasharray="81.7 81.7" stroke-dashoffset="${innerOffset}" transform="rotate(-90 26 26)"/>
           </svg>
           <div class="team-rings-center">
             <div class="team-score-num" style="color:${sc}">${m.score}</div>
@@ -2168,7 +2174,7 @@ async function loadTeamCard() {
     el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team · ${teamCode}</div>${itemsHtml}`;
   } catch(e) {
     console.error('Team card failed:', e);
-    el.innerHTML = '<div class="r-card-title" style="margin-bottom:12px;">Team</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">Could not load team.</div>';
+    el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">Could not load team.</div>`;
   }
 }
 
