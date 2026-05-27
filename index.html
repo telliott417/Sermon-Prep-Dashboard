@@ -390,10 +390,15 @@ let currentUser = null;
   .color-card-inner { padding: 14px 16px; }
   .color-item { border-radius: 10px; padding: 11px 13px; margin-bottom: 8px; border-left: 3px solid var(--amber); background: var(--warm-bg); }
   .color-item:last-child { margin-bottom: 0; }
-  .color-item.illus { border-left-color: #1B4F8A; }
+  .color-item.illustration { border-left-color: #185fa5; }
+  .color-item.quote { border-left-color: #534ab7; }
+  .color-item.story { border-left-color: var(--amber); }
   .color-type { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--amber); margin-bottom: 4px; }
-  .color-item.illus .color-type { color: #1B4F8A; }
-  .color-text { font-size: 11px; color: var(--ink-2); line-height: 1.55; font-style: italic; }
+  .color-item.illustration .color-type { color: #185fa5; }
+  .color-item.quote .color-type { color: #534ab7; }
+  .color-item.story .color-type { color: var(--amber); }
+  .color-text { font-size: 11px; color: var(--ink-2); line-height: 1.55; }
+  .color-item.quote .color-text { font-style: italic; }
   .color-src { font-size: 9px; color: var(--stone-light); margin-top: 4px; }
   /* ── PREACH PILL ── */
   .preach-pill { background: var(--warm-bg); border: 1px solid var(--border-md); border-radius: 4px; padding: 0 6px; height: 20px; font-size: 8px; font-weight: 600; color: var(--stone); white-space: nowrap; display: flex; align-items: center; }
@@ -2187,21 +2192,23 @@ async function loadColorCard() {
   const el = document.getElementById('color-card-inner');
   if (!el || !currentUser) return;
   try {
-    const q = query(collection(db, 'users', currentUser.uid, 'ideas'), orderBy('createdAt','desc'), limit(2));
+    // Field is 'created' (date string e.g. '2024-01-15'), not 'createdAt'
+    const q = query(collection(db, 'users', currentUser.uid, 'ideas'), orderBy('created','desc'), limit(2));
     const snap = await getDocs(q);
     if (snap.empty) {
       el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Recent Color</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">No Color yet. <a href="/Sermon-Prep-Dashboard/color.html?capture=1" style="color:var(--brand);">Add one →</a></div>`;
       return;
     }
     const items = snap.docs.map(d => ({id:d.id,...d.data()}));
+    const TYPE_LABELS = { illustration: 'Illustration', quote: 'Quote', story: 'Story' };
     const html = items.map(item => {
-      const isIllus = (item.type||'').toLowerCase().includes('illus');
-      const typeLabel = item.type || 'Quote';
-      const text = item.text || item.content || item.body || '';
-      const src = item.source || item.author || '';
-      return `<div class="color-item${isIllus?' illus':''}">
+      const type = (item.type || 'quote').toLowerCase();
+      const typeLabel = TYPE_LABELS[type] || item.type || 'Quote';
+      const text = item.content || '';
+      const src = item.source || '';
+      return `<div class="color-item ${type}">
         <div class="color-type">${typeLabel}</div>
-        <div class="color-text">${text.length > 120 ? text.slice(0,120)+'…' : text}</div>
+        <div class="color-text">${text.length > 130 ? text.slice(0,130)+'…' : text}</div>
         ${src ? `<div class="color-src">— ${src}</div>` : ''}
       </div>`;
     }).join('');
