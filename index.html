@@ -81,13 +81,14 @@ let currentUser = null;
 
   /* ── LAYOUT ── */
   .main-wrap { margin-left: var(--nav-width); flex: 1; overflow-y: auto; height: 100vh; }
-  .two-col { display: grid; grid-template-columns: 1fr 640px; gap: 14px; align-items: start; padding: 2rem; }
+  .topbar-wrap { padding: 2rem 2rem 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 640px; gap: 14px; align-items: start; padding: 1.25rem 2rem 2rem; }
   .main { min-width: 0; padding-bottom: 4rem; }
   .right-col { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 2rem; }
   .sidebar { display: none; }
 
   /* ── TOPBAR ── */
-  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; }
   .topbar-greeting { font-size: 22px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; line-height: 1.2; }
   .topbar-date { font-size: 13px; color: var(--stone); margin-top: 3px; }
   .topbar-actions { display: flex; gap: 8px; align-items: center; }
@@ -487,10 +488,9 @@ let currentUser = null;
 
   <!-- MAIN WRAP -->
   <div class="main-wrap">
-    <div class="two-col">
-    <main class="main">
 
-      <!-- TOPBAR -->
+    <!-- TOPBAR — full width across both columns -->
+    <div class="topbar-wrap">
       <div class="topbar">
         <div>
           <div class="topbar-greeting" id="topbar-greeting">Good morning 👋</div>
@@ -501,6 +501,10 @@ let currentUser = null;
           <button class="btn-brand" onclick="openSermonModal()">+ Add Sermon</button>
         </div>
       </div>
+    </div>
+
+    <div class="two-col">
+    <main class="main">
 
       <div class="error-banner" id="error-banner"></div>
 
