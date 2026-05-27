@@ -543,6 +543,7 @@ const DEFAULT_STAGES = [
   { key: 'run',     label: 'Run-through',   dueDay: 3, weeksBack: 0 },
 ];
 const DEFAULT_CONTEXTS = ['Salt','Candeo','Youth'];
+const SERMON_COLORS = ['#185fa5','#6d3fc0','#0f6e56','#854f0b','#7a3b69'];
 
 let STAGES = [];
 let STATUS_ORDER = [];
@@ -950,7 +951,7 @@ function renderSermonCard(s) {
   const quickAdvance = (s.status!=='completed'&&s.status!=='not-started'&&nextStage)
     ? `<button class="quick-advance" onclick="event.stopPropagation();advanceStatus('${s.id}')"><i class="ti ti-check"></i> Done: ${STATUS_LABELS[s.status]}</button>` : '';
   const validation = validateSermonDeadlines(s, STAGES);
-  return `<div class="${cardClass}" id="card-${s.id}">
+  return `<div class="${cardClass}" id="card-${s.id}" style="border-left: 3px solid ${s._color};">
     <div class="sermon-header" onclick="toggleCard('${s.id}')">
       <div class="sermon-main">
         <div class="sermon-title-row">
@@ -975,7 +976,7 @@ function renderSermonCard(s) {
       </div>
     </div>
     <div class="card-progress">
-      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%;background:${s._color};"></div></div>
       <span class="progress-label">${pct}%</span>
     </div>
     <div class="sermon-body ${isOpen?'open':''}" id="body-${s.id}">
@@ -1063,7 +1064,7 @@ function renderTodo() {
     const sermonMeta = `${sermon.title}${sermon.context?' · '+sermon.context:''}`;
     const advBtn = (!isSermon&&sermon.status!=='completed')
       ? `<button class="todo-advance ${d<0?'overdue-btn':''}" onclick="advanceStatus('${sermon.id}')"><i class="ti ti-check"></i> Done</button>` : '';
-    return `<div class="todo-item">
+    return `<div class="todo-item" style="border-left: 3px solid ${sermon._color||SERMON_COLORS[0]};">
       <div class="todo-dot ${urgCls}"></div>
       <div class="todo-content">
         <div class="todo-task">${stage.label}</div>
@@ -1080,21 +1081,21 @@ function renderTodo() {
 // ── CALENDAR ─────────────────────────────────────────────────────────────────
 function buildCalendarEvents() {
   const events = {};
-  const add = (dateStr, label, cls) => {
+  const add = (dateStr, label, color, isOverdue=false) => {
     if (!events[dateStr]) events[dateStr]=[];
-    events[dateStr].push({label,cls});
+    events[dateStr].push({label, color, isOverdue});
   };
   allSermons.filter(s=>s.status!=='completed').forEach(s => {
+    const color = s._color || SERMON_COLORS[0];
     const name = s.title.split(' ').slice(0,3).join(' ');
-    add(s.date,`📖 ${name}`,'ev-sermon');
+    add(s.date, `📖 ${name}`, color, false);
     const curIdx = STATUS_ORDER.indexOf(s.status);
     STAGES.filter(st=>st.dueDay!==null&&st.key!=='completed'&&st.key!=='not-started').forEach(st => {
       const stIdx = STATUS_ORDER.indexOf(st.key);
       if (stIdx<curIdx) return;
       const due = getStageDueDate(s.date, st.key, s.customDeadlines);
       if (!due) return;
-      const clsMap={study:'ev-study',idea:'ev-idea',outline:'ev-outline',draft:'ev-draft',final:'ev-final',run:'ev-run'};
-      add(toYMD(due), st.label, daysUntil(due)<0?'ev-overdue':(clsMap[st.key]||'ev-study'));
+      add(toYMD(due), st.label, color, daysUntil(due)<0);
     });
   });
   return events;
@@ -1122,7 +1123,11 @@ function renderCalendar() {
     let cls='cal-day';
     if (isToday) cls+=' today'; else if (isWeekend) cls+=' weekend';
     const dayEvents=events[dateStr]||[];
-    const evHtml=dayEvents.slice(0,3).map(ev=>`<div class="cal-event ${ev.cls}" title="${ev.label}">${ev.label}</div>`).join('');
+    const evHtml=dayEvents.slice(0,3).map(ev=>{
+      if (ev.isOverdue) return `<div class="cal-event ev-overdue" title="${ev.label}">${ev.label}</div>`;
+      const evStyle=`background:${ev.color}22;color:${ev.color};border-left:2px solid ${ev.color};`;
+      return `<div class="cal-event" title="${ev.label}" style="${evStyle}">${ev.label}</div>`;
+    }).join('');
     const more=dayEvents.length>3?`<div style="font-size:9px;color:var(--text-tertiary);padding:0 2px;">+${dayEvents.length-3} more</div>`:'';
     html+=`<div class="${cls}"><div class="cal-day-num">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>${evHtml}${more}</div>`;
   }
@@ -1147,6 +1152,8 @@ function renderSidebarSection(elId, title, sermons, mode, firstSection=false) {
 }
 
 function renderAll() {
+  // Assign a stable color to each sermon based on its position in the sorted array
+  allSermons.forEach((s, i) => { s._color = SERMON_COLORS[i % SERMON_COLORS.length]; });
   const active = allSermons.filter(s=>isActive(s)&&s.status!=='completed');
   const upcoming = allSermons.filter(s=>s.status==='not-started'&&!isActive(s));
   const completed = allSermons.filter(s=>s.status==='completed');
