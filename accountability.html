@@ -50,7 +50,7 @@
   .sync-status { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
   .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; }
   .sync-dot.synced { background: var(--green-text); }
-  .sync-dot.syncing { background: var(--amber-text); animation: pulse 1s infinite; }
+  .sync-dot.syncing { background: var(--blue-text); animation: pulse 1s infinite; }
   .sync-dot.error { background: var(--red-text); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
@@ -294,9 +294,12 @@ function isSermonBehind(sermon, stages) {
 }
 
 function getProgressPct(status, statusOrder) {
-  if (status === 'not-started' || status === 'study') return 0;
   const idx = statusOrder.indexOf(status);
-  return idx < 0 ? 0 : Math.round((idx / (statusOrder.length - 1)) * 100);
+  if (idx <= 0) return 0;
+  if (status === 'completed') return 100;
+  const totalWorkingStages = statusOrder.length - 2; // exclude not-started and completed
+  const completedStages = idx - 1;
+  return totalWorkingStages > 0 ? Math.round((completedStages / totalWorkingStages) * 100) : 0;
 }
 
 // ── TEAM LOGIC ────────────────────────────────────────────────────────────────

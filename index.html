@@ -160,7 +160,7 @@ let currentUser = null;
   .sermon-title-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
   .sermon-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
   .series-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--blue-bg); color: var(--blue-text); white-space: nowrap; font-weight: 500; }
-  .context-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--purple-bg); color: var(--purple-text); white-space: nowrap; font-weight: 500; }
+  .context-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--gray-bg); color: var(--gray-text); white-space: nowrap; font-weight: 500; }
   .behind-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--red-bg); color: var(--red-text); white-space: nowrap; font-weight: 600; }
   .sermon-meta { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; align-items: center; }
   .meta-item { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; }
@@ -213,13 +213,13 @@ let currentUser = null;
   /* ── STATUS PILLS ── */
   .status-pill { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
   .sp-not-started { background: var(--gray-bg); color: var(--gray-text); }
-  .sp-study { background: var(--green-bg); color: var(--green-text); }
+  .sp-study { background: var(--gray-bg); color: var(--gray-text); }
   .sp-idea { background: var(--blue-bg); color: var(--blue-text); }
-  .sp-outline { background: var(--amber-bg); color: var(--amber-text); }
+  .sp-outline { background: var(--gray-bg); color: var(--gray-text); }
   .sp-draft { background: var(--purple-bg); color: var(--purple-text); }
   .sp-final { background: var(--teal-bg); color: var(--teal-text); }
   .sp-run { background: var(--coral-bg); color: var(--coral-text); }
-  .sp-completed { background: var(--green-bg); color: var(--green-text); }
+  .sp-completed { background: var(--gray-bg); color: var(--gray-text); }
 
   /* ── CALENDAR ── */
   .cal-widget { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
@@ -543,7 +543,7 @@ const DEFAULT_STAGES = [
   { key: 'run',     label: 'Run-through',   dueDay: 3, weeksBack: 0 },
 ];
 const DEFAULT_CONTEXTS = ['Salt','Candeo','Youth'];
-const SERMON_COLORS = ['#185fa5','#6d3fc0','#0f6e56','#854f0b','#7a3b69'];
+const SERMON_COLORS = ['#185fa5','#6d3fc0','#0f6e56','#7a3b69','#2e6b8a'];
 
 let STAGES = [];
 let STATUS_ORDER = [];
@@ -743,6 +743,12 @@ function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
 function parseDate(str) { if (!str) return null; const [y,m,d] = str.split('-').map(Number); return new Date(y,m-1,d); }
 function toYMD(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function daysUntil(d) { return Math.round((d - today()) / 86400000); }
+function getUrgencyColor(dueDate) {
+  const d = daysUntil(dueDate);
+  if (d < 0) return '#a32d2d';   // past due → red
+  if (d <= 2) return '#854f0b';  // today or 1–2 days → amber
+  return '#3b6d11';              // 3+ days → green
+}
 function formatDate(d) { return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
 function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
 
@@ -782,9 +788,12 @@ function isBehind(sermon) {
   return daysUntil(due) < 0;
 }
 function getProgressPct(status) {
-  if (status === 'not-started' || status === 'study') return 0;
   const idx = STATUS_ORDER.indexOf(status);
-  return idx<0 ? 0 : Math.round((idx/(STATUS_ORDER.length-1))*100);
+  if (idx <= 0) return 0;
+  if (status === 'completed') return 100;
+  const totalWorkingStages = STATUS_ORDER.length - 2; // exclude not-started and completed
+  const completedStages = idx - 1; // stages before current (not-started doesn't count)
+  return totalWorkingStages > 0 ? Math.round((completedStages / totalWorkingStages) * 100) : 0;
 }
 function isActive(s) {
   if (s.status==='completed') return false;
@@ -971,7 +980,7 @@ function renderSermonCard(s) {
       <div class="sermon-right">
         ${quickAdvance}
         <button class="gear-btn" onclick="event.stopPropagation();openDeadlineModal('${s.id}')" title="Adjust deadlines"><i class="ti ti-settings-2"></i></button>
-        <span class="urgency-pill ${getUrgencyClass(s)}">${getUrgencyLabel(s)}</span>
+        <span class="urgency-pill urgency-far">${getUrgencyLabel(s)}</span>
         <i class="ti ti-chevron-down chevron ${isOpen?'open':''}" id="chev-${s.id}"></i>
       </div>
     </div>
@@ -1060,12 +1069,13 @@ function renderTodo() {
   el.innerHTML = items.map(item => {
     const {sermon, stage, d, isSermon} = item;
     const urgCls = d<0?'overdue':d<=3?'urgent':d<=7?'upcoming':'far';
+    const dotColor = getUrgencyColor(item.due);
     const dueLabel = d<0?`${Math.abs(d)}d overdue`:d===0?'Today':d===1?'Tomorrow':`In ${d}d`;
     const sermonMeta = `${sermon.title}${sermon.context?' · '+sermon.context:''}`;
     const advBtn = (!isSermon&&sermon.status!=='completed')
       ? `<button class="todo-advance ${d<0?'overdue-btn':''}" onclick="advanceStatus('${sermon.id}')"><i class="ti ti-check"></i> Done</button>` : '';
     return `<div class="todo-item" style="border-left: 3px solid ${sermon._color||SERMON_COLORS[0]};">
-      <div class="todo-dot ${urgCls}"></div>
+      <div class="todo-dot" style="background:${dotColor};"></div>
       <div class="todo-content">
         <div class="todo-task">${stage.label}</div>
         <div class="todo-sermon">${sermonMeta} · ${formatDate(item.due)}</div>
@@ -1081,21 +1091,21 @@ function renderTodo() {
 // ── CALENDAR ─────────────────────────────────────────────────────────────────
 function buildCalendarEvents() {
   const events = {};
-  const add = (dateStr, label, color, isOverdue=false) => {
+  const add = (dateStr, label, color, isOverdue=false, tooltip='') => {
     if (!events[dateStr]) events[dateStr]=[];
-    events[dateStr].push({label, color, isOverdue});
+    events[dateStr].push({label, color, isOverdue, tooltip: tooltip||label});
   };
   allSermons.filter(s=>s.status!=='completed').forEach(s => {
     const color = s._color || SERMON_COLORS[0];
-    const name = s.title.split(' ').slice(0,3).join(' ');
-    add(s.date, `📖 ${name}`, color, false);
+    const title = s.title || 'Untitled';
+    add(s.date, `📖 Preach`, color, false, title);
     const curIdx = STATUS_ORDER.indexOf(s.status);
     STAGES.filter(st=>st.dueDay!==null&&st.key!=='completed'&&st.key!=='not-started').forEach(st => {
       const stIdx = STATUS_ORDER.indexOf(st.key);
       if (stIdx<curIdx) return;
       const due = getStageDueDate(s.date, st.key, s.customDeadlines);
       if (!due) return;
-      add(toYMD(due), st.label, color, daysUntil(due)<0);
+      add(toYMD(due), st.label, color, daysUntil(due)<0, `${title} — ${st.label}`);
     });
   });
   return events;
@@ -1124,9 +1134,9 @@ function renderCalendar() {
     if (isToday) cls+=' today'; else if (isWeekend) cls+=' weekend';
     const dayEvents=events[dateStr]||[];
     const evHtml=dayEvents.slice(0,3).map(ev=>{
-      if (ev.isOverdue) return `<div class="cal-event ev-overdue" title="${ev.label}">${ev.label}</div>`;
+      if (ev.isOverdue) return `<div class="cal-event ev-overdue" title="${ev.tooltip}">${ev.label}</div>`;
       const evStyle=`background:${ev.color}22;color:${ev.color};border-left:2px solid ${ev.color};`;
-      return `<div class="cal-event" title="${ev.label}" style="${evStyle}">${ev.label}</div>`;
+      return `<div class="cal-event" title="${ev.tooltip}" style="${evStyle}">${ev.label}</div>`;
     }).join('');
     const more=dayEvents.length>3?`<div style="font-size:9px;color:var(--text-tertiary);padding:0 2px;">+${dayEvents.length-3} more</div>`:'';
     html+=`<div class="${cls}"><div class="cal-day-num">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>${evHtml}${more}</div>`;
