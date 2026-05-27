@@ -79,18 +79,22 @@ let currentUser = null;
   .sync-dot { display: none; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-  /* ── MAIN ── */
-  .main-wrap { margin-left: var(--nav-width); flex: 1; display: flex; justify-content: center; overflow: hidden; min-width: 0; }
-  .main { flex: 1 1 0; max-width: var(--main-width); padding: 2rem 2rem 4rem; overflow-y: auto; min-width: 0; }
+  /* ── LAYOUT ── */
+  .main-wrap { margin-left: var(--nav-width); flex: 1; overflow-y: auto; height: 100vh; }
+  .two-col { display: grid; grid-template-columns: 1fr 640px; gap: 14px; align-items: start; padding: 2rem; }
+  .main { min-width: 0; padding-bottom: 4rem; }
+  .right-col { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 2rem; }
+  .sidebar { display: none; }
 
-  /* ── SIDEBAR ── */
-  .sidebar { width: var(--right-width); flex-shrink: 0; background: var(--bg); border-left: 1px solid var(--border); padding: 1.25rem 1.25rem 4rem; overflow-y: auto; position: sticky; top: 0; height: 100vh; }
-
-  /* ── TOP BAR ── */
-  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px; }
-  .top-bar h1 { font-size: 20px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em; }
-  .top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-  .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  /* ── TOPBAR ── */
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; }
+  .topbar-greeting { font-size: 22px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; line-height: 1.2; }
+  .topbar-date { font-size: 13px; color: var(--stone); margin-top: 3px; }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .btn-ghost { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1px solid var(--border-md); border-radius: 100px; background: var(--white); color: var(--stone); font-size: 13px; font-family: var(--font); cursor: pointer; transition: all 0.15s; white-space: nowrap; font-weight: 500; }
+  .btn-ghost:hover { background: var(--warm-bg); color: var(--ink); }
+  .btn-brand { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 100px; border: none; background: var(--brand); color: white; font-size: 13px; font-weight: 700; font-family: var(--font); cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
+  .btn-brand:hover { opacity: 0.88; }
 
   /* ── MOBILE TOP BAR (disabled) ── */
   .mobile-topbar { display: none !important; }
@@ -346,19 +350,54 @@ let currentUser = null;
   .modal-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
   .modal-tab:hover:not(.active) { color: var(--ink); }
 
-  /* ── SIDEBAR PREP SCORE + MINI STATS ── */
-  .sb-stats-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 1.25rem; }
-  .sb-stats-inner { display: flex; align-items: stretch; }
-  .rings-wrap { width: 220px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .mini-stats-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 10px 10px 10px 4px; }
-  .mini-stat { border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; min-height: 80px; border: 1px solid var(--border); transition: background 0.3s, border-color 0.3s; }
+  /* ── RIGHT COLUMN COMPONENTS ── */
+  .prep-score-card { background: var(--white); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); border: 1px solid var(--border); padding: 18px; }
+  .prep-score-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--stone-light); margin-bottom: 14px; }
+  .prep-score-inner { display: flex; align-items: center; gap: 16px; }
+  .rings-wrap { position: relative; width: 180px; height: 180px; flex-shrink: 0; }
+  .rings-svg { width: 180px; height: 180px; }
+  .rings-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; pointer-events: none; }
+  .center-overall { font-size: 42px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; transition: color 0.4s; }
+  .center-overall-label { font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--stone-light); }
+  .center-sep { width: 20px; height: 1px; background: var(--border-md); margin: 4px 0; }
+  .center-week { font-size: 24px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; transition: color 0.4s; }
+  .center-week-label { font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--stone-light); }
+  .mini-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; }
+  .mini-stat { border-radius: 12px; padding: 11px 13px; display: flex; flex-direction: column; justify-content: space-between; min-height: 80px; border: 1px solid var(--border); transition: background 0.3s, border-color 0.3s; }
   .mini-stat.green { background: var(--green-light); border-color: var(--green-border); }
   .mini-stat.amber { background: var(--amber-light); border-color: var(--amber-border); }
   .mini-stat.red { background: var(--red-light); border-color: var(--red-border); }
   .mini-stat.neutral { background: var(--warm-bg); border-color: var(--border); }
-  .mini-stat-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--stone-light); }
+  .mini-stat-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--stone-light); }
   .mini-stat-num { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; transition: color 0.4s; }
-  .mini-stat-sub { font-size: 9px; color: var(--stone); transition: color 0.4s; }
+  .mini-stat-sub { font-size: 9px; font-weight: 500; transition: color 0.4s; }
+  .col-neutral { color: var(--ink); } .col-green { color: var(--green); } .col-amber { color: var(--amber); } .col-red { color: var(--red); }
+  .sub-neutral { color: var(--stone-light); } .sub-green { color: var(--green); opacity: 0.8; } .sub-amber { color: var(--amber); opacity: 0.8; } .sub-red { color: var(--red); opacity: 0.8; }
+  .r-card { background: var(--white); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden; }
+  .r-card-title { font-size: 11px; font-weight: 700; color: var(--stone); text-transform: uppercase; letter-spacing: 0.08em; }
+  .team-card-inner { padding: 14px 16px; }
+  .team-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .team-item:last-child { border-bottom: none; }
+  .team-rings-wrap { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
+  .team-rings-svg { width: 52px; height: 52px; }
+  .team-rings-center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .team-score-num { font-size: 12px; font-weight: 800; transition: color 0.4s; }
+  .team-info { flex: 1; min-width: 0; }
+  .team-name { font-size: 12px; font-weight: 600; color: var(--ink); }
+  .team-sermon { font-size: 9px; color: var(--stone); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .team-stage { font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 5px; margin-top: 3px; display: inline-block; }
+  .color-card-inner { padding: 14px 16px; }
+  .color-item { border-radius: 10px; padding: 11px 13px; margin-bottom: 8px; border-left: 3px solid var(--amber); background: var(--warm-bg); }
+  .color-item:last-child { margin-bottom: 0; }
+  .color-item.illus { border-left-color: #1B4F8A; }
+  .color-type { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--amber); margin-bottom: 4px; }
+  .color-item.illus .color-type { color: #1B4F8A; }
+  .color-text { font-size: 11px; color: var(--ink-2); line-height: 1.55; font-style: italic; }
+  .color-src { font-size: 9px; color: var(--stone-light); margin-top: 4px; }
+  /* ── PREACH PILL ── */
+  .preach-pill { background: var(--warm-bg); border: 1px solid var(--border-md); border-radius: 4px; padding: 0 6px; height: 20px; font-size: 8px; font-weight: 600; color: var(--stone); white-space: nowrap; display: flex; align-items: center; }
+  /* ── TODO CARD ── */
+  .todo-card { background: var(--white); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
 
   /* ── UPCOMING SERMON CARDS (main column) ── */
   .uc-card { background: var(--white); border: 1px dashed var(--border-md); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); margin-bottom: 8px; overflow: hidden; }
@@ -378,7 +417,7 @@ let currentUser = null;
   .not-started-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--gray-bg); color: var(--gray-text); white-space: nowrap; }
 
   /* ── RESPONSIVE ── */
-  @media (max-width: 1400px) { .sidebar { display: none; } .main { max-width: 100%; flex: 1; } }
+  @media (max-width: 1300px) { .two-col { grid-template-columns: 1fr; } .right-col { display: none; } }
 
   @media (max-width: 768px) {
     .app { display: block; }
@@ -446,19 +485,20 @@ let currentUser = null;
     <span id="sync-label" style="display:none;"></span>
   </nav>
 
-  <!-- MIDDLE -->
+  <!-- MAIN WRAP -->
   <div class="main-wrap">
+    <div class="two-col">
     <main class="main">
 
-      <!-- DESKTOP TOP BAR -->
-      <div class="top-bar">
+      <!-- TOPBAR -->
+      <div class="topbar">
         <div>
-          <h1><i class="ti ti-book"></i> Sermon Prep Dashboard</h1>
-          <div class="subtitle" id="today-label"></div>
+          <div class="topbar-greeting" id="topbar-greeting">Good morning 👋</div>
+          <div class="topbar-date" id="topbar-date"></div>
         </div>
-        <div class="top-actions">
-          <button class="btn primary" onclick="openAdd()"><i class="ti ti-plus"></i> Add sermon</button>
-          <button class="btn color-btn" onclick="goAddColor()"><i class="ti ti-plus"></i> Add Color</button>
+        <div class="topbar-actions">
+          <button class="btn-ghost" onclick="openColorModal()">🎨 Add Color</button>
+          <button class="btn-brand" onclick="openSermonModal()">+ Add Sermon</button>
         </div>
       </div>
 
@@ -505,14 +545,13 @@ let currentUser = null;
         </div>
       </div>
 
-      <!-- TO-DO -->
+      <!-- THIS WEEK'S TASKS -->
       <div class="section-header" style="margin-top:0;">
-        <div class="section-title">To-Do — Next 7 Days</div>
+        <div class="section-title">This Week's Tasks</div>
         <div class="section-line"></div>
+        <div class="section-count" id="todo-count">0 tasks</div>
       </div>
-      <div class="todo-widget">
-        <div class="todo-list" id="todo-list"></div>
-      </div>
+      <div class="todo-card" id="todo-list"></div>
 
       <!-- ACTIVE SERMONS -->
       <div id="active-section"></div>
@@ -540,59 +579,89 @@ let currentUser = null;
       <div class="mobile-section" id="mobile-completed-section"></div>
 
     </main>
-  </div>
 
-  <!-- RIGHT SIDEBAR (desktop only) -->
-  <aside class="sidebar">
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
 
-    <!-- PREP SCORE RINGS + MINI STATS -->
-    <div class="sb-stats-card">
-      <div class="sb-stats-inner">
-        <div class="rings-wrap">
-          <svg viewBox="0 0 180 180" width="180" height="180">
-            <!-- Outer ring: overall prep health -->
-            <circle cx="90" cy="90" r="79" fill="none" stroke="#E8E4DC" stroke-width="10"/>
-            <circle id="ring-overall" cx="90" cy="90" r="79" fill="none" stroke="#1A9A4A" stroke-width="10"
-              stroke-dasharray="496.5" stroke-dashoffset="496.5" stroke-linecap="round"
-              transform="rotate(-90 90 90)" style="transition:stroke-dashoffset 0.8s ease;"/>
-            <!-- Inner ring: this week -->
-            <circle cx="90" cy="90" r="60" fill="none" stroke="#E8E4DC" stroke-width="10"/>
-            <circle id="ring-week" cx="90" cy="90" r="60" fill="none" stroke="#185fa5" stroke-width="10"
-              stroke-dasharray="376.8" stroke-dashoffset="376.8" stroke-linecap="round"
-              transform="rotate(-90 90 90)" style="transition:stroke-dashoffset 0.8s ease;"/>
-            <!-- Center labels -->
-            <text id="ring-pct-text" x="90" y="86" text-anchor="middle" font-size="24" font-weight="700"
-              fill="#141210" font-family="'DM Sans',system-ui,sans-serif">0%</text>
-            <text x="90" y="100" text-anchor="middle" font-size="8" font-weight="700" letter-spacing="0.08em"
-              fill="#B0A898" font-family="'DM Sans',system-ui,sans-serif">OVERALL</text>
-            <text id="ring-week-text" x="90" y="114" text-anchor="middle" font-size="9"
-              fill="#B0A898" font-family="'DM Sans',system-ui,sans-serif">0% this wk</text>
-          </svg>
-        </div>
-        <div class="mini-stats-grid">
-          <div class="mini-stat neutral" id="ms-upcoming-card">
-            <div class="mini-stat-label">Upcoming</div>
-            <div class="mini-stat-num" id="ms-upcoming">—</div>
+      <!-- PREP SCORE -->
+      <div class="prep-score-card">
+        <div class="prep-score-title">Prep Score</div>
+        <div class="prep-score-inner">
+          <div class="rings-wrap">
+            <svg class="rings-svg" viewBox="0 0 180 180">
+              <defs>
+                <filter id="ringGlow">
+                  <feGaussianBlur stdDeviation="2.5" result="b"/>
+                  <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <!-- Outer ring r=79 circ=496.5 -->
+              <circle cx="90" cy="90" r="79" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="16"/>
+              <circle cx="90" cy="90" r="79" fill="none" stroke="#C8D44A" stroke-width="16" stroke-linecap="round"
+                stroke-dasharray="496.5 496.5" stroke-dashoffset="496.5"
+                id="outer-arc" transform="rotate(-90 90 90)" filter="url(#ringGlow)"
+                style="transition: stroke-dashoffset 0.7s cubic-bezier(0.34,1.2,0.64,1), stroke 0.4s;"/>
+              <!-- Separator -->
+              <circle cx="90" cy="90" r="70" fill="none" stroke="var(--bg)" stroke-width="2"/>
+              <!-- Inner ring r=60 circ=376.8 -->
+              <circle cx="90" cy="90" r="60" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="13"/>
+              <circle cx="90" cy="90" r="60" fill="none" stroke="#2DB85C" stroke-width="13" stroke-linecap="round"
+                stroke-dasharray="376.8 376.8" stroke-dashoffset="376.8"
+                id="inner-arc" transform="rotate(-90 90 90)" filter="url(#ringGlow)"
+                style="transition: stroke-dashoffset 0.7s cubic-bezier(0.34,1.2,0.64,1), stroke 0.4s;"/>
+            </svg>
+            <div class="rings-center">
+              <div class="center-overall" id="center-overall" style="color:#C8D44A;">0</div>
+              <div class="center-overall-label">Overall</div>
+              <div class="center-sep"></div>
+              <div class="center-week" id="center-week" style="color:#2DB85C;">0</div>
+              <div class="center-week-label">This Week</div>
+            </div>
           </div>
-          <div class="mini-stat neutral" id="ms-active-card">
-            <div class="mini-stat-label">Active</div>
-            <div class="mini-stat-num" id="ms-active">—</div>
-          </div>
-          <div class="mini-stat neutral" id="ms-behind-card">
-            <div class="mini-stat-label">Behind</div>
-            <div class="mini-stat-num" id="ms-behind">—</div>
-          </div>
-          <div class="mini-stat neutral" id="ms-completed-card">
-            <div class="mini-stat-label">Completed</div>
-            <div class="mini-stat-num" id="ms-completed">—</div>
+          <div class="mini-stats-grid">
+            <div class="mini-stat neutral" id="ms-days">
+              <div class="mini-stat-label">To Sermon</div>
+              <div class="mini-stat-num col-neutral" id="ms-days-num">—</div>
+              <div class="mini-stat-sub sub-neutral" id="ms-days-sub">—</div>
+            </div>
+            <div class="mini-stat neutral" id="ms-ontrack">
+              <div class="mini-stat-label">On Track</div>
+              <div class="mini-stat-num col-neutral" id="ms-ontrack-num">—</div>
+              <div class="mini-stat-sub sub-neutral" id="ms-ontrack-sub">—</div>
+            </div>
+            <div class="mini-stat neutral" id="ms-tasks">
+              <div class="mini-stat-label">Tasks</div>
+              <div class="mini-stat-num col-neutral" id="ms-tasks-num">—</div>
+              <div class="mini-stat-sub sub-neutral" id="ms-tasks-sub">—</div>
+            </div>
+            <div class="mini-stat neutral" id="ms-overdue">
+              <div class="mini-stat-label">Overdue</div>
+              <div class="mini-stat-num col-neutral" id="ms-overdue-num">—</div>
+              <div class="mini-stat-sub sub-neutral" id="ms-overdue-sub">—</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div id="sidebar-active"></div>
-    <div id="sidebar-completed" class="sidebar-section-gap"></div>
-  </aside>
+      <!-- TEAM -->
+      <div class="r-card">
+        <div class="team-card-inner" id="team-card-inner">
+          <div class="r-card-title" style="margin-bottom:12px;">Team · CANDEO</div>
+          <div style="font-size:11px;color:var(--stone-light);padding:8px 0;">Loading team…</div>
+        </div>
+      </div>
+
+      <!-- COLOR -->
+      <div class="r-card">
+        <div class="color-card-inner" id="color-card-inner">
+          <div class="r-card-title" style="margin-bottom:12px;">Recent Color</div>
+          <div style="font-size:11px;color:var(--stone-light);padding:8px 0;">Loading…</div>
+        </div>
+      </div>
+
+    </div><!-- /.right-col -->
+    </div><!-- /.two-col -->
+  </div><!-- /.main-wrap -->
 
 </div>
 
@@ -677,7 +746,7 @@ let currentUser = null;
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, writeBatch, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
@@ -758,6 +827,8 @@ onAuthStateChanged(auth, async user => {
     loginScreen.style.display = 'none';
     const navAvatar = document.getElementById('nav-avatar');
     if (navAvatar) navAvatar.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
+    // Update topbar greeting with user's first name
+    updateTopbar(user.displayName || '');
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
@@ -767,6 +838,7 @@ onAuthStateChanged(auth, async user => {
     await loadUserSettings();
     await checkWelcome();
     loadSermons();
+    loadRightColumn();
   } else {
     currentUser = null;
     loginScreen.style.display = 'flex';
@@ -1182,6 +1254,15 @@ function renderPipeline(s) {
       <div class="sc2-pip-date">${dateLabel}</div>
     </div>`;
   });
+  // Preach pill at end
+  const sermonDate = parseDate(s.date);
+  const preachLabel = sermonDate ? sermonDate.toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+  html += `<div class="sc2-pip-connector"></div>
+    <div class="sc2-pip-item">
+      <div class="preach-pill">Preach</div>
+      <div class="sc2-pip-label" style="max-width:52px;">${preachLabel}</div>
+      <div class="sc2-pip-date"></div>
+    </div>`;
   html += '</div>';
   return html;
 }
@@ -1304,6 +1385,8 @@ function renderTodo() {
     return a.due-b.due;
   });
   const el = document.getElementById('todo-list');
+  const countEl = document.getElementById('todo-count');
+  if (countEl) countEl.textContent = items.length === 0 ? '0 tasks' : `${items.length} task${items.length===1?'':'s'}`;
   if (items.length===0) {
     el.innerHTML = `<div class="todo-empty">No tasks in the next 7 days — you're ahead! 🎉</div>`;
     return;
@@ -1559,21 +1642,65 @@ function renderStatCard(active, behind, allFuture) {
   updateWeek(weekTotal > 0 ? (weekDone / weekTotal * 100) : 100);
 }
 
-// ── RING UPDATERS ─────────────────────────────────────────────────────────────
-function updateOverall(pct) {
-  const el = document.getElementById('ring-overall');
-  const txt = document.getElementById('ring-pct-text');
-  if (!el) return;
-  el.setAttribute('stroke-dashoffset', 496.5 * (1 - pct / 100));
-  if (txt) txt.textContent = Math.round(pct) + '%';
+// ── SCORE COLOR ───────────────────────────────────────────────────────────────
+function getScoreColor(score) {
+  for (const b of SCORE_COLORS) if (score >= b.min && score <= b.max) return b.color;
+  return '#880000';
 }
-function updateWeek(pct) {
-  const el = document.getElementById('ring-week');
-  const txt = document.getElementById('ring-week-text');
-  if (!el) return;
-  el.setAttribute('stroke-dashoffset', 376.8 * (1 - pct / 100));
-  if (txt) txt.textContent = Math.round(pct) + '% this wk';
+
+// ── PREP SCORE DISPLAY ────────────────────────────────────────────────────────
+function updatePrepScoreDisplay(overall, week, ctx) {
+  const oc = getScoreColor(Math.round(overall));
+  const wc = getScoreColor(Math.round(week));
+  const outerArc = document.getElementById('outer-arc');
+  const innerArc = document.getElementById('inner-arc');
+  if (outerArc) { outerArc.style.strokeDashoffset = 496.5 * (1 - overall/100); outerArc.style.stroke = oc; }
+  if (innerArc) { innerArc.style.strokeDashoffset = 376.8 * (1 - week/100); innerArc.style.stroke = wc; }
+  const co = document.getElementById('center-overall');
+  const cw = document.getElementById('center-week');
+  if (co) { co.textContent = Math.round(overall); co.style.color = oc; }
+  if (cw) { cw.textContent = Math.round(week); cw.style.color = wc; }
+  if (ctx) updateRightMiniStats(ctx);
 }
+
+function updateRightMiniStats({ allFuture, behind, inProgress, weekTotal, weekDone, overdueCount }) {
+  function set(cardId, numId, subId, cls, num, sub) {
+    const card = document.getElementById(cardId);
+    const numEl = document.getElementById(numId);
+    const subEl = document.getElementById(subId);
+    if (card) card.className = 'mini-stat ' + cls;
+    if (numEl) { numEl.className = 'mini-stat-num col-' + cls; numEl.textContent = num; }
+    if (subEl) { subEl.className = 'mini-stat-sub sub-' + cls; subEl.textContent = sub; }
+  }
+
+  // Days to next sermon
+  const next = allFuture.length > 0 ? allFuture[0] : null;
+  const dDays = next ? daysUntil(parseDate(next.date)) : null;
+  const dStr = dDays === null ? '—' : dDays === 0 ? 'Today!' : dDays === 1 ? '1d' : `${dDays}d`;
+  const dSub = next ? next.date.slice(5).replace('-', '/') : '—';
+  const daysCls = dDays === null ? 'neutral' : dDays <= 3 ? 'red' : dDays <= 7 ? 'amber' : 'neutral';
+  set('ms-days','ms-days-num','ms-days-sub', daysCls, dStr, dSub);
+
+  // On Track
+  const onTrackCount = inProgress.filter(s => !isBehind(s)).length;
+  const onTrackCls = behind.length > 0 ? (behind.length >= inProgress.length ? 'red' : 'amber') : (inProgress.length > 0 ? 'green' : 'neutral');
+  const onTrackSub = behind.length === 0 ? (inProgress.length > 0 ? 'All good' : '—') : `${behind.length} behind`;
+  set('ms-ontrack','ms-ontrack-num','ms-ontrack-sub', onTrackCls, inProgress.length > 0 ? `${onTrackCount}/${inProgress.length}` : '—', onTrackSub);
+
+  // Tasks this week
+  const tasksCls = weekTotal === 0 ? 'neutral' : weekDone >= weekTotal ? 'green' : weekDone / weekTotal >= 0.5 ? 'amber' : 'red';
+  const tasksSub = weekTotal === 0 ? 'No tasks' : weekDone >= weekTotal ? 'All done ✓' : `${weekTotal - weekDone} left`;
+  set('ms-tasks','ms-tasks-num','ms-tasks-sub', tasksCls, weekTotal > 0 ? `${weekDone}/${weekTotal}` : '—', tasksSub);
+
+  // Overdue
+  const overdueCls = overdueCount === 0 ? 'green' : overdueCount <= 2 ? 'amber' : 'red';
+  const overdueSub = overdueCount === 0 ? 'None 🎉' : `${overdueCount} overdue`;
+  set('ms-overdue','ms-overdue-num','ms-overdue-sub', overdueCls, String(overdueCount), overdueSub);
+}
+
+// Legacy no-op ring updaters (keep for any remaining calls)
+function updateOverall(pct) {}
+function updateWeek(pct) {}
 
 // ── UPCOMING CARDS (main column) ──────────────────────────────────────────────
 function renderUpcomingCard(s) {
@@ -1653,25 +1780,45 @@ function renderAll() {
   const behind = active.filter(s=>isBehind(s));
   const allFuture = allSermons.filter(s=>s.status!=='completed'&&daysUntil(parseDate(s.date))>=0);
 
-  renderStatCard(active, behind, allFuture);
-  renderTodo();
-
-  // Rings — outer: on-track %, inner: updated inside renderStatCard via updateWeek()
   const inProgress = active.filter(s => s.status !== 'not-started');
   const onTrack = inProgress.filter(s => !isBehind(s));
-  updateOverall(inProgress.length > 0 ? (onTrack.length / inProgress.length * 100) : 0);
 
-  // Mini stats (sidebar 2×2 grid)
-  const msEl = id => document.getElementById(id);
-  function setMiniStat(cardId, numId, val, colorClass) {
-    const card = msEl(cardId); const num = msEl(numId);
-    if (card) { card.className = 'mini-stat ' + (colorClass || 'neutral'); }
-    if (num) { num.textContent = val; }
-  }
-  setMiniStat('ms-upcoming-card','ms-upcoming', upcoming.length, upcoming.length > 0 ? 'neutral' : 'neutral');
-  setMiniStat('ms-active-card','ms-active', inProgress.length, inProgress.length > 0 ? 'green' : 'neutral');
-  setMiniStat('ms-behind-card','ms-behind', behind.length, behind.length > 0 ? 'red' : 'green');
-  setMiniStat('ms-completed-card','ms-completed', completed.length, 'neutral');
+  // Compute week task stats (needed for renderStatCard and mini-stats)
+  const tNow = today();
+  const dow2 = tNow.getDay();
+  const weekStart = new Date(tNow); weekStart.setDate(tNow.getDate() + (dow2 === 0 ? -6 : 1 - dow2));
+  const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
+  let weekTotal = 0, weekDone = 0;
+  const activeSermons = allSermons.filter(s => isActive(s) && s.status !== 'completed');
+  activeSermons.forEach(s => {
+    const statusIdx = STATUS_ORDER.indexOf(s.status);
+    STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started').forEach(st => {
+      const stIdx = STATUS_ORDER.indexOf(st.key);
+      const due = getStageDueDate(s.date, st.key, s.customDeadlines);
+      if (!due || due < weekStart || due > weekEnd) return;
+      weekTotal++; if (stIdx < statusIdx) weekDone++;
+    });
+  });
+
+  // Compute overdue count
+  let overdueCount = 0;
+  activeSermons.forEach(s => {
+    const statusIdx = STATUS_ORDER.indexOf(s.status);
+    STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started').forEach(st => {
+      const stIdx = STATUS_ORDER.indexOf(st.key);
+      if (stIdx < statusIdx) return;
+      const due = getStageDueDate(s.date, st.key, s.customDeadlines);
+      if (due && daysUntil(due) < 0) overdueCount++;
+    });
+  });
+
+  // Overall score = on-track %, week score = this week's task completion
+  const overallScore = inProgress.length > 0 ? Math.round(onTrack.length / inProgress.length * 100) : 100;
+  const weekScore = weekTotal > 0 ? Math.round(weekDone / weekTotal * 100) : 100;
+  updatePrepScoreDisplay(overallScore, weekScore, { allFuture, behind, inProgress, weekTotal, weekDone, overdueCount });
+
+  renderStatCard(active, behind, allFuture);
+  renderTodo();
 
   const activeEl = document.getElementById('active-section');
   if (active.length===0) {
@@ -1694,8 +1841,6 @@ function renderAll() {
 
   renderUpcomingSection(upcoming);
   renderCalendar();
-  renderSidebarSection('sidebar-active', 'Active', active, 'active', true);
-  renderSidebarSection('sidebar-completed', 'Completed', completed, 'completed');
   renderSidebarSection('mobile-upcoming-section', 'Upcoming Sermons', upcoming, 'upcoming');
   renderSidebarSection('mobile-completed-section', 'Completed Sermons', completed, 'completed');
 }
@@ -1951,12 +2096,135 @@ window.resetEditDeadlines = function() {
 // openEdit is now an alias for openEditModal
 window.openEdit = function(id) { window.openEditModal(id, 'details'); };
 
+// ── MODAL ALIASES ─────────────────────────────────────────────────────────────
+window.openSermonModal = function() { window.openAdd(); };
+window.openColorModal = function() { window.goAddColor(); };
+
+// ── RIGHT COLUMN: TEAM CARD ───────────────────────────────────────────────────
+async function loadTeamCard() {
+  const el = document.getElementById('team-card-inner');
+  if (!el || !currentUser) return;
+  try {
+    // Get user's team code from profile
+    const profileSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'));
+    const teamCode = (profileSnap.exists() && profileSnap.data().teamCode) ? profileSnap.data().teamCode : 'CANDEO';
+    el.querySelector('.r-card-title').textContent = `Team · ${teamCode}`;
+
+    // Load team members
+    const membersSnap = await getDocs(collection(db, 'teams', teamCode, 'members'));
+    if (membersSnap.empty) { el.innerHTML += '<div style="font-size:11px;color:var(--stone-light);padding:8px 0;">No team members yet.</div>'; return; }
+
+    // Load each member's sermon data
+    const memberPromises = membersSnap.docs.map(async (mDoc) => {
+      const uid = mDoc.id;
+      const mData = mDoc.data();
+      try {
+        const sermonsSnap = await getDocs(collection(db, 'users', uid, 'sermons'));
+        const sermons = sermonsSnap.docs.map(d => ({id:d.id,...d.data()}));
+        const activeS = sermons.filter(s => isActive(s) && s.status !== 'completed');
+        const behind = activeS.filter(s => isBehind(s));
+        const inProg = activeS.filter(s => s.status !== 'not-started');
+        const onTrack = inProg.filter(s => !isBehind(s));
+        const score = inProg.length > 0 ? Math.round(onTrack.length / inProg.length * 100) : 100;
+        const nextSermon = activeS.sort((a,b) => a.date.localeCompare(b.date))[0];
+        return { uid, name: mData.displayName || mData.name || 'Member', score, behind: behind.length, nextSermon };
+      } catch(e) { return { uid, name: mData.displayName || mData.name || 'Member', score: 0, behind: 0, nextSermon: null }; }
+    });
+    const members = await Promise.all(memberPromises);
+    members.sort((a,b) => b.score - a.score);
+
+    const itemsHtml = members.map(m => {
+      const sc = getScoreColor(m.score);
+      const weekSc = getScoreColor(75); // default week score for team
+      const outerOffset = Math.round(131.9 * (1 - m.score/100));
+      const innerOffset = Math.round(81.7 * (1 - 75/100));
+      const isYou = m.uid === currentUser.uid;
+      const stageBg = m.behind > 0 ? 'var(--red-light)' : 'var(--green-light)';
+      const stageFg = m.behind > 0 ? 'var(--red)' : 'var(--green)';
+      const stageLabel = m.nextSermon ? `${STATUS_LABELS[m.nextSermon.status]||m.nextSermon.status} · ${m.behind > 0 ? m.behind+' behind' : 'On track'}` : 'No active sermon';
+      return `<div class="team-item">
+        <div class="team-rings-wrap">
+          <svg class="team-rings-svg" viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="21" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="5"/>
+            <circle cx="26" cy="26" r="21" fill="none" stroke="${sc}" stroke-width="5" stroke-linecap="round"
+              stroke-dasharray="131.9 131.9" stroke-dashoffset="${outerOffset}" transform="rotate(-90 26 26)"/>
+            <circle cx="26" cy="26" r="17" fill="none" stroke="var(--bg)" stroke-width="1.5"/>
+            <circle cx="26" cy="26" r="13" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="4"/>
+            <circle cx="26" cy="26" r="13" fill="none" stroke="${weekSc}" stroke-width="4" stroke-linecap="round"
+              stroke-dasharray="81.7 81.7" stroke-dashoffset="${innerOffset}" transform="rotate(-90 26 26)"/>
+          </svg>
+          <div class="team-rings-center">
+            <div class="team-score-num" style="color:${sc}">${m.score}</div>
+          </div>
+        </div>
+        <div class="team-info">
+          <div class="team-name">${m.name}${isYou ? ' <span style="font-size:8px;background:var(--warm-bg);border:1px solid var(--border);padding:1px 5px;border-radius:3px;color:var(--stone);">you</span>' : ''}</div>
+          <div class="team-sermon">${m.nextSermon ? (m.nextSermon.title || 'Untitled') : '—'}</div>
+          <span class="team-stage" style="background:${stageBg};color:${stageFg};">${stageLabel}</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team · ${teamCode}</div>${itemsHtml}`;
+  } catch(e) {
+    console.error('Team card failed:', e);
+    el.innerHTML = '<div class="r-card-title" style="margin-bottom:12px;">Team</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">Could not load team.</div>';
+  }
+}
+
+// ── RIGHT COLUMN: COLOR CARD ──────────────────────────────────────────────────
+async function loadColorCard() {
+  const el = document.getElementById('color-card-inner');
+  if (!el || !currentUser) return;
+  try {
+    const q = query(collection(db, 'users', currentUser.uid, 'ideas'), orderBy('createdAt','desc'), limit(2));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Recent Color</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">No Color yet. <a href="/Sermon-Prep-Dashboard/color.html?capture=1" style="color:var(--brand);">Add one →</a></div>`;
+      return;
+    }
+    const items = snap.docs.map(d => ({id:d.id,...d.data()}));
+    const html = items.map(item => {
+      const isIllus = (item.type||'').toLowerCase().includes('illus');
+      const typeLabel = item.type || 'Quote';
+      const text = item.text || item.content || item.body || '';
+      const src = item.source || item.author || '';
+      return `<div class="color-item${isIllus?' illus':''}">
+        <div class="color-type">${typeLabel}</div>
+        <div class="color-text">${text.length > 120 ? text.slice(0,120)+'…' : text}</div>
+        ${src ? `<div class="color-src">— ${src}</div>` : ''}
+      </div>`;
+    }).join('');
+    el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Recent Color</div>${html}`;
+  } catch(e) {
+    console.error('Color card failed:', e);
+    el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Recent Color</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;"><a href="/Sermon-Prep-Dashboard/color.html" style="color:var(--brand);">View Color →</a></div>`;
+  }
+}
+
+async function loadRightColumn() {
+  await Promise.all([loadTeamCard(), loadColorCard()]);
+}
+
+// ── TOPBAR GREETING ───────────────────────────────────────────────────────────
+function updateTopbar(displayName) {
+  const hour = new Date().getHours();
+  const salutation = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const firstName = displayName ? displayName.split(' ')[0] : '';
+  const greetingEl = document.getElementById('topbar-greeting');
+  if (greetingEl) greetingEl.textContent = firstName ? `${salutation}, ${firstName} 👋` : `${salutation} 👋`;
+  const dateEl = document.getElementById('topbar-date');
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 const t=today();
 const navDateEl=document.getElementById('nav-date');
 if(navDateEl) navDateEl.textContent=t.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 const todayLabelEl=document.getElementById('today-label');
 if(todayLabelEl) todayLabelEl.textContent=t.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+// Set initial greeting without name (name will update on auth)
+updateTopbar(null);
 // Show placeholder streak bars immediately
 renderStreakSection();
 </script>
