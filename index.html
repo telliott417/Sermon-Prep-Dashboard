@@ -201,6 +201,14 @@ let currentUser = null;
   .action-btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
   .action-btn.primary:hover { opacity: 0.85; }
   .action-btn.danger { color: var(--red-text); }
+  .adjusted-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--amber-bg); color: var(--amber-text); white-space: nowrap; font-weight: 500; cursor: pointer; }
+  .gear-btn { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 3px 7px; cursor: pointer; color: var(--text-secondary); font-size: 13px; display: flex; align-items: center; font-family: var(--font); }
+  .gear-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .deadline-stage-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .deadline-stage-row:last-child { border-bottom: none; }
+  .deadline-stage-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .deadline-date-input { padding: 5px 8px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; outline: none; }
+  .deadline-date-input:focus { border-color: var(--blue-text); }
 
   /* ── STATUS PILLS ── */
   .status-pill { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
@@ -488,6 +496,24 @@ let currentUser = null;
   </div>
 </div>
 
+<!-- DEADLINE MODAL -->
+<div class="modal-overlay" id="deadline-modal">
+  <div class="modal">
+    <h2 id="dl-modal-title" style="margin-bottom:4px;">Adjust Deadlines</h2>
+    <div style="font-size:13px; color:var(--text-secondary); margin-bottom:18px; display:flex; align-items:center; gap:5px;">
+      <i class="ti ti-calendar"></i> <span id="dl-modal-date"></span>
+    </div>
+    <div id="dl-stages-list"></div>
+    <div class="modal-actions" style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <button class="action-btn danger" onclick="resetDeadlines()"><i class="ti ti-refresh"></i> Reset to defaults</button>
+      <div style="display:flex; gap:8px;">
+        <button class="action-btn" onclick="closeDeadlineModal()">Cancel</button>
+        <button class="action-btn primary" onclick="saveDeadlines()"><i class="ti ti-check"></i> Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
@@ -719,7 +745,11 @@ function daysUntil(d) { return Math.round((d - today()) / 86400000); }
 function formatDate(d) { return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
 function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
 
-function getStageDueDate(sermonDateStr, stageKey) {
+function getStageDueDate(sermonDateStr, stageKey, customDeadlines) {
+  // Use custom deadline if available
+  if (customDeadlines && customDeadlines[stageKey]) {
+    return parseDate(customDeadlines[stageKey]);
+  }
   const stage = STAGES.find(s=>s.key===stageKey);
   if (!stage||stage.dueDay===null) return null;
   const sermonDate = parseDate(sermonDateStr);
@@ -736,8 +766,8 @@ function getStageDueDate(sermonDateStr, stageKey) {
   const result = new Date(base);
   result.setDate(base.getDate() - diff);
 
-    // Safety check — only final, run-through, and completed can land on sermon date
-  if (result >= sermonDate && stage.key !== 'completed' && stage.key !== 'run' && stage.key !== 'final') {
+  // Safety check — any stage except 'completed' that falls on or after sermon date gets pushed back 7 days
+  if (result >= sermonDate && stage.key !== 'completed') {
     result.setDate(result.getDate() - 7);
   }
 
@@ -746,7 +776,7 @@ function getStageDueDate(sermonDateStr, stageKey) {
 
 function isBehind(sermon) {
   if (sermon.status==='completed'||sermon.status==='not-started') return false;
-  const due = getStageDueDate(sermon.date, sermon.status);
+  const due = getStageDueDate(sermon.date, sermon.status, sermon.customDeadlines);
   if (!due) return false;
   return daysUntil(due) < 0;
 }
@@ -853,7 +883,7 @@ function getUrgencyClass(sermon) {
   if (sermon.status==='completed'||sermon.status==='not-started') return 'urgency-far';
   const idx = STATUS_ORDER.indexOf(sermon.status);
   if (idx<0) return 'urgency-far';
-  const due = getStageDueDate(sermon.date, STAGES[idx].key);
+  const due = getStageDueDate(sermon.date, STAGES[idx].key, sermon.customDeadlines);
   if (!due) return 'urgency-far';
   const d = daysUntil(due);
   if (d<0||d<=3) return 'urgency-urgent';
@@ -872,7 +902,7 @@ function renderStages(sermon) {
   const statusIdx = STATUS_ORDER.indexOf(sermon.status);
   return STAGES.filter(s=>s.dueDay!==null).map(stage => {
     const i = STATUS_ORDER.indexOf(stage.key);
-    const due = getStageDueDate(sermon.date, stage.key);
+    const due = getStageDueDate(sermon.date, stage.key, sermon.customDeadlines);
     if (!due) return '';
     const d = daysUntil(due);
     let cls = '';
@@ -885,6 +915,31 @@ function renderStages(sermon) {
   }).join('');
 }
 
+function validateSermonDeadlines(sermon, stages) {
+  const sermonDate = parseDate(sermon.date);
+  const workingStages = stages.filter(s => s.dueDay !== null && s.key !== 'completed' && s.key !== 'not-started');
+  const dates = {};
+  let corrected = false;
+  let prevDate = null;
+  workingStages.forEach(stage => {
+    let d = getStageDueDate(sermon.date, stage.key, sermon.customDeadlines);
+    if (!d) return;
+    // Safety: if on or after sermon date, pull back 7 days
+    if (d >= sermonDate) {
+      d = new Date(d); d.setDate(d.getDate() - 7);
+      corrected = true;
+    }
+    // Ensure ordering: each stage date >= previous stage date
+    if (prevDate && d < prevDate) {
+      d = new Date(prevDate);
+      corrected = true;
+    }
+    dates[stage.key] = toYMD(d);
+    prevDate = d;
+  });
+  return { corrected, dates };
+}
+
 function renderSermonCard(s) {
   const pct = getProgressPct(s.status);
   const behind = isBehind(s);
@@ -894,6 +949,7 @@ function renderSermonCard(s) {
   const docLink = s.doc ? `<a class="meta-link" href="${s.doc}" target="_blank" onclick="event.stopPropagation()"><i class="ti ti-file-text"></i>Doc</a>` : '';
   const quickAdvance = (s.status!=='completed'&&s.status!=='not-started'&&nextStage)
     ? `<button class="quick-advance" onclick="event.stopPropagation();advanceStatus('${s.id}')"><i class="ti ti-check"></i> Done: ${STATUS_LABELS[s.status]}</button>` : '';
+  const validation = validateSermonDeadlines(s, STAGES);
   return `<div class="${cardClass}" id="card-${s.id}">
     <div class="sermon-header" onclick="toggleCard('${s.id}')">
       <div class="sermon-main">
@@ -903,6 +959,7 @@ function renderSermonCard(s) {
           ${s.context?`<span class="context-badge">${s.context}</span>`:''}
           ${renderStatusPill(s.status)}
           ${behind?`<span class="behind-badge"><i class="ti ti-alert-triangle"></i> Behind</span>`:''}
+          ${validation.corrected?`<span class="adjusted-badge" onclick="event.stopPropagation();openDeadlineModal('${s.id}')">Deadlines adjusted · ⚙ review</span>`:''}
         </div>
         <div class="sermon-meta">
           ${s.text?`<span class="meta-item"><i class="ti ti-book-2"></i>${s.text}</span>`:''}
@@ -912,6 +969,7 @@ function renderSermonCard(s) {
       </div>
       <div class="sermon-right">
         ${quickAdvance}
+        <button class="gear-btn" onclick="event.stopPropagation();openDeadlineModal('${s.id}')" title="Adjust deadlines"><i class="ti ti-settings-2"></i></button>
         <span class="urgency-pill ${getUrgencyClass(s)}">${getUrgencyLabel(s)}</span>
         <i class="ti ti-chevron-down chevron ${isOpen?'open':''}" id="chev-${s.id}"></i>
       </div>
@@ -978,7 +1036,7 @@ function renderTodo() {
     for (let i=Math.max(curIdx,1); i<STATUS_ORDER.length-1; i++) {
       const stage = STAGES[i];
       if (stage.dueDay===null) continue;
-      const due = getStageDueDate(s.date, stage.key);
+      const due = getStageDueDate(s.date, stage.key, s.customDeadlines);
       if (!due||due>threeWeeks) continue;
       if (i<curIdx) continue;
       items.push({sermon:s, stage, due, d:daysUntil(due)});
@@ -1033,7 +1091,7 @@ function buildCalendarEvents() {
     STAGES.filter(st=>st.dueDay!==null&&st.key!=='completed'&&st.key!=='not-started').forEach(st => {
       const stIdx = STATUS_ORDER.indexOf(st.key);
       if (stIdx<curIdx) return;
-      const due = getStageDueDate(s.date, st.key);
+      const due = getStageDueDate(s.date, st.key, s.customDeadlines);
       if (!due) return;
       const clsMap={study:'ev-study',idea:'ev-idea',outline:'ev-outline',draft:'ev-draft',final:'ev-final',run:'ev-run'};
       add(toYMD(due), st.label, daysUntil(due)<0?'ev-overdue':(clsMap[st.key]||'ev-study'));
@@ -1239,7 +1297,87 @@ window.saveSermon = async function() {
 };
 
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)window.closeModal();});
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){window.closeNav();window.closeModal();}});
+document.getElementById('deadline-modal').addEventListener('click',function(e){if(e.target===this)window.closeDeadlineModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){window.closeNav();window.closeModal();window.closeDeadlineModal();}});
+
+// ── DEADLINE MODAL ────────────────────────────────────────────────────────────
+let deadlineModalSermonId = null;
+
+window.openDeadlineModal = function(id) {
+  const s = allSermons.find(x => x.id === id);
+  if (!s) return;
+  deadlineModalSermonId = id;
+  const sermonDate = parseDate(s.date);
+  const maxDate = new Date(sermonDate); maxDate.setDate(sermonDate.getDate() - 1);
+  const maxDateStr = toYMD(maxDate);
+  document.getElementById('dl-modal-title').textContent = s.title || 'Untitled';
+  document.getElementById('dl-modal-date').textContent = formatDateFull(sermonDate);
+  const workingStages = STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started');
+  document.getElementById('dl-stages-list').innerHTML = workingStages.map((stage, i) => {
+    const effectiveDate = (s.customDeadlines && s.customDeadlines[stage.key])
+      ? s.customDeadlines[stage.key]
+      : toYMD(getStageDueDate(s.date, stage.key));
+    return `<div class="deadline-stage-row">
+      <div class="deadline-stage-name">${stage.label}</div>
+      <input type="date" class="deadline-date-input" id="dl-${stage.key}" value="${effectiveDate||''}" max="${maxDateStr}"
+        data-index="${i}" onchange="enforceDeadlineOrder(${i})" />
+    </div>`;
+  }).join('');
+  document.getElementById('deadline-modal').classList.add('open');
+};
+
+window.enforceDeadlineOrder = function(changedIdx) {
+  const s = allSermons.find(x => x.id === deadlineModalSermonId);
+  if (!s) return;
+  const sermonDate = parseDate(s.date);
+  const maxDate = new Date(sermonDate); maxDate.setDate(sermonDate.getDate() - 1);
+  const maxDateStr = toYMD(maxDate);
+  const workingStages = STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started');
+  const el = document.getElementById('dl-' + workingStages[changedIdx].key);
+  if (!el) return;
+  let val = el.value;
+  // Cap at day before sermon
+  if (val > maxDateStr) { val = maxDateStr; el.value = val; }
+  // Must be >= previous stage date
+  if (changedIdx > 0) {
+    const prevEl = document.getElementById('dl-' + workingStages[changedIdx - 1].key);
+    if (prevEl && val < prevEl.value) { val = prevEl.value; el.value = val; }
+  }
+  // Must be <= next stage date
+  if (changedIdx < workingStages.length - 1) {
+    const nextEl = document.getElementById('dl-' + workingStages[changedIdx + 1].key);
+    if (nextEl && val > nextEl.value) { el.value = nextEl.value; }
+  }
+};
+
+window.closeDeadlineModal = function() {
+  document.getElementById('deadline-modal').classList.remove('open');
+  deadlineModalSermonId = null;
+};
+
+window.saveDeadlines = async function() {
+  const s = allSermons.find(x => x.id === deadlineModalSermonId);
+  if (!s) return;
+  const workingStages = STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started');
+  const customDeadlines = {};
+  workingStages.forEach(stage => {
+    const el = document.getElementById('dl-' + stage.key);
+    if (el && el.value) customDeadlines[stage.key] = el.value;
+  });
+  s.customDeadlines = customDeadlines;
+  await saveSermonToDb(s);
+  renderAll();
+  window.closeDeadlineModal();
+};
+
+window.resetDeadlines = async function() {
+  const s = allSermons.find(x => x.id === deadlineModalSermonId);
+  if (!s) return;
+  delete s.customDeadlines;
+  await saveSermonToDb(s);
+  renderAll();
+  window.closeDeadlineModal();
+};
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 const t=today();
