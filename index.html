@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sermon Prep Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..900;1,9..40,300..900&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
@@ -28,68 +31,60 @@ let currentUser = null;
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #fafaf9;
-    --text-primary: #1c1917; --text-secondary: #78716c; --text-tertiary: #a8a29e;
-    --border: rgba(28,25,23,0.12); --border-md: rgba(28,25,23,0.2);
-    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
-    --blue-bg: #e6f1fb; --blue-text: #185fa5;
-    --green-bg: #eaf3de; --green-text: #3b6d11;
-    --amber-bg: #faeeda; --amber-text: #854f0b;
-    --red-bg: #fcebeb; --red-text: #a32d2d;
-    --purple-bg: #eeedfe; --purple-text: #534ab7;
-    --teal-bg: #e1f5ee; --teal-text: #0f6e56;
-    --coral-bg: #faece7; --coral-text: #993c1d;
-    --gray-bg: #f0f0ef; --gray-text: #57534e;
-    --nav-width: 200px;
-    --main-width: 900px;
-    --right-width: 640px;
-    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    /* ── WARM THEME ── */
+    --bg: #F4F2EE; --white: #FFFFFF; --warm-bg: #EDEAE4;
+    --ink: #141210; --ink-2: #2C2620;
+    --stone: #7A7068; --stone-light: #B0A898;
+    --border: rgba(20,18,16,0.08); --border-md: rgba(20,18,16,0.14);
+    --brand: #0A7A3A; --green: #1A9A4A; --green-light: #E6F7ED; --green-border: #A8D4B8;
+    --amber: #F08818; --amber-light: #FEF3E0; --amber-border: #F8D090;
+    --red: #C01A0A; --red-light: #FDEAEA; --red-border: #F0AAAA;
+    --s1: #185fa5; --s2: #6d3fc0; --s3: #0f6e56; --s4: #854f0b; --s5: #7a3b69;
+    --font: 'DM Sans', system-ui, sans-serif;
+    --nav-width: 56px; --r-lg: 16px; --r-xl: 22px;
+    --shadow-sm: 0 1px 4px rgba(20,18,16,0.06);
+    --shadow-md: 0 4px 16px rgba(20,18,16,0.09);
+    /* ── COMPAT ALIASES (legacy CSS continues to work) ── */
+    --bg-secondary: var(--warm-bg); --bg-tertiary: var(--bg);
+    --text-primary: var(--ink); --text-secondary: var(--stone); --text-tertiary: var(--stone-light);
+    --radius-md: 8px; --radius-lg: var(--r-lg); --radius-xl: var(--r-xl);
+    --blue-bg: #E8F0FB; --blue-text: #185fa5;
+    --green-bg: var(--green-light); --green-text: var(--green);
+    --amber-bg: var(--amber-light); --amber-text: var(--amber);
+    --red-bg: var(--red-light); --red-text: var(--red);
+    --purple-bg: #F0EEFF; --purple-text: #534ab7;
+    --teal-bg: var(--green-light); --teal-text: #0f6e56;
+    --coral-bg: #FAEEE8; --coral-text: #993c1d;
+    --gray-bg: var(--warm-bg); --gray-text: var(--stone);
+    --main-width: 900px; --right-width: 640px;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1c1917; --bg-secondary: #292524; --bg-tertiary: #1c1917;
-      --text-primary: #fafaf9; --text-secondary: #a8a29e; --text-tertiary: #78716c;
-      --border: rgba(250,250,249,0.12); --border-md: rgba(250,250,249,0.22);
-      --blue-bg: #0c3d6e; --blue-text: #93c5fd;
-      --green-bg: #14401a; --green-text: #86efac;
-      --amber-bg: #451a03; --amber-text: #fcd34d;
-      --red-bg: #450a0a; --red-text: #fca5a5;
-      --purple-bg: #2e1065; --purple-text: #c4b5fd;
-      --teal-bg: #042f2e; --teal-text: #5eead4;
-      --coral-bg: #431407; --coral-text: #fdba74;
-      --gray-bg: #292524; --gray-text: #a8a29e;
-    }
-  }
-  html { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); font-size: 16px; }
+  html { font-family: var(--font); background: var(--bg); color: var(--ink); font-size: 15px; }
   body { min-height: 100vh; }
 
   /* ── LAYOUT ── */
   .app { display: flex; min-height: 100vh; }
 
-  /* ── NAV ── */
-  .nav { width: var(--nav-width); flex-shrink: 0; background: var(--bg); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 100; transition: transform 0.25s ease; }
-  .nav-logo { padding: 0 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
-  .nav-logo-title { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
-  .nav-logo-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
-  .nav-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 0 1.25rem; margin-bottom: 4px; }
-  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 1.25rem; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; border-left: 2px solid transparent; }
-  .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
-  .nav-item.active { color: var(--blue-text); background: var(--blue-bg); border-left-color: var(--blue-text); }
-  .nav-item i { font-size: 16px; flex-shrink: 0; }
-  .nav-bottom { margin-top: auto; padding: 1rem 1.25rem 0; border-top: 0.5px solid var(--border); }
-  .sync-status { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
-  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; }
-  .sync-dot.synced { background: var(--green-text); }
-  .sync-dot.syncing { background: var(--amber-text); animation: pulse 1s infinite; }
-  .sync-dot.error { background: var(--red-text); }
+  /* ── NAV (dark icon-only) ── */
+  .nav { width: var(--nav-width); flex-shrink: 0; background: #111009; display: flex; flex-direction: column; align-items: center; padding: 16px 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; gap: 4px; }
+  .nav-logo { width: 36px; height: 36px; border-radius: 10px; background: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: white; margin-bottom: 14px; flex-shrink: 0; text-decoration: none; }
+  .nav-icon-btn { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; color: #555048; transition: all 0.15s; position: relative; text-decoration: none; }
+  .nav-icon-btn:hover { background: rgba(255,255,255,0.07); color: #C0BCB8; }
+  .nav-icon-btn.active { background: rgba(10,122,58,0.2); color: #4ADA7A; }
+  .nav-icon-btn::after { content: attr(data-tip); position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); background: #1A1714; color: white; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 6px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 200; border: 1px solid rgba(255,255,255,0.08); }
+  .nav-icon-btn:hover::after { opacity: 1; }
+  .nav-sep { width: 28px; height: 1px; background: rgba(255,255,255,0.06); margin: 6px 0; flex-shrink: 0; }
+  .nav-bottom { margin-top: auto; }
+  .nav-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
+  /* hidden sync status (used by JS only) */
+  .sync-dot { display: none; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
   /* ── MAIN ── */
-  .main-wrap { flex: 1; display: flex; justify-content: center; overflow: hidden; min-width: 0; }
+  .main-wrap { margin-left: var(--nav-width); flex: 1; display: flex; justify-content: center; overflow: hidden; min-width: 0; }
   .main { flex: 1 1 0; max-width: var(--main-width); padding: 2rem 2rem 4rem; overflow-y: auto; min-width: 0; }
 
   /* ── SIDEBAR ── */
-  .sidebar { width: var(--right-width); flex-shrink: 0; background: var(--bg); border-left: 0.5px solid var(--border); padding: 1.25rem 1.25rem 4rem; overflow-y: auto; position: sticky; top: 0; height: 100vh; }
+  .sidebar { width: var(--right-width); flex-shrink: 0; background: var(--bg); border-left: 1px solid var(--border); padding: 1.25rem 1.25rem 4rem; overflow-y: auto; position: sticky; top: 0; height: 100vh; }
 
   /* ── TOP BAR ── */
   .top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px; }
@@ -97,14 +92,10 @@ let currentUser = null;
   .top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
   .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-  /* ── MOBILE TOP BAR ── */
-  .mobile-topbar { display: none; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-bottom: 0.5px solid var(--border); position: sticky; top: 0; z-index: 50; }
-  .mobile-topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
-  .hamburger { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 6px 8px; cursor: pointer; color: var(--text-primary); font-size: 18px; display: flex; align-items: center; }
-
-  /* ── NAV DRAWER (mobile) ── */
-  .nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
-  .nav-overlay.open { display: block; }
+  /* ── MOBILE TOP BAR (disabled) ── */
+  .mobile-topbar { display: none !important; }
+  .hamburger { display: none; }
+  .nav-overlay { display: none !important; }
 
   /* ── STAT CARD ── */
   .stat-card { display: flex; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 1.5rem; overflow: hidden; }
@@ -134,12 +125,12 @@ let currentUser = null;
   .stat-bars-foot { font-size: 10px; color: var(--text-tertiary); white-space: nowrap; }
 
   /* ── BUTTONS ── */
-  .btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
-  .btn:hover { background: var(--bg-secondary); }
-  .btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
-  .btn.primary:hover { opacity: 0.85; }
-  .btn.color-btn { background: var(--purple-bg); color: var(--purple-text); border-color: transparent; font-weight: 500; }
-  .btn.color-btn:hover { opacity: 0.85; }
+  .btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--border-md); border-radius: var(--radius-md); background: var(--white); color: var(--ink); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+  .btn:hover { background: var(--warm-bg); }
+  .btn.primary { background: var(--green-light); color: var(--green); border-color: var(--green-border); font-weight: 600; }
+  .btn.primary:hover { background: var(--green); color: white; border-color: var(--green); }
+  .btn.color-btn { background: var(--amber-light); color: var(--amber); border-color: var(--amber-border); font-weight: 600; }
+  .btn.color-btn:hover { background: var(--amber); color: white; border-color: var(--amber); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* ── SECTION HEADERS ── */
@@ -149,7 +140,7 @@ let currentUser = null;
   .section-count { font-size: 11px; background: var(--bg-secondary); color: var(--text-secondary); padding: 2px 8px; border-radius: 20px; }
 
   /* ── TO-DO ── */
-  .todo-widget { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .todo-widget { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
   .todo-list { padding: 4px 0; }
   .todo-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 0.5px solid var(--border); }
   .todo-item:last-child { border-bottom: none; }
@@ -180,8 +171,8 @@ let currentUser = null;
   .sermon-main { flex: 1; min-width: 0; }
   .sermon-title-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
   .sermon-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-  .series-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--blue-bg); color: var(--blue-text); white-space: nowrap; font-weight: 500; }
-  .context-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--gray-bg); color: var(--gray-text); white-space: nowrap; font-weight: 500; }
+  .series-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--warm-bg); color: var(--stone); border: 1px solid var(--border); white-space: nowrap; font-weight: 500; }
+  .context-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--warm-bg); color: var(--stone); border: 1px solid var(--border); white-space: nowrap; font-weight: 500; }
   .behind-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--red-bg); color: var(--red-text); white-space: nowrap; font-weight: 600; }
   .sermon-meta { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; align-items: center; }
   .meta-item { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; }
@@ -217,11 +208,11 @@ let currentUser = null;
   .stage-overdue .stage-name { color: var(--red-text); }
   .stage-overdue .stage-date { color: var(--red-text); }
   .action-row { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
-  .action-btn { font-size: 11px; padding: 5px 11px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: transparent; color: var(--text-primary); font-family: var(--font); cursor: pointer; display: flex; align-items: center; gap: 4px; transition: background 0.15s; }
-  .action-btn:hover { background: var(--bg-secondary); }
-  .action-btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
-  .action-btn.primary:hover { opacity: 0.85; }
-  .action-btn.danger { color: var(--red-text); }
+  .action-btn { font-size: 11px; padding: 5px 11px; border-radius: var(--radius-md); border: 1px solid var(--border-md); background: var(--white); color: var(--ink); font-family: var(--font); cursor: pointer; display: flex; align-items: center; gap: 4px; transition: background 0.15s; }
+  .action-btn:hover { background: var(--warm-bg); }
+  .action-btn.primary { background: var(--green-light); color: var(--green); border-color: var(--green-border); font-weight: 600; }
+  .action-btn.primary:hover { background: var(--green); color: white; }
+  .action-btn.danger { color: var(--red); border-color: var(--red-border); background: var(--red-light); }
   .adjusted-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--amber-bg); color: var(--amber-text); white-space: nowrap; font-weight: 500; cursor: pointer; }
   .gear-btn { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 3px 7px; cursor: pointer; color: var(--text-secondary); font-size: 13px; display: flex; align-items: center; font-family: var(--font); }
   .gear-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
@@ -243,7 +234,7 @@ let currentUser = null;
   .sp-completed { background: var(--gray-bg); color: var(--gray-text); }
 
   /* ── CALENDAR ── */
-  .cal-widget { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .cal-widget { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
   .cal-nav { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 0.5px solid var(--border); gap: 8px; }
   .cal-nav-title { font-size: 13px; font-weight: 600; flex: 1; text-align: center; }
   .cal-nav-btn { background: none; border: 0.5px solid var(--border-md); cursor: pointer; color: var(--text-secondary); font-size: 14px; padding: 3px 8px; border-radius: var(--radius-md); }
@@ -272,7 +263,7 @@ let currentUser = null;
   /* ── SIDEBAR CARDS ── */
   .sidebar .section-header { margin-top: 0; }
   .sidebar-section-gap { margin-top: 1.5rem; }
-  .sb-card { background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 8px; overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
+  .sb-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); margin-bottom: 8px; overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
   .sb-card:hover { border-color: var(--border-md); }
   .sb-card.behind { border-color: var(--red-text); border-width: 1.5px; }
   .sb-card.upcoming-card { border-style: dashed; opacity: 0.85; }
@@ -304,12 +295,12 @@ let currentUser = null;
   /* ── MODAL ── */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center; padding: 1rem; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--bg); border-radius: var(--radius-xl); border: 0.5px solid var(--border-md); padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+  .modal { background: var(--white); border-radius: var(--r-xl); border: 1px solid var(--border-md); padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-md); }
   .modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 18px; color: var(--text-primary); }
   .form-field { margin-bottom: 13px; }
   .form-field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
-  .form-field input, .form-field select { width: 100%; padding: 8px 11px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 14px; outline: none; transition: border-color 0.15s; }
-  .form-field input:focus, .form-field select:focus { border-color: var(--blue-text); }
+  .form-field input, .form-field select { width: 100%; padding: 8px 11px; border: 1px solid var(--border-md); border-radius: var(--radius-md); background: var(--warm-bg); color: var(--ink); font-family: var(--font); font-size: 14px; outline: none; transition: border-color 0.15s; }
+  .form-field input:focus, .form-field select:focus { border-color: var(--brand); }
   .context-row { display: flex; gap: 8px; }
   .context-row select, .context-row input { flex: 1; }
   .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
@@ -318,7 +309,7 @@ let currentUser = null;
   .mobile-section { display: none; }
 
   /* ── SC2 CARD ── */
-  .sc2-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 10px; overflow: hidden; }
+  .sc2-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); margin-bottom: 10px; overflow: hidden; }
   .sc2-accent { height: 3px; }
   .sc2-top { display: flex; align-items: flex-start; gap: 14px; padding: 14px 14px 10px; }
   .sc2-left { flex: 1; min-width: 0; }
@@ -337,37 +328,40 @@ let currentUser = null;
   .sc2-pip-item { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
   .sc2-pip-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .sc2-pip-connector { flex: 1; height: 2px; background: var(--border); min-width: 10px; margin-top: 9px; flex-shrink: 1; }
-  .sc2-pip-connector.done { background: #3b6d11; }
+  .sc2-pip-connector.done { background: var(--green-border); }
   .sc2-pip-label { font-size: 9px; color: var(--text-tertiary); white-space: nowrap; text-align: center; }
   .sc2-pip-date { font-size: 8px; color: var(--text-tertiary); white-space: nowrap; }
-  .sc2-actions { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-top: 0.5px solid var(--border); }
-  .sc2-prog-bg { flex: 1; height: 4px; background: var(--bg-secondary); border-radius: 2px; overflow: hidden; }
+  .sc2-actions { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-top: 1px solid var(--border); background: var(--warm-bg); }
+  .sc2-prog-bg { flex: 1; height: 4px; background: var(--warm-bg); border-radius: 2px; overflow: hidden; }
   .sc2-prog-fill { height: 4px; border-radius: 2px; transition: width 0.4s; }
-  .sc2-done-btn { font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: var(--radius-md); border: none; background: var(--green-bg); color: var(--green-text); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 4px; font-family: var(--font); flex-shrink: 0; }
-  .sc2-done-btn:hover { opacity: 0.85; }
-  .sc2-gear-btn { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 4px 8px; cursor: pointer; color: var(--text-secondary); font-size: 14px; display: flex; align-items: center; font-family: var(--font); flex-shrink: 0; }
-  .sc2-gear-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .sc2-done-btn { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 100px; border: 1px solid var(--green-border); background: var(--green-light); color: var(--green); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 4px; font-family: var(--font); flex-shrink: 0; }
+  .sc2-done-btn:hover { background: var(--green); color: white; }
+  .sc2-gear-btn { background: var(--white); border: 1px solid var(--border-md); border-radius: var(--radius-md); padding: 4px 8px; cursor: pointer; color: var(--stone); font-size: 14px; display: flex; align-items: center; font-family: var(--font); flex-shrink: 0; }
+  .sc2-gear-btn:hover { background: var(--warm-bg); color: var(--ink); }
   .sc2-archive-notice { text-align: center; padding: 10px; font-size: 12px; color: var(--text-secondary); font-style: italic; border-top: 0.5px solid var(--border); }
 
   /* ── MODAL TABS ── */
   .modal-tabs { display: flex; border-bottom: 0.5px solid var(--border); margin: -24px -24px 20px; padding: 0 24px; }
-  .modal-tab { font-size: 13px; font-weight: 500; padding: 13px 16px; border-bottom: 2px solid transparent; cursor: pointer; color: var(--text-secondary); background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font); transition: color 0.15s; }
-  .modal-tab.active { color: var(--blue-text); border-bottom-color: var(--blue-text); }
-  .modal-tab:hover:not(.active) { color: var(--text-primary); }
+  .modal-tab { font-size: 13px; font-weight: 500; padding: 13px 16px; border-bottom: 2px solid transparent; cursor: pointer; color: var(--stone); background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font); transition: color 0.15s; }
+  .modal-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+  .modal-tab:hover:not(.active) { color: var(--ink); }
 
   /* ── SIDEBAR PREP SCORE + MINI STATS ── */
-  .sb-stats-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 1.25rem; }
+  .sb-stats-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 1.25rem; }
   .sb-stats-inner { display: flex; align-items: stretch; }
   .rings-wrap { width: 220px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .mini-stats-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; border-left: 0.5px solid var(--border); }
-  .mini-stat { padding: 18px 20px; min-height: 80px; display: flex; flex-direction: column; justify-content: center; border-bottom: 0.5px solid var(--border); border-right: 0.5px solid var(--border); }
-  .mini-stat:nth-child(2n) { border-right: none; }
-  .mini-stat:nth-child(n+3) { border-bottom: none; }
-  .mini-stat-num { font-size: 24px; font-weight: 600; line-height: 1; color: var(--text-primary); margin-bottom: 5px; }
-  .mini-stat-label { font-size: 11px; color: var(--text-secondary); }
+  .mini-stats-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 10px 10px 10px 4px; }
+  .mini-stat { border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; min-height: 80px; border: 1px solid var(--border); transition: background 0.3s, border-color 0.3s; }
+  .mini-stat.green { background: var(--green-light); border-color: var(--green-border); }
+  .mini-stat.amber { background: var(--amber-light); border-color: var(--amber-border); }
+  .mini-stat.red { background: var(--red-light); border-color: var(--red-border); }
+  .mini-stat.neutral { background: var(--warm-bg); border-color: var(--border); }
+  .mini-stat-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--stone-light); }
+  .mini-stat-num { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; transition: color 0.4s; }
+  .mini-stat-sub { font-size: 9px; color: var(--stone); transition: color 0.4s; }
 
   /* ── UPCOMING SERMON CARDS (main column) ── */
-  .uc-card { background: var(--bg); border: 0.5px dashed var(--border-md); border-radius: var(--radius-lg); margin-bottom: 8px; overflow: hidden; }
+  .uc-card { background: var(--white); border: 1px dashed var(--border-md); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); margin-bottom: 8px; overflow: hidden; }
   .uc-accent { height: 3px; }
   .uc-body { padding: 13px 14px; display: flex; align-items: center; gap: 14px; }
   .uc-main { flex: 1; min-width: 0; }
@@ -377,36 +371,21 @@ let currentUser = null;
   .uc-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; color: var(--text-secondary); }
   .uc-sep { color: var(--text-tertiary); }
   .uc-actions { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
-  .start-prep-btn { font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 20px; border: none; background: var(--green-bg); color: var(--green-text); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 4px; font-family: var(--font); }
-  .start-prep-btn:hover { opacity: 0.85; }
-  .uc-gear { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 5px 8px; cursor: pointer; color: var(--text-secondary); font-size: 14px; display: flex; align-items: center; }
-  .uc-gear:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .start-prep-btn { font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 100px; border: 1px solid var(--green-border); background: var(--green-light); color: var(--green); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 4px; font-family: var(--font); }
+  .start-prep-btn:hover { background: var(--green); color: white; }
+  .uc-gear { background: var(--white); border: 1px solid var(--border-md); border-radius: var(--radius-md); padding: 5px 8px; cursor: pointer; color: var(--stone); font-size: 14px; display: flex; align-items: center; }
+  .uc-gear:hover { background: var(--warm-bg); color: var(--ink); }
   .not-started-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--gray-bg); color: var(--gray-text); white-space: nowrap; }
 
   /* ── RESPONSIVE ── */
   @media (max-width: 1400px) { .sidebar { display: none; } .main { max-width: 100%; flex: 1; } }
 
- @media (max-width: 768px) {
-    .nav {
-      position: fixed;
-      left: 0; top: 0; bottom: 0;
-      width: var(--nav-width);
-      transform: translateX(-100%);
-      z-index: 250;
-      height: 100vh;
-    }
-    .nav.open { transform: translateX(0); }
-    .mobile-topbar { display: flex; }
+  @media (max-width: 768px) {
     .app { display: block; }
     .main-wrap { display: block; width: 100%; }
     .main { padding: 1rem 1rem 5rem; max-width: 100%; width: 100%; }
     .sidebar { display: none; }
     .top-bar { display: none; }
-    .stat-card { flex-direction: column; }
-    .stat-divider { width: auto; height: 0.5px; }
-    .stat-left, .stat-mid, .stat-right { padding: 16px; min-width: 0; }
-    .stat-countdown-num { font-size: 48px; }
-    .stat-right { min-width: 0; }
     .mobile-section { display: block; }
     .todo-right { flex-direction: column; align-items: flex-end; gap: 4px; }
     .sermon-header { flex-wrap: wrap; }
@@ -446,49 +425,26 @@ let currentUser = null;
   </div>
 </div>
   
-  <!-- NAV OVERLAY (mobile) -->
-  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
-
-  <!-- LEFT NAV -->
+  <!-- LEFT NAV (icon-only) -->
   <nav class="nav" id="main-nav">
-    <div class="nav-logo">
-      <div class="nav-logo-title">Sermon Prep</div>
-      <div class="nav-logo-sub" id="nav-date"></div>
+    <a class="nav-logo" href="/Sermon-Prep-Dashboard/">SR</a>
+    <a class="nav-icon-btn active" href="/Sermon-Prep-Dashboard/" data-tip="Dashboard">🏠</a>
+    <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/color.html" data-tip="Color">🎨</a>
+    <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/accountability.html" data-tip="Accountability">👥</a>
+    <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/archive.html" data-tip="Archive">📚</a>
+    <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/settings.html" data-tip="Settings">⚙️</a>
+    <div class="nav-sep"></div>
+    <div id="admin-nav-section" style="display:none;flex-direction:column;align-items:center;gap:4px;">
+      <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/library.html" data-tip="My Library">📖</a>
+      <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/chores.html" data-tip="My Chores">🏡</a>
     </div>
-    <div class="nav-section-label" style="margin-bottom:8px;">Pages</div>
-    <a class="nav-item active" href="/Sermon-Prep-Dashboard/"><i class="ti ti-book"></i> Dashboard</a>
-<a class="nav-item" href="/Sermon-Prep-Dashboard/color.html"><i class="ti ti-palette"></i> Color</a>
-<a class="nav-item" href="/Sermon-Prep-Dashboard/accountability.html"><i class="ti ti-users"></i> Accountability</a>
-<a class="nav-item" href="/Sermon-Prep-Dashboard/archive.html"><i class="ti ti-archive"></i> Archive</a>
-<a class="nav-item" href="/Sermon-Prep-Dashboard/settings.html"><i class="ti ti-settings"></i> Settings</a>
-<div id="admin-nav-section" style="display:none;">
-  <div class="nav-section-label" style="margin-bottom:8px;margin-top:1rem;">My Pages</div>
-  <a class="nav-item" href="/Sermon-Prep-Dashboard/library.html"><i class="ti ti-books"></i> My Library</a>
-  <a class="nav-item" href="/Sermon-Prep-Dashboard/chores.html"><i class="ti ti-home-check"></i> My Chores</a>
-</div>
-
     <div class="nav-bottom">
-      <div class="sync-status">
-        <div class="sync-dot" id="sync-dot"></div>
-        <span id="sync-label">Loading...</span>
-      </div>
-      <button class="btn" style="width:100%;justify-content:center;font-size:12px;" onclick="loadSermons()">
-  <i class="ti ti-refresh"></i> Refresh
-</button>
-<div id="nav-user" style="font-size:11px; color:var(--text-tertiary); margin-top:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
-<button class="btn" style="width:100%;justify-content:center;font-size:12px;margin-top:6px;" onclick="signOut()">
-  <i class="ti ti-logout"></i> Sign out
-</button>
+      <div class="nav-avatar" id="nav-avatar" title="Sign out" onclick="signOut()">T</div>
     </div>
+    <!-- hidden sync elements for JS compat -->
+    <div id="sync-dot" style="display:none;"></div>
+    <span id="sync-label" style="display:none;"></span>
   </nav>
-
-  <!-- MOBILE TOP BAR -->
-  <div class="mobile-topbar">
-    <button class="hamburger" onclick="openNav()"><i class="ti ti-menu-2"></i></button>
-    <h1><i class="ti ti-book"></i> Sermon Prep</h1>
-    <button class="btn primary" style="font-size:12px;padding:6px 10px;" onclick="openAdd()"><i class="ti ti-plus"></i> Sermon</button>
-    <button class="btn color-btn" style="font-size:12px;padding:6px 10px;" onclick="goAddColor()"><i class="ti ti-plus"></i> Color</button>
-  </div>
 
   <!-- MIDDLE -->
   <div class="main-wrap">
@@ -508,9 +464,8 @@ let currentUser = null;
 
       <div class="error-banner" id="error-banner"></div>
 
-      <!-- STATS -->
-      <!-- STAT CARD -->
-      <div class="stat-card">
+      <!-- STATS (hidden — data drives sidebar rings & mini-stats) -->
+      <div class="stat-card" style="display:none;">
         <!-- LEFT: Countdown -->
         <div class="stat-left">
           <div class="stat-countdown-num" id="stat-days">—</div>
@@ -596,40 +551,40 @@ let currentUser = null;
         <div class="rings-wrap">
           <svg viewBox="0 0 180 180" width="180" height="180">
             <!-- Outer ring: overall prep health -->
-            <circle cx="90" cy="90" r="79" fill="none" stroke="var(--bg-secondary)" stroke-width="10"/>
-            <circle id="ring-overall" cx="90" cy="90" r="79" fill="none" stroke="#3b6d11" stroke-width="10"
+            <circle cx="90" cy="90" r="79" fill="none" stroke="#E8E4DC" stroke-width="10"/>
+            <circle id="ring-overall" cx="90" cy="90" r="79" fill="none" stroke="#1A9A4A" stroke-width="10"
               stroke-dasharray="496.5" stroke-dashoffset="496.5" stroke-linecap="round"
               transform="rotate(-90 90 90)" style="transition:stroke-dashoffset 0.8s ease;"/>
             <!-- Inner ring: this week -->
-            <circle cx="90" cy="90" r="60" fill="none" stroke="var(--bg-secondary)" stroke-width="10"/>
+            <circle cx="90" cy="90" r="60" fill="none" stroke="#E8E4DC" stroke-width="10"/>
             <circle id="ring-week" cx="90" cy="90" r="60" fill="none" stroke="#185fa5" stroke-width="10"
               stroke-dasharray="376.8" stroke-dashoffset="376.8" stroke-linecap="round"
               transform="rotate(-90 90 90)" style="transition:stroke-dashoffset 0.8s ease;"/>
             <!-- Center labels -->
-            <text id="ring-pct-text" x="90" y="86" text-anchor="middle" font-size="24" font-weight="600"
-              fill="var(--text-primary)" font-family="-apple-system,system-ui,sans-serif">0%</text>
-            <text x="90" y="100" text-anchor="middle" font-size="8" font-weight="600" letter-spacing="0.08em"
-              fill="var(--text-tertiary)" font-family="-apple-system,system-ui,sans-serif">OVERALL</text>
+            <text id="ring-pct-text" x="90" y="86" text-anchor="middle" font-size="24" font-weight="700"
+              fill="#141210" font-family="'DM Sans',system-ui,sans-serif">0%</text>
+            <text x="90" y="100" text-anchor="middle" font-size="8" font-weight="700" letter-spacing="0.08em"
+              fill="#B0A898" font-family="'DM Sans',system-ui,sans-serif">OVERALL</text>
             <text id="ring-week-text" x="90" y="114" text-anchor="middle" font-size="9"
-              fill="var(--text-tertiary)" font-family="-apple-system,system-ui,sans-serif">0% this wk</text>
+              fill="#B0A898" font-family="'DM Sans',system-ui,sans-serif">0% this wk</text>
           </svg>
         </div>
         <div class="mini-stats-grid">
-          <div class="mini-stat">
-            <div class="mini-stat-num" id="ms-upcoming">—</div>
+          <div class="mini-stat neutral" id="ms-upcoming-card">
             <div class="mini-stat-label">Upcoming</div>
+            <div class="mini-stat-num" id="ms-upcoming">—</div>
           </div>
-          <div class="mini-stat">
-            <div class="mini-stat-num" id="ms-active">—</div>
+          <div class="mini-stat neutral" id="ms-active-card">
             <div class="mini-stat-label">Active</div>
+            <div class="mini-stat-num" id="ms-active">—</div>
           </div>
-          <div class="mini-stat">
-            <div class="mini-stat-num" id="ms-behind" style="color:var(--red-text);">—</div>
+          <div class="mini-stat neutral" id="ms-behind-card">
             <div class="mini-stat-label">Behind</div>
+            <div class="mini-stat-num" id="ms-behind">—</div>
           </div>
-          <div class="mini-stat">
-            <div class="mini-stat-num" id="ms-completed">—</div>
+          <div class="mini-stat neutral" id="ms-completed-card">
             <div class="mini-stat-label">Completed</div>
+            <div class="mini-stat-num" id="ms-completed">—</div>
           </div>
         </div>
       </div>
@@ -750,6 +705,16 @@ const DEFAULT_STAGES = [
 const DEFAULT_CONTEXTS = ['Salt','Candeo','Youth'];
 const SERMON_COLORS = ['#185fa5','#6d3fc0','#0f6e56','#854f0b','#7a3b69'];
 
+const SCORE_COLORS = [
+  {min:96,max:100,color:'#00CC55'}, {min:91,max:95,color:'#1A9A4A'},
+  {min:86,max:90,color:'#2DB85C'}, {min:81,max:85,color:'#52CC6E'},
+  {min:76,max:80,color:'#7DD47A'}, {min:71,max:75,color:'#C8D44A'},
+  {min:66,max:70,color:'#E0C832'}, {min:61,max:65,color:'#F0A820'},
+  {min:56,max:60,color:'#F08818'}, {min:51,max:55,color:'#E86818'},
+  {min:46,max:50,color:'#E04C14'}, {min:41,max:45,color:'#D43010'},
+  {min:0, max:40, color:'#880000'},
+];
+
 let STAGES = [];
 let STATUS_ORDER = [];
 let STATUS_LABELS = {};
@@ -791,11 +756,12 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
     loginScreen.style.display = 'none';
-    document.getElementById('nav-user').textContent = user.displayName || user.email;
+    const navAvatar = document.getElementById('nav-avatar');
+    if (navAvatar) navAvatar.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
-        document.getElementById('admin-nav-section').style.display = 'block';
+        document.getElementById('admin-nav-section').style.display = 'flex';
       }
     } catch(e) { console.error('Role check failed:', e); }
     await loadUserSettings();
@@ -928,15 +894,13 @@ window.dismissWelcome = async function() {
   } catch(e) { console.error(e); }
 };
 
-// ── NAV DRAWER ────────────────────────────────────────────────────────────────
+// ── NAV DRAWER (no-op — nav is now fixed icon strip) ─────────────────────────
 window.openNav = function() {
   document.getElementById('main-nav').classList.add('open');
-  document.getElementById('nav-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 };
 window.closeNav = function() {
   document.getElementById('main-nav').classList.remove('open');
-  document.getElementById('nav-overlay').classList.remove('open');
   document.body.style.overflow = '';
 };
 
@@ -1699,10 +1663,15 @@ function renderAll() {
 
   // Mini stats (sidebar 2×2 grid)
   const msEl = id => document.getElementById(id);
-  if (msEl('ms-upcoming')) msEl('ms-upcoming').textContent = upcoming.length;
-  if (msEl('ms-active')) msEl('ms-active').textContent = inProgress.length;
-  if (msEl('ms-behind')) msEl('ms-behind').textContent = behind.length;
-  if (msEl('ms-completed')) msEl('ms-completed').textContent = completed.length;
+  function setMiniStat(cardId, numId, val, colorClass) {
+    const card = msEl(cardId); const num = msEl(numId);
+    if (card) { card.className = 'mini-stat ' + (colorClass || 'neutral'); }
+    if (num) { num.textContent = val; }
+  }
+  setMiniStat('ms-upcoming-card','ms-upcoming', upcoming.length, upcoming.length > 0 ? 'neutral' : 'neutral');
+  setMiniStat('ms-active-card','ms-active', inProgress.length, inProgress.length > 0 ? 'green' : 'neutral');
+  setMiniStat('ms-behind-card','ms-behind', behind.length, behind.length > 0 ? 'red' : 'green');
+  setMiniStat('ms-completed-card','ms-completed', completed.length, 'neutral');
 
   const activeEl = document.getElementById('active-section');
   if (active.length===0) {
@@ -1984,7 +1953,8 @@ window.openEdit = function(id) { window.openEditModal(id, 'details'); };
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 const t=today();
-document.getElementById('nav-date').textContent=t.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+const navDateEl=document.getElementById('nav-date');
+if(navDateEl) navDateEl.textContent=t.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 const todayLabelEl=document.getElementById('today-label');
 if(todayLabelEl) todayLabelEl.textContent=t.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 // Show placeholder streak bars immediately
