@@ -106,11 +106,32 @@ let currentUser = null;
   .nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
   .nav-overlay.open { display: block; }
 
-  /* ── STATS ── */
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-  .stat { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
-  .stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
-  .stat-num { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1; }
+  /* ── STAT CARD ── */
+  .stat-card { display: flex; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 1.5rem; overflow: hidden; }
+  .stat-divider { width: 0.5px; background: var(--border); flex-shrink: 0; }
+  .stat-left { padding: 22px 26px; display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; }
+  .stat-countdown-num { font-size: 68px; font-weight: 500; line-height: 1; color: var(--text-primary); letter-spacing: -0.03em; }
+  .stat-countdown-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); margin-top: 7px; }
+  .stat-countdown-title { font-size: 11px; color: var(--text-secondary); font-style: italic; margin-top: 3px; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-mid { flex: 1; padding: 22px 24px; display: flex; flex-direction: column; justify-content: center; gap: 12px; min-width: 0; }
+  .stat-mini-row { display: flex; align-items: center; gap: 10px; }
+  .stat-mini-label { font-size: 11px; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; min-width: 112px; }
+  .stat-mini-bar-wrap { flex: 1; height: 4px; background: var(--bg-secondary); border-radius: 2px; overflow: hidden; min-width: 40px; }
+  .stat-mini-bar { height: 4px; border-radius: 2px; background: var(--green-text); transition: width 0.5s ease; }
+  .stat-mini-bar.red { background: var(--red-text); }
+  .stat-mini-val { font-size: 12px; font-weight: 600; color: var(--green-text); white-space: nowrap; flex-shrink: 0; min-width: 32px; text-align: right; }
+  .stat-mini-val.red { color: var(--red-text); }
+  .stat-mini-val.muted { color: var(--text-secondary); font-weight: 400; }
+  .stat-right { padding: 20px 24px; display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; min-width: 176px; }
+  .stat-streak-row { display: flex; align-items: baseline; gap: 5px; }
+  .stat-streak-num { font-size: 32px; font-weight: 700; color: var(--amber-text); line-height: 1; }
+  .stat-streak-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-top: 2px; }
+  .stat-streak-sub { font-size: 10px; color: var(--text-tertiary); margin-bottom: 10px; }
+  .stat-bars { display: flex; align-items: flex-end; gap: 4px; height: 50px; margin-bottom: 5px; }
+  .stat-bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; flex: 1; }
+  .stat-bar { width: 100%; border-radius: 2px 2px 0 0; min-height: 3px; }
+  .stat-bar-lbl { font-size: 8px; color: var(--text-tertiary); line-height: 1; }
+  .stat-bars-foot { font-size: 10px; color: var(--text-tertiary); white-space: nowrap; }
 
   /* ── BUTTONS ── */
   .btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
@@ -354,7 +375,11 @@ let currentUser = null;
     .main { padding: 1rem 1rem 5rem; max-width: 100%; width: 100%; }
     .sidebar { display: none; }
     .top-bar { display: none; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat-card { flex-direction: column; }
+    .stat-divider { width: auto; height: 0.5px; }
+    .stat-left, .stat-mid, .stat-right { padding: 16px; min-width: 0; }
+    .stat-countdown-num { font-size: 48px; }
+    .stat-right { min-width: 0; }
     .mobile-section { display: block; }
     .todo-right { flex-direction: column; align-items: flex-end; gap: 4px; }
     .sermon-header { flex-wrap: wrap; }
@@ -457,11 +482,45 @@ let currentUser = null;
       <div class="error-banner" id="error-banner"></div>
 
       <!-- STATS -->
-      <div class="stats">
-        <div class="stat"><div class="stat-label">Upcoming</div><div class="stat-num" id="stat-upcoming">—</div></div>
-        <div class="stat"><div class="stat-label">In progress</div><div class="stat-num" id="stat-progress">—</div></div>
-        <div class="stat"><div class="stat-label">Behind schedule</div><div class="stat-num" id="stat-behind" style="color:var(--red-text)">—</div></div>
-        <div class="stat"><div class="stat-label">Days to next sermon</div><div class="stat-num" id="stat-days">—</div></div>
+      <!-- STAT CARD -->
+      <div class="stat-card">
+        <!-- LEFT: Countdown -->
+        <div class="stat-left">
+          <div class="stat-countdown-num" id="stat-days">—</div>
+          <div class="stat-countdown-label">Days to Next Sermon</div>
+          <div class="stat-countdown-title" id="stat-next-title"></div>
+        </div>
+        <div class="stat-divider"></div>
+        <!-- MIDDLE: Mini stats -->
+        <div class="stat-mid">
+          <div class="stat-mini-row">
+            <span class="stat-mini-label">Sermons on track</span>
+            <div class="stat-mini-bar-wrap"><div class="stat-mini-bar" id="bar-ontrack" style="width:0%"></div></div>
+            <span class="stat-mini-val muted" id="val-ontrack">—</span>
+          </div>
+          <div class="stat-mini-row">
+            <span class="stat-mini-label">Tasks this week</span>
+            <div class="stat-mini-bar-wrap"><div class="stat-mini-bar" id="bar-tasks" style="width:0%"></div></div>
+            <span class="stat-mini-val muted" id="val-tasks">—</span>
+          </div>
+          <div class="stat-mini-row">
+            <span class="stat-mini-label">Overdue</span>
+            <div class="stat-mini-bar-wrap"><div class="stat-mini-bar red" id="bar-overdue" style="width:0%"></div></div>
+            <span class="stat-mini-val muted" id="val-overdue">0</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <!-- RIGHT: Streak -->
+        <div class="stat-right">
+          <div class="stat-streak-row">
+            <span class="stat-streak-num" id="stat-streak">0</span>
+            <span style="font-size:20px;line-height:1;">🔥</span>
+          </div>
+          <div class="stat-streak-label">Week streak</div>
+          <div class="stat-streak-sub">on-time prep</div>
+          <div class="stat-bars" id="stat-bars"></div>
+          <div class="stat-bars-foot" id="stat-bars-foot">Best: 0 wks · All-time: 0%</div>
+        </div>
       </div>
 
       <!-- TO-DO -->
@@ -926,6 +985,7 @@ window.loadSermons = async function() {
     setSyncStatus('synced','Synced');
     openCards.clear();
     renderAll();
+    updateStreakData();
   } catch(e) {
     setSyncStatus('error','Error');
     showError('Could not load sermons. '+e.message);
@@ -1290,6 +1350,173 @@ window.calPrev = function(){calWeekOffset--;renderCalendar();};
 window.calNext = function(){calWeekOffset++;renderCalendar();};
 window.calReset = function(){calWeekOffset=0;renderCalendar();};
 
+// ── STREAK ────────────────────────────────────────────────────────────────────
+let streakData = null;
+
+function renderStreakSection() {
+  const streak = streakData ? (streakData.currentStreak || 0) : 0;
+  const bestStreak = streakData ? (streakData.bestStreak || 0) : 0;
+  const totalWeeks = streakData ? (streakData.totalWeeks || 0) : 0;
+  const onTimeWeeks = streakData ? (streakData.onTimeWeeks || 0) : 0;
+  const allTimePct = totalWeeks > 0 ? Math.round(onTimeWeeks / totalWeeks * 100) : 0;
+  const scores = streakData && streakData.weeklyScores ? streakData.weeklyScores : [];
+
+  document.getElementById('stat-streak').textContent = streak;
+  document.getElementById('stat-bars-foot').textContent = `Best: ${bestStreak} wks · All-time: ${allTimePct}%`;
+
+  // Last 7 weeks, oldest→newest, gray placeholders for missing
+  const MAX_H = 36;
+  const last7 = [];
+  for (let i = 0; i < 7; i++) {
+    const idx = scores.length - 7 + i;
+    last7.push(idx >= 0 ? scores[idx] : null);
+  }
+  document.getElementById('stat-bars').innerHTML = last7.map((w, i) => {
+    let color, h;
+    if (!w) {
+      color = 'var(--border-md)'; h = 12;
+    } else if (w.allOnTime) {
+      color = '#3b6d11'; h = Math.max(8, Math.round(w.score / 100 * MAX_H));
+    } else if (w.score >= 50) {
+      color = '#854f0b'; h = Math.max(8, Math.round(w.score / 100 * MAX_H));
+    } else {
+      color = '#a32d2d'; h = Math.max(4, Math.round(w.score / 100 * MAX_H));
+    }
+    return `<div class="stat-bar-col">
+      <div class="stat-bar" style="height:${h}px;background:${color};"></div>
+      <div class="stat-bar-lbl">W${i+1}</div>
+    </div>`;
+  }).join('');
+}
+
+async function updateStreakData() {
+  if (!currentUser) return;
+  try {
+    const streakRef = doc(db, 'users', currentUser.uid, 'meta', 'streak_data');
+    const snap = await getDoc(streakRef);
+    let data = snap.exists() ? { ...snap.data() } : {
+      weeklyScores: [], currentStreak: 0, bestStreak: 0, totalWeeks: 0, onTimeWeeks: 0
+    };
+    if (!Array.isArray(data.weeklyScores)) data.weeklyScores = [];
+
+    // Current week Monday
+    const t = today();
+    const dow = t.getDay();
+    const daysToMon = dow === 0 ? -6 : 1 - dow;
+    const weekStartDate = new Date(t); weekStartDate.setDate(t.getDate() + daysToMon);
+    const weekEndDate = new Date(weekStartDate); weekEndDate.setDate(weekStartDate.getDate() + 6);
+    const weekStartStr = toYMD(weekStartDate);
+
+    // Only write if this week not yet recorded
+    if (!data.weeklyScores.find(w => w.weekStart === weekStartStr)) {
+      let tasksDue = 0, tasksCompleted = 0, tasksOverdue = 0;
+      allSermons.filter(s => isActive(s) && s.status !== 'completed').forEach(s => {
+        const statusIdx = STATUS_ORDER.indexOf(s.status);
+        STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started').forEach(st => {
+          const stIdx = STATUS_ORDER.indexOf(st.key);
+          const due = getStageDueDate(s.date, st.key, s.customDeadlines);
+          if (!due || due < weekStartDate || due > weekEndDate) return;
+          tasksDue++;
+          if (stIdx < statusIdx) tasksCompleted++;
+          else if (daysUntil(due) < 0) tasksOverdue++;
+        });
+      });
+
+      const score = tasksDue > 0 ? Math.round(tasksCompleted / tasksDue * 100) : 100;
+      const allOnTime = tasksOverdue === 0;
+      data.weeklyScores.push({ weekStart: weekStartStr, score, allOnTime });
+      data.weeklyScores.sort((a, b) => a.weekStart.localeCompare(b.weekStart));
+      if (data.weeklyScores.length > 52) data.weeklyScores = data.weeklyScores.slice(-52);
+
+      data.totalWeeks = data.weeklyScores.length;
+      data.onTimeWeeks = data.weeklyScores.filter(w => w.allOnTime).length;
+      let streak = 0;
+      for (let i = data.weeklyScores.length - 1; i >= 0; i--) {
+        if (data.weeklyScores[i].allOnTime) streak++; else break;
+      }
+      data.currentStreak = streak;
+      data.bestStreak = Math.max(data.bestStreak || 0, streak);
+      streakData = data;
+      await setDoc(streakRef, data);
+    } else {
+      streakData = data;
+    }
+    renderStreakSection();
+  } catch(e) {
+    console.error('Streak update failed:', e);
+  }
+}
+
+// ── STAT CARD ─────────────────────────────────────────────────────────────────
+function renderStatCard(active, behind, allFuture) {
+  // LEFT: Days to next sermon
+  const nextSermon = allFuture.length > 0 ? allFuture[0] : null;
+  const daysNum = nextSermon ? daysUntil(parseDate(nextSermon.date)) : null;
+  document.getElementById('stat-days').textContent = daysNum !== null ? daysNum : '—';
+  document.getElementById('stat-next-title').textContent = nextSermon ? (nextSermon.title || 'Untitled') : '';
+
+  // MIDDLE stats
+  const activeSermons = allSermons.filter(s => isActive(s) && s.status !== 'completed');
+  const inProgress = active.filter(s => s.status !== 'not-started');
+  const onTrackCount = inProgress.filter(s => !isBehind(s)).length;
+  const onTrackTotal = inProgress.length;
+  const onTrackPct = onTrackTotal > 0 ? (onTrackCount / onTrackTotal * 100) : 0;
+  const onTrackEl = document.getElementById('val-ontrack');
+  document.getElementById('bar-ontrack').style.width = onTrackPct + '%';
+  if (onTrackTotal === 0) {
+    onTrackEl.textContent = '—'; onTrackEl.className = 'stat-mini-val muted';
+  } else {
+    onTrackEl.textContent = `${onTrackCount}/${onTrackTotal}`;
+    onTrackEl.className = 'stat-mini-val' + (behind.length > 0 ? ' red' : '');
+  }
+
+  // Tasks this week (Mon–Sun)
+  const t = today();
+  const dow2 = t.getDay();
+  const weekStart = new Date(t); weekStart.setDate(t.getDate() + (dow2 === 0 ? -6 : 1 - dow2));
+  const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
+  let weekTotal = 0, weekDone = 0;
+  activeSermons.forEach(s => {
+    const statusIdx = STATUS_ORDER.indexOf(s.status);
+    STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started').forEach(st => {
+      const stIdx = STATUS_ORDER.indexOf(st.key);
+      const due = getStageDueDate(s.date, st.key, s.customDeadlines);
+      if (!due || due < weekStart || due > weekEnd) return;
+      weekTotal++;
+      if (stIdx < statusIdx) weekDone++;
+    });
+  });
+  const weekPct = weekTotal > 0 ? (weekDone / weekTotal * 100) : 0;
+  const tasksEl = document.getElementById('val-tasks');
+  document.getElementById('bar-tasks').style.width = weekPct + '%';
+  if (weekTotal === 0) {
+    tasksEl.textContent = '—'; tasksEl.className = 'stat-mini-val muted';
+  } else {
+    tasksEl.textContent = `${weekDone}/${weekTotal}`;
+    tasksEl.className = 'stat-mini-val' + (weekDone < weekTotal ? ' red' : '');
+  }
+
+  // Overdue tasks
+  let overdueCount = 0, totalUndone = 0;
+  activeSermons.forEach(s => {
+    const statusIdx = STATUS_ORDER.indexOf(s.status);
+    STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started').forEach(st => {
+      const stIdx = STATUS_ORDER.indexOf(st.key);
+      if (stIdx < statusIdx) return;
+      totalUndone++;
+      const due = getStageDueDate(s.date, st.key, s.customDeadlines);
+      if (due && daysUntil(due) < 0) overdueCount++;
+    });
+  });
+  const overduePct = totalUndone > 0 ? Math.min(100, overdueCount / totalUndone * 100) : 0;
+  const overdueBar = document.getElementById('bar-overdue');
+  const overdueEl = document.getElementById('val-overdue');
+  overdueBar.style.width = overduePct + '%';
+  overdueBar.className = 'stat-mini-bar' + (overdueCount > 0 ? ' red' : '');
+  overdueEl.textContent = overdueCount;
+  overdueEl.className = 'stat-mini-val' + (overdueCount > 0 ? ' red' : ' muted');
+}
+
 // ── SIDEBAR ───────────────────────────────────────────────────────────────────
 function renderSidebarSection(elId, title, sermons, mode, firstSection=false) {
   const el = document.getElementById(elId);
@@ -1316,11 +1543,7 @@ function renderAll() {
   const behind = active.filter(s=>isBehind(s));
   const allFuture = allSermons.filter(s=>s.status!=='completed'&&daysUntil(parseDate(s.date))>=0);
 
-  document.getElementById('stat-upcoming').textContent = allFuture.length;
-  document.getElementById('stat-progress').textContent = active.filter(s=>s.status!=='not-started').length;
-  document.getElementById('stat-behind').textContent = behind.length;
-  document.getElementById('stat-days').textContent = allFuture.length>0?daysUntil(parseDate(allFuture[0].date)):'—';
-
+  renderStatCard(active, behind, allFuture);
   renderTodo();
 
   const activeEl = document.getElementById('active-section');
@@ -1606,6 +1829,8 @@ const t=today();
 document.getElementById('nav-date').textContent=t.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 const todayLabelEl=document.getElementById('today-label');
 if(todayLabelEl) todayLabelEl.textContent=t.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+// Show placeholder streak bars immediately
+renderStreakSection();
 </script>
 </body>
 </html>
