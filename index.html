@@ -624,7 +624,14 @@ function getStageDueDate(sermonDateStr, stageKey, customDeadlines) {
 }
 
 function isBehind(sermon) {
-  if (sermon.status==='completed'||sermon.status==='not-started') return false;
+  if (sermon.status === 'completed') return false;
+  if (sermon.status === 'not-started') {
+    const firstStage = STAGES.find(s => s.key !== 'not-started' && s.key !== 'completed');
+    if (!firstStage) return false;
+    const due = getStageDueDate(sermon.date, firstStage.key, sermon.customDeadlines);
+    if (!due) return false;
+    return daysUntil(due) < 0;
+  }
   const due = getStageDueDate(sermon.date, sermon.status, sermon.customDeadlines);
   if (!due) return false;
   return daysUntil(due) < 0;
@@ -683,7 +690,7 @@ function calculateWeekScore(sermons, stages) {
       const du = daysUntil(dueDate); // positive = future, negative = past
       if (du < 0) {
         const overdueDays = Math.abs(du);
-        totalDeductions += 10 + (overdueDays - 1) * 5;
+        totalDeductions += Math.min(20, 10 + (overdueDays - 1) * 5);
       } else if (du <= 1) {
         totalDeductions += 10;
       } else if (du === 2) {

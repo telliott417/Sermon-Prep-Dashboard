@@ -229,7 +229,14 @@ function getStageDueDate(sermonDateStr, stage) {
 }
 
 function isSermonBehind(sermon, stages) {
-  if (sermon.status === 'completed' || sermon.status === 'not-started') return false;
+  if (sermon.status === 'completed') return false;
+  if (sermon.status === 'not-started') {
+    const firstStage = stages.find(s => s.key !== 'not-started' && s.key !== 'completed');
+    if (!firstStage) return false;
+    const due = getStageDueDate(sermon.date, firstStage);
+    if (!due) return false;
+    return daysUntil(due) < 0;
+  }
   const stage = stages.find(s => s.key === sermon.status);
   if (!stage) return false;
   const due = getStageDueDate(sermon.date, stage);
@@ -260,8 +267,8 @@ function calcWeekScore(sermons, stages) {
       const due = getStageDueDate(s.date, stage);
       if (!due) continue;
       const diff = Math.round((due - todayDate) / 86400000);
-      console.log('Stage:', stage.label, 'Due:', due ? due.toDateString() : 'null', 'Days diff:', diff, 'Deduction:', diff < 0 ? (10 + (Math.abs(diff)-1)*5) : diff <= 1 ? 10 : diff === 2 ? 5 : 0);
-      if (diff < 0) deductions += 10 + (Math.abs(diff) - 1) * 5;
+      console.log('Stage:', stage.label, 'Due:', due ? due.toDateString() : 'null', 'Days diff:', diff, 'Deduction:', diff < 0 ? Math.min(20, 10 + (Math.abs(diff)-1)*5) : diff <= 1 ? 10 : diff === 2 ? 5 : 0);
+      if (diff < 0) deductions += Math.min(20, 10 + (Math.abs(diff) - 1) * 5);
       else if (diff <= 1) deductions += 10;
       else if (diff === 2) deductions += 5;
     }
