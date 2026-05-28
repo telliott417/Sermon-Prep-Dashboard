@@ -78,12 +78,6 @@
   /* Rings wrap + photo/initials overlay */
   .rings-outer-wrap { position: relative; display: inline-block; flex-shrink: 0; }
   .member-rings-wrap { position: relative; width: 80px; height: 80px; cursor: pointer; }
-  .member-photo-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-  .member-photo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; transition: opacity 0.2s; }
-  .member-initials { width: 36px; height: 36px; border-radius: 50%; background: var(--warm-bg); border: 1px solid var(--border-md); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--stone); transition: opacity 0.2s; }
-  .member-rings-wrap:hover .member-photo,
-  .member-rings-wrap:hover .member-initials { opacity: 0.15; }
-
   /* Score tooltip */
   .score-tooltip { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); background: var(--white); border: 1px solid var(--border-md); border-radius: var(--r-lg); padding: 14px 16px; display: none; gap: 16px; align-items: center; white-space: nowrap; z-index: 200; box-shadow: 0 4px 16px rgba(20,18,16,0.12); }
   .score-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--border-md); }
@@ -585,15 +579,6 @@ async function renderTeam(team) {
     const tooltipOuter = (138.2 * (1 - overallScore / 100)).toFixed(1);
     const tooltipInner = (138.2 * (1 - weekScore  / 100)).toFixed(1);
 
-    // Photo or initials
-    const nameParts = (member.name || '').trim().split(/\s+/);
-    const initials = nameParts.length >= 2
-      ? nameParts[0][0] + nameParts[nameParts.length - 1][0]
-      : (nameParts[0]?.[0] || '?');
-    const photoOrInitials = member.photo
-      ? `<img class="member-photo" src="${member.photo}" alt="${initials}" />`
-      : `<div class="member-initials">${initials.toUpperCase()}</div>`;
-
     const rings = `
       <div class="rings-outer-wrap">
         <div class="member-rings-wrap">
@@ -606,7 +591,6 @@ async function renderTeam(team) {
             <circle cx="40" cy="40" r="22" fill="none" stroke="${wc}" stroke-width="7" stroke-linecap="round"
               stroke-dasharray="138.2 138.2" stroke-dashoffset="${innerOffset}" transform="rotate(-90 40 40)"/>
           </svg>
-          <div class="member-photo-layer">${photoOrInitials}</div>
           <div class="score-tooltip">
             <div class="tooltip-ring">
               <div class="tooltip-ring-wrap">
