@@ -37,14 +37,14 @@
   .copied-msg { font-size: 11px; color: var(--green); }
 
   /* Member grid */
-  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 14px; }
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
   .member-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); overflow: hidden; }
   .member-card.on-track   { border-top: 3px solid var(--green); }
   .member-card.behind     { border-top: 3px solid var(--red); }
   .member-card.no-sermons { border-top: 3px solid var(--stone-light); }
-  .member-header { padding: 14px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+  .member-header { padding: 16px 18px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--border); }
   .member-info { flex: 1; min-width: 0; }
-  .member-name { font-size: 14px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .member-name { font-size: 14px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .member-sub { font-size: 11px; color: var(--stone); margin-top: 2px; }
   .member-you { font-size: 10px; color: var(--stone-light); display: inline; margin-left: 4px; }
   .member-status-badge { font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
@@ -54,11 +54,11 @@
 
   /* Sermon rows */
   .sermon-rows { padding: 0; }
-  .sermon-row { padding: 10px 18px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .sermon-row { padding: 10px 18px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
   .sermon-row:last-child { border-bottom: none; }
   .sermon-row:hover { background: var(--bg); }
   .sermon-row-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
-  .sermon-row-scripture { font-size: 11px; color: var(--stone); }
+  .sermon-row-scripture { font-size: 11px; color: var(--stone); font-weight: 400; }
   .sermon-row-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
   .sermon-row-date { font-size: 11px; color: var(--stone); }
   .sermon-row-stage { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 100px; }
@@ -163,7 +163,7 @@ const SCORE_COLORS = [
 ];
 function getScoreColor(score) {
   for (const b of SCORE_COLORS) if (score >= b.min && score <= b.max) return b.color;
-  return '#C8D44A';
+  return '#880000';
 }
 function calculateOverallScore(streakData) {
   const scores = streakData.weeklyScores || [];
@@ -244,6 +244,26 @@ function getProgressPct(status, statusOrder) {
   const totalWorkingStages = statusOrder.length - 2; // exclude not-started and completed
   const completedStages = idx - 1;
   return totalWorkingStages > 0 ? Math.round((completedStages / totalWorkingStages) * 100) : 0;
+}
+
+function calcWeekScore(sermons, stages) {
+  const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+  let deductions = 0;
+  for (const s of sermons.filter(s => s.status !== 'completed' && s.date && new Date(s.date.replace(/-/g,'/')) >= todayDate)) {
+    const stageKeys = stages.map(st => st.key);
+    const currentIdx = stageKeys.indexOf(s.status);
+    for (let i = currentIdx + 1; i < stages.length - 1; i++) {
+      const stage = stages[i];
+      if (!stage.dueDay && stage.dueDay !== 0) continue;
+      const due = getStageDueDate(s.date, stage);
+      if (!due) continue;
+      const diff = Math.round((due - todayDate) / 86400000);
+      if (diff < 0) deductions += 10 + (Math.abs(diff) - 1) * 5;
+      else if (diff <= 1) deductions += 10;
+      else if (diff === 2) deductions += 5;
+    }
+  }
+  return Math.max(0, 100 - deductions);
 }
 
 // ── TEAM LOGIC ────────────────────────────────────────────────────────────────
@@ -388,6 +408,7 @@ async function renderTeam(team) {
     <button class="btn danger" onclick="leaveTeam()"><i class="ti ti-logout"></i> Leave team</button>`;
 
   content.innerHTML = `
+    <div id="team-score-card"></div>
     <div class="section-header">
       <div class="section-title">Team members</div>
       <div class="section-line"></div>
@@ -424,7 +445,7 @@ async function renderTeam(team) {
       const statusOrder = stages.map(s=>s.key);
       const streakData = streakSnap.exists() ? streakSnap.data() : {};
       const overallScore = calculateOverallScore(streakData);
-      const weekScore = getWeekScore(streakData);
+      const weekScore = calcWeekScore(sermons, stages);
       return { member, sermons, stages, statusOrder, overallScore, weekScore };
     } catch(e) {
       return { member, sermons: [], stages: [], statusOrder: [], overallScore: 75, weekScore: 75 };
@@ -444,6 +465,74 @@ async function renderTeam(team) {
     if (bNext) return 1;
     return 0;
   });
+
+  // ── TEAM SCORE CARD ──────────────────────────────────────────────────────────
+  const avgOverall = Math.round(memberData.reduce((sum, d) => sum + d.overallScore, 0) / memberData.length);
+  const avgWeek    = Math.round(memberData.reduce((sum, d) => sum + d.weekScore,    0) / memberData.length);
+  const avgOC = getScoreColor(avgOverall);
+  const avgWC = getScoreColor(avgWeek);
+  const avgOuterOff = (276.5 * (1 - avgOverall / 100)).toFixed(1);
+  const avgWeekOff  = (276.5 * (1 - avgWeek    / 100)).toFixed(1);
+
+  const makeTeamRing = (score, color, offset) => `
+    <div style="position:relative;width:100px;height:100px;flex-shrink:0;">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="9"/>
+        <circle cx="50" cy="50" r="44" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round"
+          stroke-dasharray="276.5 276.5" stroke-dashoffset="${offset}" transform="rotate(-90 50 50)"/>
+      </svg>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+        <span style="font-size:22px;font-weight:800;color:${color};">${score}</span>
+      </div>
+    </div>`;
+
+  const makeMemberDot = (d, scoreType) => {
+    const score = scoreType === 'overall' ? d.overallScore : d.weekScore;
+    const color = getScoreColor(score);
+    const dotOffset = (69.1 * (1 - score / 100)).toFixed(1);
+    const firstName = (d.member.name || d.member.email || '?').split(' ')[0];
+    return `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;" title="${firstName}: ${score}">
+        <div style="position:relative;width:28px;height:28px;">
+          <svg width="28" height="28" viewBox="0 0 28 28">
+            <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="3"/>
+            <circle cx="14" cy="14" r="11" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round"
+              stroke-dasharray="69.1 69.1" stroke-dashoffset="${dotOffset}" transform="rotate(-90 14 14)"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:7px;font-weight:700;color:${color};">${score}</span>
+          </div>
+        </div>
+        <span style="font-size:9px;color:var(--stone);max-width:28px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${firstName}</span>
+      </div>`;
+  };
+
+  document.getElementById('team-score-card').innerHTML = `
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-sm);padding:22px 28px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1px 1fr;gap:24px;align-items:center;">
+        <div style="display:flex;align-items:center;gap:20px;">
+          ${makeTeamRing(avgOverall, avgOC, avgOuterOff)}
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink);">${team.code} Team</div>
+            <div style="font-size:11px;color:var(--stone);margin-top:2px;">Average overall prep score</div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+              ${memberData.map(d => makeMemberDot(d, 'overall')).join('')}
+            </div>
+          </div>
+        </div>
+        <div style="width:1px;height:80px;background:var(--border);margin:auto;"></div>
+        <div style="display:flex;align-items:center;gap:20px;">
+          ${makeTeamRing(avgWeek, avgWC, avgWeekOff)}
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink);">${team.code} Team</div>
+            <div style="font-size:11px;color:var(--stone);margin-top:2px;">Resets every Monday</div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+              ${memberData.map(d => makeMemberDot(d, 'week')).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
 
   document.getElementById('member-grid').innerHTML = memberData.map(({member, sermons, stages, statusOrder, overallScore, weekScore}) => {
     const isYou = member.uid === currentUser.uid;
@@ -565,7 +654,7 @@ window.toggleSermonExpand = function(row) {
 };
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 document.addEventListener('keydown', e => { if(e.key==='Escape') window.closeNav(); });
 </script>
 </body>
