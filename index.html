@@ -414,7 +414,6 @@ function buildStagesFromSettings(settingsStages) {
 
 let editingId = null;
 let allSermons = [];
-window._sermons = allSermons; // debug: expose to console
 let openCards = new Set();
 let calWeekOffset = 0;
 let sermonsPendingArchive = new Set();
@@ -748,7 +747,6 @@ window.loadSermons = async function() {
     const snap = await getDocs(sermonsRef());
     allSermons = snap.docs.map(d => ({id: d.id, ...d.data()}));
     allSermons.sort((a,b)=>a.date.localeCompare(b.date));
-    window._sermons = allSermons; // debug: keep window ref in sync
     hideError();
     setSyncStatus('synced','Synced');
     openCards.clear();
