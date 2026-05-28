@@ -38,7 +38,7 @@
 
   /* Member grid */
   .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
-  .member-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); overflow: hidden; }
+  .member-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); }
   .member-card.on-track   { border-top: 3px solid var(--green); }
   .member-card.behind     { border-top: 3px solid var(--red); }
   .member-card.no-sermons { border-top: 3px solid var(--stone-light); }
@@ -77,15 +77,15 @@
 
   /* Rings wrap + photo/initials overlay */
   .rings-outer-wrap { position: relative; display: inline-block; flex-shrink: 0; }
-  .member-rings-wrap { position: relative; width: 56px; height: 56px; cursor: pointer; }
+  .member-rings-wrap { position: relative; width: 80px; height: 80px; cursor: pointer; }
   .member-photo-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-  .member-photo { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; transition: opacity 0.2s; }
-  .member-initials { width: 30px; height: 30px; border-radius: 50%; background: var(--warm-bg); border: 1px solid var(--border-md); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--stone); transition: opacity 0.2s; }
+  .member-photo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; transition: opacity 0.2s; }
+  .member-initials { width: 36px; height: 36px; border-radius: 50%; background: var(--warm-bg); border: 1px solid var(--border-md); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--stone); transition: opacity 0.2s; }
   .member-rings-wrap:hover .member-photo,
   .member-rings-wrap:hover .member-initials { opacity: 0.15; }
 
   /* Score tooltip */
-  .score-tooltip { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); background: var(--white); border: 1px solid var(--border-md); border-radius: var(--r-lg); padding: 14px 16px; display: none; gap: 16px; align-items: center; white-space: nowrap; z-index: 100; box-shadow: 0 4px 16px rgba(20,18,16,0.12); }
+  .score-tooltip { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); background: var(--white); border: 1px solid var(--border-md); border-radius: var(--r-lg); padding: 14px 16px; display: none; gap: 16px; align-items: center; white-space: nowrap; z-index: 200; box-shadow: 0 4px 16px rgba(20,18,16,0.12); }
   .score-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--border-md); }
   .score-tooltip::before { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--white); z-index: 1; }
   .member-rings-wrap:hover .score-tooltip { display: flex; }
@@ -580,8 +580,8 @@ async function renderTeam(team) {
     // Score rings
     const sc = getScoreColor(overallScore);
     const wc = getScoreColor(weekScore);
-    const outerOffset = (150.8 * (1 - overallScore / 100)).toFixed(1);
-    const innerOffset = (94.2  * (1 - weekScore  / 100)).toFixed(1);
+    const outerOffset = (213.6 * (1 - overallScore / 100)).toFixed(1);
+    const innerOffset = (138.2 * (1 - weekScore  / 100)).toFixed(1);
     const tooltipOuter = (138.2 * (1 - overallScore / 100)).toFixed(1);
     const tooltipInner = (138.2 * (1 - weekScore  / 100)).toFixed(1);
 
@@ -597,14 +597,14 @@ async function renderTeam(team) {
     const rings = `
       <div class="rings-outer-wrap">
         <div class="member-rings-wrap">
-          <svg width="56" height="56" viewBox="0 0 56 56">
-            <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="5"/>
-            <circle cx="28" cy="28" r="24" fill="none" stroke="${sc}" stroke-width="5" stroke-linecap="round"
-              stroke-dasharray="150.8 150.8" stroke-dashoffset="${outerOffset}" transform="rotate(-90 28 28)"/>
-            <circle cx="28" cy="28" r="19" fill="none" stroke="#F4F2EE" stroke-width="1.5"/>
-            <circle cx="28" cy="28" r="15" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="4"/>
-            <circle cx="28" cy="28" r="15" fill="none" stroke="${wc}" stroke-width="4" stroke-linecap="round"
-              stroke-dasharray="94.2 94.2" stroke-dashoffset="${innerOffset}" transform="rotate(-90 28 28)"/>
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="7"/>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="${sc}" stroke-width="7" stroke-linecap="round"
+              stroke-dasharray="213.6 213.6" stroke-dashoffset="${outerOffset}" transform="rotate(-90 40 40)"/>
+            <circle cx="40" cy="40" r="28" fill="none" stroke="#F4F2EE" stroke-width="2"/>
+            <circle cx="40" cy="40" r="22" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="7"/>
+            <circle cx="40" cy="40" r="22" fill="none" stroke="${wc}" stroke-width="7" stroke-linecap="round"
+              stroke-dasharray="138.2 138.2" stroke-dashoffset="${innerOffset}" transform="rotate(-90 40 40)"/>
           </svg>
           <div class="member-photo-layer">${photoOrInitials}</div>
           <div class="score-tooltip">
