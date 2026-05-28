@@ -2312,10 +2312,16 @@ async function loadTeamCard() {
     }
 
     // Load each member's sermon + settings + streak data
+    // Fallback stages match accountability.html exactly
     const defaultMemberStages = [
-      { key:'not-started', label:'Not yet started', dueDay:null, weeksBack:null },
-      ...DEFAULT_STAGES,
-      { key:'completed', label:'Completed', dueDay:0, weeksBack:0 }
+      { key:'not-started', label:'Not yet started', dueDay:null,  weeksBack:null },
+      { key:'study',       label:'Study',           dueDay:2,     weeksBack:2 },
+      { key:'idea',        label:'Main idea',        dueDay:2,     weeksBack:2 },
+      { key:'outline',     label:'Outline',          dueDay:3,     weeksBack:2 },
+      { key:'draft',       label:'Draft',            dueDay:2,     weeksBack:1 },
+      { key:'final',       label:'Final',            dueDay:3,     weeksBack:1 },
+      { key:'run',         label:'Run-through',      dueDay:4,     weeksBack:1 },
+      { key:'completed',   label:'Completed',        dueDay:0,     weeksBack:0 }
     ];
     const memberPromises = teamMembers.map(async (mData) => {
       const uid = mData.uid;
@@ -2330,7 +2336,7 @@ async function loadTeamCard() {
         const memberStages = memberSettings?.stages ? [
           { key:'not-started', label:'Not yet started', dueDay:null, weeksBack:null },
           ...memberSettings.stages,
-          { key:'completed', label:'Completed', dueDay:0, weeksBack:0 }
+          { key:'completed',   label:'Completed',       dueDay:0,    weeksBack:0 }
         ] : defaultMemberStages;
 
         // Overall score from 12-week rolling average (or 75 fallback)
