@@ -2345,7 +2345,8 @@ async function loadTeamCard() {
         // Week score from deadline proximity
         const memberWeekScore = calculateWeekScore(sermons, memberStages);
 
-        const activeS = sermons.filter(s => isActive(s) && s.status !== 'completed');
+        // Match accountability.html: any future sermon, not just those within 21 days
+        const activeS = sermons.filter(s => s.status !== 'completed' && parseDate(s.date) >= today());
         const behind = activeS.filter(s => isBehind(s));
         const nextSermon = [...activeS].sort((a,b) => a.date.localeCompare(b.date))[0];
         return { uid, name: mData.name || 'Member', score: memberOverall, weekScore: memberWeekScore, behind: behind.length, nextSermon };
