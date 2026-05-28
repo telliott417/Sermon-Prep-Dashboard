@@ -11,72 +11,72 @@
 <link rel="stylesheet" href="/Sermon-Prep-Dashboard/styles.css" />
 <style>
   /* ── ACCOUNTABILITY PAGE — SPECIFIC STYLES ── */
-  .main { margin-left: var(--nav-width); flex: 1; padding: 2rem 2.5rem 4rem; max-width: 960px; min-width: 0; }
+  .main { margin-left: var(--nav-width); flex: 1; padding: 2rem 2.5rem 4rem; min-width: 0; }
 
   /* Button variants */
-  .btn.danger { color: var(--red-text); border-color: var(--red-text); }
-  .btn.danger:hover { background: var(--red-bg); }
+  .btn.danger { color: var(--red); border-color: var(--red-border); }
+  .btn.danger:hover { background: var(--red-light); }
 
   /* Join / create team panel */
-  .onboard-panel { background: var(--white); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 2rem; max-width: 480px; }
+  .onboard-panel { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 2rem; max-width: 480px; }
   .onboard-panel h2 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-  .onboard-panel p { font-size: 13px; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.6; }
+  .onboard-panel p { font-size: 13px; color: var(--stone); margin-bottom: 1.25rem; line-height: 1.6; }
   .onboard-row { display: flex; gap: 8px; margin-bottom: 12px; }
-  .onboard-row input { flex: 1; padding: 9px 12px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 14px; outline: none; text-transform: uppercase; letter-spacing: 0.08em; }
+  .onboard-row input { flex: 1; padding: 9px 12px; border: 1px solid var(--border-md); border-radius: var(--radius-md); background: var(--warm-bg); color: var(--ink); font-family: var(--font); font-size: 14px; outline: none; text-transform: uppercase; letter-spacing: 0.08em; }
   .onboard-row input:focus { border-color: var(--blue-text); }
   .onboard-divider { display: flex; align-items: center; gap: 10px; margin: 1.25rem 0; }
-  .onboard-divider span { font-size: 12px; color: var(--text-tertiary); }
+  .onboard-divider span { font-size: 12px; color: var(--stone-light); }
   .onboard-divider::before, .onboard-divider::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
-  .onboard-error { font-size: 12px; color: var(--red-text); margin-top: 6px; min-height: 18px; }
+  .onboard-error { font-size: 12px; color: var(--red); margin-top: 6px; min-height: 18px; }
 
-  /* Team header */
-  .team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px; }
-  .team-code-badge { display: flex; align-items: center; gap: 8px; background: var(--white); border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 7px 14px; font-size: 13px; }
+  /* Team header (topbar-actions) */
+  .team-code-badge { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1px solid var(--border-md); border-radius: var(--radius-md); padding: 7px 14px; font-size: 13px; color: var(--stone); }
   .team-code-value { font-weight: 700; letter-spacing: 0.1em; color: var(--blue-text); }
-  .copy-btn { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 15px; padding: 2px; }
+  .copy-btn { background: none; border: none; cursor: pointer; color: var(--stone-light); font-size: 15px; padding: 2px; }
   .copy-btn:hover { color: var(--blue-text); }
-  .copied-msg { font-size: 11px; color: var(--green-text); }
+  .copied-msg { font-size: 11px; color: var(--green); }
 
   /* Member grid */
-  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-  .member-card { background: var(--white); border: 0.5px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
-  .member-card.on-track  { border-top: 3px solid var(--green-text); }
-  .member-card.behind    { border-top: 3px solid var(--red-text); }
-  .member-card.no-sermons { border-top: 3px solid var(--text-tertiary); }
-  .member-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid var(--border); }
-  .member-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg-secondary); }
-  .member-avatar-initials { width: 38px; height: 38px; border-radius: 50%; background: var(--blue-bg); color: var(--blue-text); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 14px; }
+  .member-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); overflow: hidden; }
+  .member-card.on-track   { border-top: 3px solid var(--green); }
+  .member-card.behind     { border-top: 3px solid var(--red); }
+  .member-card.no-sermons { border-top: 3px solid var(--stone-light); }
+  .member-header { padding: 14px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
   .member-info { flex: 1; min-width: 0; }
-  .member-name { font-size: 14px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .member-status-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
-  .member-status-badge.on-track  { background: var(--green-bg); color: var(--green-text); }
-  .member-status-badge.behind    { background: var(--red-bg);   color: var(--red-text); }
-  .member-status-badge.no-sermons { background: var(--gray-bg); color: var(--gray-text); }
-  .member-you { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
+  .member-name { font-size: 14px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .member-sub { font-size: 11px; color: var(--stone); margin-top: 2px; }
+  .member-you { font-size: 10px; color: var(--stone-light); display: inline; margin-left: 4px; }
+  .member-status-badge { font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
+  .member-status-badge.on-track   { background: var(--green-light);  color: var(--green); }
+  .member-status-badge.behind     { background: var(--red-light);    color: var(--red); }
+  .member-status-badge.no-sermons { background: var(--warm-bg);      color: var(--stone); }
 
   /* Sermon rows */
-  .sermon-rows { padding: 10px 0; }
-  .sermon-row { padding: 9px 16px; border-bottom: 0.5px solid var(--border); }
+  .sermon-rows { padding: 0; }
+  .sermon-row { padding: 10px 18px; border-bottom: 1px solid var(--border); cursor: pointer; }
   .sermon-row:last-child { border-bottom: none; }
-  .sermon-row-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sermon-row-scripture { font-size: 11px; color: var(--text-secondary); }
-  .sermon-row-context { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; background: var(--bg-secondary); color: var(--text-secondary); }
-  .sermon-row-date { font-size: 11px; color: var(--text-secondary); }
-  .sermon-row-stage { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
-  .stage-on-track { background: var(--green-bg); color: var(--green-text); }
-  .stage-behind   { background: var(--red-bg);   color: var(--red-text); }
-  .stage-neutral  { background: var(--gray-bg);  color: var(--gray-text); }
+  .sermon-row:hover { background: var(--bg); }
+  .sermon-row-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+  .sermon-row-scripture { font-size: 11px; color: var(--stone); }
+  .sermon-row-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+  .sermon-row-date { font-size: 11px; color: var(--stone); }
+  .sermon-row-stage { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 100px; }
+  .sermon-row-context { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 100px; background: var(--warm-bg); color: var(--stone); }
+  .stage-on-track { background: var(--green-light); color: var(--green); }
+  .stage-behind   { background: var(--red-light);   color: var(--red); }
+  .stage-neutral  { background: var(--warm-bg);     color: var(--stone); }
   .sermon-row-progress { margin-top: 6px; display: flex; align-items: center; gap: 8px; }
-  .prog-bg { flex: 1; height: 3px; background: var(--bg-secondary); border-radius: 2px; }
+  .prog-bg { flex: 1; height: 3px; background: var(--warm-bg); border-radius: 2px; }
   .prog-fill { height: 3px; border-radius: 2px; }
-  .prog-fill.on-track { background: var(--green-text); }
-  .prog-fill.behind   { background: var(--red-text); }
-  .prog-fill.neutral  { background: var(--text-tertiary); }
-  .prog-pct { font-size: 10px; color: var(--text-tertiary); white-space: nowrap; }
-  .no-sermons-msg { padding: 1.5rem 16px; font-size: 13px; color: var(--text-tertiary); text-align: center; }
+  .prog-fill.on-track { background: var(--green); }
+  .prog-fill.behind   { background: var(--red); }
+  .prog-fill.neutral  { background: var(--stone-light); }
+  .prog-pct { font-size: 10px; color: var(--stone-light); white-space: nowrap; }
+  .no-sermons-msg { padding: 1.5rem 18px; font-size: 13px; color: var(--stone-light); text-align: center; }
 
   @media (max-width: 768px) {
-    .main { margin-left: 0; padding: 1rem 1rem 4rem; max-width: 100%; }
+    .main { margin-left: 0; padding: 1rem 1rem 4rem; }
     .member-grid { grid-template-columns: 1fr; }
   }
 </style>
@@ -86,8 +86,8 @@
 <div id="login-screen">
   <div style="text-align:center;">
     <div style="font-size:32px;margin-bottom:8px;">🤝</div>
-    <h1 style="font-size:22px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">Accountability</h1>
-    <p style="font-size:14px;color:var(--text-secondary);">Sign in to view your team</p>
+    <h1 style="font-size:22px;font-weight:600;color:var(--ink);margin-bottom:6px;">Accountability</h1>
+    <p style="font-size:14px;color:var(--stone);">Sign in to view your team</p>
   </div>
   <button onclick="signIn()" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:white;border:0.5px solid rgba(28,25,23,0.2);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
     <img src="https://www.google.com/favicon.ico" width="18" height="18"/> Sign in with Google
@@ -118,12 +118,12 @@
   </nav>
 
   <main class="main">
-    <div class="top-bar">
+    <div class="topbar">
       <div>
-        <h1><i class="ti ti-users"></i> Accountability</h1>
-        <div class="subtitle">Your team's sermon prep status</div>
+        <div class="topbar-greeting">Accountability 👥</div>
+        <div class="topbar-date" id="topbar-date"></div>
       </div>
-      <button class="btn" onclick="refreshTeam()"><i class="ti ti-refresh"></i> Refresh</button>
+      <div class="topbar-actions" id="topbar-actions"></div>
     </div>
     <div id="main-content">
       <div class="loading-state"><i class="ti ti-loader"></i>Loading...</div>
@@ -150,6 +150,32 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 let currentUser = null;
+
+// ── SCORE COLORS ──────────────────────────────────────────────────────────────
+const SCORE_COLORS = [
+  {min:96,max:100,color:'#00CC55'}, {min:91,max:95,color:'#1A9A4A'},
+  {min:86,max:90,color:'#2DB85C'}, {min:81,max:85,color:'#52CC6E'},
+  {min:76,max:80,color:'#7DD47A'}, {min:71,max:75,color:'#C8D44A'},
+  {min:66,max:70,color:'#E0C832'}, {min:61,max:65,color:'#F0A820'},
+  {min:56,max:60,color:'#F08818'}, {min:51,max:55,color:'#E86818'},
+  {min:46,max:50,color:'#E04C14'}, {min:41,max:45,color:'#D43010'},
+  {min:0, max:40, color:'#880000'},
+];
+function getScoreColor(score) {
+  for (const b of SCORE_COLORS) if (score >= b.min && score <= b.max) return b.color;
+  return '#C8D44A';
+}
+function calculateOverallScore(streakData) {
+  const scores = streakData.weeklyScores || [];
+  if (scores.length === 0) return 75;
+  const sum = scores.reduce((acc, w) => acc + (w.score ?? 75), 0);
+  return Math.round(sum / scores.length);
+}
+function getWeekScore(streakData) {
+  const scores = streakData.weeklyScores || [];
+  if (scores.length === 0) return 75;
+  return scores[scores.length - 1].score ?? 75;
+}
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
@@ -231,11 +257,12 @@ async function init() {
     const profileSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'));
     const role = profileSnap.exists() ? profileSnap.data().role : 'member';
     if (role === 'family') {
+      document.getElementById('topbar-actions').innerHTML = '';
       document.getElementById('main-content').innerHTML = `
-        <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:2rem;max-width:480px;">
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:2rem;max-width:480px;">
           <div style="font-size:24px;margin-bottom:12px;">🤝</div>
           <div style="font-size:16px;font-weight:600;margin-bottom:8px;">Team Accountability</div>
-          <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">This page is for the sermon prep team. You can view the dashboard and other pages but the accountability team is for staff members only.</div>
+          <div style="font-size:13px;color:var(--stone);line-height:1.6;">This page is for the sermon prep team. You can view the dashboard and other pages but the accountability team is for staff members only.</div>
         </div>`;
       setSyncStatus('synced', '');
       return;
@@ -256,7 +283,7 @@ async function init() {
     setSyncStatus('synced', 'Synced');
   } catch(e) {
     setSyncStatus('error', 'Error');
-    document.getElementById('main-content').innerHTML = `<p style="color:var(--red-text);font-size:13px;">Error: ${e.message}</p>`;
+    document.getElementById('main-content').innerHTML = `<p style="color:var(--red);font-size:13px;">Error: ${e.message}</p>`;
   }
 }
 
@@ -264,6 +291,7 @@ window.refreshTeam = async () => { await init(); };
 
 // ── ONBOARD ───────────────────────────────────────────────────────────────────
 function renderOnboard(teamExists, team) {
+  document.getElementById('topbar-actions').innerHTML = '';
   if (teamExists) {
     document.getElementById('main-content').innerHTML = `
       <div class="onboard-panel">
@@ -348,15 +376,18 @@ window.joinTeam = async () => {
 async function renderTeam(team) {
   const members = team.members || [];
   const content = document.getElementById('main-content');
-  content.innerHTML = `
-    <div class="team-header">
-      <div class="team-code-badge">
-        Team code: <span class="team-code-value">${team.code}</span>
-        <button class="copy-btn" onclick="copyCode('${team.code}')" title="Copy code"><i class="ti ti-copy"></i></button>
-        <span class="copied-msg" id="copied-msg"></span>
-      </div>
-      <button class="btn danger" onclick="leaveTeam()"><i class="ti ti-logout"></i> Leave team</button>
+
+  // Populate topbar-actions with refresh, team code badge, leave team
+  document.getElementById('topbar-actions').innerHTML = `
+    <button class="btn" onclick="refreshTeam()"><i class="ti ti-refresh"></i> Refresh</button>
+    <div class="team-code-badge">
+      Team: <span class="team-code-value">${team.code}</span>
+      <button class="copy-btn" onclick="copyCode('${team.code}')" title="Copy code"><i class="ti ti-copy"></i></button>
+      <span class="copied-msg" id="copied-msg"></span>
     </div>
+    <button class="btn danger" onclick="leaveTeam()"><i class="ti ti-logout"></i> Leave team</button>`;
+
+  content.innerHTML = `
     <div class="section-header">
       <div class="section-title">Team members</div>
       <div class="section-line"></div>
@@ -366,12 +397,13 @@ async function renderTeam(team) {
       <div class="loading-state"><i class="ti ti-loader"></i>Loading member data...</div>
     </div>`;
 
-  // Load each member's sermons and settings
+  // Load each member's sermons, settings, and streak_data
   const memberData = await Promise.all(members.map(async member => {
     try {
-      const [sermonsSnap, settingsSnap] = await Promise.all([
+      const [sermonsSnap, settingsSnap, streakSnap] = await Promise.all([
         getDocs(collection(db, 'users', member.uid, 'sermons')),
-        getDoc(doc(db, 'users', member.uid, 'meta', 'settings'))
+        getDoc(doc(db, 'users', member.uid, 'meta', 'settings')),
+        getDoc(doc(db, 'users', member.uid, 'meta', 'streak_data'))
       ]);
       const sermons = sermonsSnap.docs.map(d => ({id: d.id, ...d.data()}));
       const settings = settingsSnap.exists() ? settingsSnap.data() : null;
@@ -390,9 +422,12 @@ async function renderTeam(team) {
         {key:'completed',label:'Completed',dueDay:0,weeksBack:0}
       ];
       const statusOrder = stages.map(s=>s.key);
-      return { member, sermons, stages, statusOrder };
+      const streakData = streakSnap.exists() ? streakSnap.data() : {};
+      const overallScore = calculateOverallScore(streakData);
+      const weekScore = getWeekScore(streakData);
+      return { member, sermons, stages, statusOrder, overallScore, weekScore };
     } catch(e) {
-      return { member, sermons: [], stages: [], statusOrder: [] };
+      return { member, sermons: [], stages: [], statusOrder: [], overallScore: 75, weekScore: 75 };
     }
   }));
 
@@ -410,7 +445,7 @@ async function renderTeam(team) {
     return 0;
   });
 
-  document.getElementById('member-grid').innerHTML = memberData.map(({member, sermons, stages, statusOrder}) => {
+  document.getElementById('member-grid').innerHTML = memberData.map(({member, sermons, stages, statusOrder, overallScore, weekScore}) => {
     const isYou = member.uid === currentUser.uid;
     const upcoming = sermons
       .filter(s => s.status !== 'completed' && daysUntil(parseDate(s.date)) >= 0)
@@ -421,10 +456,34 @@ async function renderTeam(team) {
     const trackClass = upcoming.length === 0 ? 'no-sermons' : anyBehind ? 'behind' : 'on-track';
     const trackLabel = upcoming.length === 0 ? 'No sermons' : anyBehind ? 'Behind' : 'On track';
 
-    const initials = (member.name || member.email || '?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    const avatar = member.photo
-      ? `<img class="member-avatar" src="${member.photo}" onerror="this.style.display='none'" />`
-      : `<div class="member-avatar-initials">${initials}</div>`;
+    // Score rings
+    const sc = getScoreColor(overallScore);
+    const wc = getScoreColor(weekScore);
+    const outerOffset = (150.8 * (1 - overallScore / 100)).toFixed(1);
+    const innerOffset = (94.2  * (1 - weekScore  / 100)).toFixed(1);
+    const rings = `
+      <div class="member-rings-wrap" style="position:relative;width:56px;height:56px;flex-shrink:0;">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="5"/>
+          <circle cx="28" cy="28" r="24" fill="none" stroke="${sc}" stroke-width="5" stroke-linecap="round"
+            stroke-dasharray="150.8 150.8" stroke-dashoffset="${outerOffset}" transform="rotate(-90 28 28)"/>
+          <circle cx="28" cy="28" r="19" fill="none" stroke="#F4F2EE" stroke-width="1.5"/>
+          <circle cx="28" cy="28" r="15" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="4"/>
+          <circle cx="28" cy="28" r="15" fill="none" stroke="${wc}" stroke-width="4" stroke-linecap="round"
+            stroke-dasharray="94.2 94.2" stroke-dashoffset="${innerOffset}" transform="rotate(-90 28 28)"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+          <span style="font-size:13px;font-weight:800;color:${sc};">${overallScore}</span>
+        </div>
+      </div>`;
+
+    // Member subtitle: sermon count + status summary
+    const behindCount = upcoming.filter(s => isSermonBehind(s, stages)).length;
+    const subInfo = upcoming.length === 0
+      ? 'No upcoming sermons'
+      : behindCount > 0
+        ? `${upcoming.length} upcoming · ${behindCount} behind`
+        : `${upcoming.length} upcoming · on track`;
 
     const sermonRows = upcoming.length === 0
       ? `<div class="no-sermons-msg">No upcoming sermons</div>`
@@ -448,7 +507,7 @@ async function renderTeam(team) {
                 const isDone = idx < currentIdx;
                 const isCurrent = st.key === s.status;
                 const isLast = idx === stages.length - 1;
-                return `<span style="font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;${isDone?'text-decoration:line-through;color:var(--text-tertiary);':''}${isCurrent?'border:1.5px solid rgba(255,255,255,0.5);color:var(--text-primary);padding:1px 7px;':'color:var(--text-tertiary);'}">${st.label}</span>${!isLast?`<span style="font-size:10px;color:var(--text-tertiary);">›</span>`:''}`
+                return `<span style="font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;${isDone?'text-decoration:line-through;color:var(--stone-light);':''}${isCurrent?'border:1.5px solid rgba(255,255,255,0.5);color:var(--ink);padding:1px 7px;':'color:var(--stone-light);'}">${st.label}</span>${!isLast?`<span style="font-size:10px;color:var(--stone-light);">›</span>`:''}`
               }).join('')}
             </div>
             <div class="sermon-row-progress">
@@ -460,10 +519,10 @@ async function renderTeam(team) {
 
     return `<div class="member-card ${trackClass}">
       <div class="member-header">
-        ${avatar}
+        ${rings}
         <div class="member-info">
-          <div class="member-name">${member.name || member.email}</div>
-          ${isYou ? '<div class="member-you">You</div>' : ''}
+          <div class="member-name">${member.name || member.email}${isYou ? '<span class="member-you">You</span>' : ''}</div>
+          <div class="member-sub">${subInfo}</div>
         </div>
         <span class="member-status-badge ${trackClass}">${trackLabel}</span>
       </div>
@@ -495,6 +554,7 @@ window.leaveTeam = async () => {
     await init();
   } catch(e) { alert('Error leaving team: ' + e.message); }
 };
+
 window.toggleSermonExpand = function(row) {
   const stagesEl = row.querySelector('.sermon-row-stages');
   const isOpen = stagesEl.style.display === 'flex';
@@ -505,7 +565,7 @@ window.toggleSermonExpand = function(row) {
 };
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-document.getElementById('nav-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 document.addEventListener('keydown', e => { if(e.key==='Escape') window.closeNav(); });
 </script>
 </body>
