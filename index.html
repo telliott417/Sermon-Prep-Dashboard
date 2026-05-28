@@ -1158,7 +1158,7 @@ window.loadSermons = async function() {
     setSyncStatus('synced','Synced');
     openCards.clear();
     renderAll();
-    updateStreakData();
+    await updateStreakData();
     await initPrepScore(allSermons, STAGES);
   } catch(e) {
     setSyncStatus('error','Error');
@@ -1638,18 +1638,32 @@ async function updateStreakData() {
 async function loadOrInitStreakData(uid) {
   const ref = doc(db, 'users', uid, 'meta', 'streak_data');
   const snap = await getDoc(ref);
-  if (snap.exists()) return snap.data();
 
-  // New user — seed 12 weeks of 75
-  const weeklyScores = [];
+  // Start with whatever exists (or a blank skeleton)
+  const base = snap.exists() ? snap.data() : { currentStreak: 0, bestStreak: 0, lastRecorded: null };
+
+  // Build the canonical 12-week grid (Mon 11 weeks ago → this Mon)
   const now = getWeekStart();
+  const expectedWeeks = [];
   for (let i = 11; i >= 0; i--) {
-    const weekDate = new Date(now);
-    weekDate.setDate(now.getDate() - i * 7);
-    weeklyScores.push({ weekStart: toYMD(weekDate), score: 75 });
+    const d = new Date(now);
+    d.setDate(d.getDate() - i * 7);
+    expectedWeeks.push(toYMD(d));
   }
-  const data = { weeklyScores, currentStreak: 0, bestStreak: 0, lastRecorded: null };
-  await setDoc(ref, data);
+
+  // Map existing scores so we can preserve real recorded values
+  const existingMap = new Map((base.weeklyScores || []).map(w => [w.weekStart, w.score]));
+
+  // Fill every expected week — use real score if recorded, else 75
+  let changed = !snap.exists();
+  const weeklyScores = expectedWeeks.map(weekStart => {
+    if (existingMap.has(weekStart)) return { weekStart, score: existingMap.get(weekStart) };
+    changed = true;
+    return { weekStart, score: 75 };
+  });
+
+  const data = { ...base, weeklyScores };
+  if (changed) await setDoc(ref, data);
   return data;
 }
 
