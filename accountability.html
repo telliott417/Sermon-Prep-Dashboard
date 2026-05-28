@@ -591,8 +591,12 @@ async function renderTeam(team) {
           const behind = isSermonBehind(s, stages);
           const pct = getProgressPct(s.status, statusOrder);
           const stageLabel = stages.find(st=>st.key===s.status)?.label || s.status;
-          const stageClass = s.status === 'not-started' ? 'stage-neutral' : behind ? 'stage-behind' : 'stage-on-track';
-          const progClass = s.status === 'not-started' ? 'neutral' : behind ? 'behind' : 'on-track';
+          const stageClass = s.status === 'not-started'
+            ? (behind ? 'stage-behind' : 'stage-neutral')
+            : behind ? 'stage-behind' : 'stage-on-track';
+          const progClass = s.status === 'not-started'
+            ? (behind ? 'behind' : 'neutral')
+            : behind ? 'behind' : 'on-track';
           return `<div class="sermon-row" onclick="toggleSermonExpand(this)" style="cursor:pointer;">
             <div class="sermon-row-title">${s.title||'Untitled'}${s.text ? ` <span class="sermon-row-scripture">· ${s.text}</span>` : ''}</div>
             <div class="sermon-row-meta">
