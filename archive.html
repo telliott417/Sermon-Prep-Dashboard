@@ -11,51 +11,60 @@
 <link rel="stylesheet" href="/Sermon-Prep-Dashboard/styles.css" />
 <style>
   /* ── ARCHIVE PAGE — SPECIFIC STYLES ── */
-  .main { margin-left: var(--nav-width); flex: 1; padding: 2rem 2.5rem 4rem; max-width: 900px; min-width: 0; }
+  .main { margin-left: var(--nav-width); flex: 1; padding: 2rem 2.5rem 4rem; min-width: 0; }
+  .topbar { margin-bottom: 20px; }
+
+  /* Stat cards */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); padding: 16px 18px; }
+  .stat-label { display: block; font-size: 11px; font-weight: 600; color: var(--stone-light); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .stat-number { display: block; font-size: 28px; font-weight: 800; color: var(--ink); }
+  .stat-sub { font-size: 11px; color: var(--stone-light); margin-top: 2px; }
 
   /* Filters */
-  .filter-bar { background: var(--white); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .filter-bar { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; box-shadow: var(--shadow-sm); }
   .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
-  .filter-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
-  .filter-input { padding: 7px 10px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 13px; outline: none; width: 100%; }
-  .filter-input:focus { border-color: var(--blue-text); }
+  .filter-label { font-size: 11px; font-weight: 500; color: var(--stone); }
+  .filter-input { padding: 8px 14px; border: 1px solid var(--border); border-radius: 100px; background: var(--warm-bg); color: var(--ink); font-family: var(--font); font-size: 13px; outline: none; width: 100%; }
+  select.filter-input { border-radius: var(--r-lg); padding: 6px 12px; }
+  .filter-input:focus { border-color: var(--brand); }
   .filter-search-group { flex: 2; min-width: 200px; }
-  .filter-clear { padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: transparent; color: var(--text-secondary); font-family: var(--font); font-size: 12px; cursor: pointer; white-space: nowrap; align-self: flex-end; display: flex; align-items: center; gap: 5px; }
-  .filter-clear:hover { background: var(--bg-secondary); }
+  .filter-clear { padding: 6px 14px; border: 1px solid var(--border-md); border-radius: 100px; background: transparent; color: var(--stone); font-family: var(--font); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; align-self: flex-end; display: flex; align-items: center; gap: 5px; }
+  .filter-clear:hover { background: var(--warm-bg); }
 
   /* Books filter */
-  .books-bar { background: var(--white); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 12px 16px; margin-bottom: 1.25rem; }
-  .books-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-  .books-label span { font-size: 11px; color: var(--text-tertiary); font-weight: 400; }
+  .books-bar { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 12px 16px; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm); }
+  .books-label { font-size: 11px; font-weight: 600; color: var(--stone); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+  .books-label span { font-size: 11px; color: var(--stone-light); font-weight: 400; }
   .books-pills { display: flex; flex-wrap: wrap; gap: 5px; }
-  .book-pill { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; border: 0.5px solid var(--border-md); background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-  .book-pill:hover { border-color: var(--blue-text); color: var(--blue-text); }
-  .book-pill.active { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; }
+  .book-pill { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 100px; border: 1px solid var(--border-md); background: var(--warm-bg); color: var(--stone); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .book-pill:hover { border-color: var(--brand); color: var(--brand); }
+  .book-pill.active { background: var(--brand); color: white; border-color: var(--brand); }
 
-  .results-label { font-size: 12px; color: var(--text-tertiary); margin-bottom: 10px; }
+  .results-label { font-size: 12px; color: var(--stone-light); margin-bottom: 10px; }
 
   /* Archive cards */
   .archive-list { display: flex; flex-direction: column; gap: 8px; }
-  .archive-card { background: var(--white); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 14px 16px; display: flex; align-items: flex-start; gap: 14px; transition: border-color 0.15s; }
+  .archive-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 14px 16px; display: flex; align-items: flex-start; gap: 14px; box-shadow: var(--shadow-sm); }
   .archive-card:hover { border-color: var(--border-md); }
-  .archive-date-col { flex-shrink: 0; width: 54px; text-align: center; background: var(--bg-secondary); border-radius: var(--radius-md); padding: 6px 4px; }
-  .archive-date-month { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); }
-  .archive-date-day { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1.1; }
-  .archive-date-year { font-size: 10px; color: var(--text-tertiary); }
+  .archive-date-col { flex-shrink: 0; width: 54px; text-align: center; background: var(--warm-bg); border-radius: var(--r-lg); padding: 6px 4px; }
+  .archive-date-month { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--stone-light); }
+  .archive-date-day { font-size: 20px; font-weight: 600; color: var(--ink); line-height: 1.1; }
+  .archive-date-year { font-size: 10px; color: var(--stone-light); }
   .archive-content { flex: 1; min-width: 0; }
-  .archive-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; }
+  .archive-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
   .archive-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .archive-text { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; }
+  .archive-text { font-size: 12px; color: var(--stone); display: flex; align-items: center; gap: 3px; }
   .archive-text i { font-size: 12px; }
-  .archive-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
-  .archive-badge.series  { background: var(--blue-bg);   color: var(--blue-text); }
-  .archive-badge.context { background: var(--purple-bg); color: var(--purple-text); }
+  .archive-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
+  .archive-badge.series  { background: var(--blue-bg);  color: var(--blue-text); }
+  .archive-badge.context { background: var(--warm-bg);  color: var(--stone); border: 1px solid var(--border); }
   .archive-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  .doc-link { font-size: 11px; color: var(--blue-text); display: flex; align-items: center; gap: 4px; text-decoration: none; padding: 4px 10px; border: 0.5px solid var(--blue-text); border-radius: var(--radius-md); white-space: nowrap; }
-  .doc-link:hover { background: var(--blue-bg); }
+  .doc-link { font-size: 11px; color: var(--stone); display: flex; align-items: center; gap: 4px; text-decoration: none; padding: 4px 10px; border: 1px solid var(--border-md); border-radius: 100px; white-space: nowrap; }
+  .doc-link:hover { background: var(--warm-bg); color: var(--ink); }
 
   @media (max-width: 768px) {
-    .main { margin-left: 0; padding: 1rem 1rem 4rem; max-width: 100%; }
+    .main { margin-left: 0; padding: 1rem 1rem 4rem; }
     .stats { grid-template-columns: repeat(2, 1fr); }
     .archive-card { flex-wrap: wrap; }
     .archive-actions { width: 100%; margin-top: 8px; }
@@ -97,19 +106,35 @@
   </nav>
 
   <main class="main">
-    <div class="top-bar">
+    <div class="topbar">
       <div>
-        <h1><i class="ti ti-archive" style="font-size:18px;vertical-align:-2px;margin-right:6px;"></i>Archive</h1>
-        <div class="subtitle">Every sermon you've preached</div>
+        <div class="topbar-greeting">Archive 📚</div>
+        <div class="topbar-date" id="topbar-date"></div>
       </div>
-      <button class="filter-clear" onclick="loadArchive()"><i class="ti ti-refresh"></i> Refresh</button>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="loadArchive()">↻ Refresh</button>
+      </div>
     </div>
 
     <div class="stats">
-      <div class="stat"><div class="stat-label">Total sermons</div><div class="stat-num" id="stat-total">—</div></div>
-      <div class="stat"><div class="stat-label">This year</div><div class="stat-num" id="stat-year">—</div></div>
-      <div class="stat"><div class="stat-label" id="stat-ctx1-label">—</div><div class="stat-num" id="stat-ctx1">—</div><div class="stat-sub" id="stat-ctx1-sub"></div></div>
-      <div class="stat"><div class="stat-label" id="stat-ctx2-label">—</div><div class="stat-num" id="stat-ctx2">—</div><div class="stat-sub" id="stat-ctx2-sub"></div></div>
+      <div class="stat-card">
+        <div class="stat-label">Total sermons</div>
+        <div class="stat-number" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">This year</div>
+        <div class="stat-number" id="stat-year">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" id="stat-ctx1-label">—</div>
+        <div class="stat-number" id="stat-ctx1">—</div>
+        <div class="stat-sub" id="stat-ctx1-sub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" id="stat-ctx2-label">—</div>
+        <div class="stat-number" id="stat-ctx2">—</div>
+        <div class="stat-sub" id="stat-ctx2-sub"></div>
+      </div>
     </div>
 
     <!-- FILTERS -->
@@ -465,7 +490,7 @@ function renderArchive(sermons) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-document.getElementById('nav-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 document.addEventListener('keydown', e => { if(e.key==='Escape') window.closeNav(); });
 </script>
 </body>
