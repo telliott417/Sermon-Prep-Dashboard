@@ -9,6 +9,76 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..900;1,9..40,300..900&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 <link rel="stylesheet" href="/Sermon-Prep-Dashboard/styles.css" />
+<style>
+@media (max-width: 768px) {
+
+  /* ── HIDE DESKTOP NAV ── */
+  .nav { display: none; }
+  .main { margin-left: 0 !important; padding: 0 !important; }
+  .two-col { display: block !important; }
+  .right-col { display: none !important; }
+
+  /* ── MOBILE TOPBAR ── */
+  .topbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 14px 16px 12px !important;
+    background: var(--bg) !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    border-bottom: 1px solid var(--border) !important;
+    margin-bottom: 0 !important;
+    flex-direction: row !important;
+  }
+  .topbar-greeting { font-size: 15px !important; font-weight: 700 !important; }
+  .topbar-date { display: none !important; }
+  .topbar-actions { display: flex !important; gap: 7px !important; }
+  .topbar-actions .btn { font-size: 11px !important; padding: 7px 12px !important; }
+  .topbar-actions .btn-ghost span { display: none; }
+
+  /* ── CONTENT AREA ── */
+  .left-col { padding: 14px 16px 80px !important; display: flex !important; flex-direction: column !important; gap: 14px !important; }
+
+  /* ── PREP SCORE CARD ── */
+  .prep-score-card { padding: 18px 16px !important; }
+  .prep-score-title { text-align: center !important; }
+  .prep-score-inner { flex-direction: column !important; align-items: center !important; gap: 14px !important; }
+  .rings-wrap { width: 140px !important; height: 140px !important; }
+  .rings-svg { width: 140px !important; height: 140px !important; }
+  .center-overall { font-size: 34px !important; }
+  .center-week { font-size: 20px !important; }
+  .mini-stats-grid { width: 100% !important; grid-template-columns: 1fr 1fr !important; }
+  .mini-stat { min-height: 70px !important; }
+  .mini-stat-num { font-size: 22px !important; }
+
+  /* ── TODO ── */
+  .todo-item { padding: 13px 14px !important; }
+  .todo-task { font-size: 13px !important; }
+  .done-btn { font-size: 11px !important; padding: 7px 14px !important; border-radius: 100px !important; }
+
+  /* ── SERMON CARDS ── */
+  .sermon-card { margin-bottom: 10px !important; }
+  .card-top { padding: 13px 14px 10px !important; }
+  .card-title { font-size: 14px !important; line-height: 1.3 !important; }
+  .pct-num { font-size: 20px !important; }
+
+  /* ── VERTICAL PIPELINE ── */
+  .pipeline { display: none !important; }
+  .card-bottom { padding: 0 !important; border-top: none !important; }
+  .advance-btn { display: none !important; }
+
+  /* ── CALENDAR ── */
+  .cal-card { overflow: hidden !important; }
+  .cal-day { min-height: 52px !important; padding: 4px 3px !important; align-items: center !important; }
+  .cal-day-num-text { font-size: 11px !important; }
+
+  /* ── SECTION HEADERS ── */
+  .section-header { overflow: hidden !important; }
+
+}
+</style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
@@ -100,7 +170,7 @@ let currentUser = null;
     </div>
 
     <div class="two-col">
-    <main class="main">
+    <main class="main left-col">
 
       <div class="error-banner" id="error-banner"></div>
 
@@ -157,6 +227,7 @@ let currentUser = null;
       <div id="active-section"></div>
 
       <!-- PREP CALENDAR -->
+      <div id="calendar-section">
       <div class="section-header">
         <div class="section-title">Calendar</div>
         <div class="section-line"></div>
@@ -170,6 +241,7 @@ let currentUser = null;
         </div>
         <div class="cal-grid" id="cal-grid"></div>
       </div>
+      </div><!-- /#calendar-section -->
 
       <!-- UPCOMING SERMONS -->
       <div id="upcoming-section"></div>
@@ -429,10 +501,63 @@ onAuthStateChanged(auth, async user => {
     if (navAvatar) navAvatar.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
     // Update topbar greeting with user's first name
     updateTopbar(user.displayName || '');
+
+    // ── MOBILE: inject drawer and hamburger ──────────────────────────────────
+    if (window.innerWidth <= 768 && !document.getElementById('mobile-drawer')) {
+      const drawerHTML = `
+<div id="mobile-drawer-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;" onclick="closeMobileDrawer()"></div>
+<div id="mobile-drawer" style="position:fixed;top:0;left:0;bottom:0;width:280px;background:var(--white);z-index:300;transform:translateX(-100%);transition:transform 0.25s ease;display:flex;flex-direction:column;box-shadow:4px 0 24px rgba(0,0,0,0.15);">
+  <div style="padding:20px 18px 16px;border-bottom:1px solid var(--border);background:#111009;">
+    <div style="font-size:18px;font-weight:800;color:white;letter-spacing:-0.03em;">Dashboard</div>
+    <div id="drawer-user-name" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px;"></div>
+  </div>
+  <div style="padding:10px 0;flex:1;overflow-y:auto;">
+    <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--stone-light);padding:10px 18px 4px;">Pages</div>
+    <a href="/Sermon-Prep-Dashboard/" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:600;color:var(--green);background:var(--green-light);text-decoration:none;">🏠 Dashboard</a>
+    <a href="/Sermon-Prep-Dashboard/color.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">🎨 Color</a>
+    <a href="/Sermon-Prep-Dashboard/accountability.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">👥 Accountability</a>
+    <a href="/Sermon-Prep-Dashboard/archive.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">📚 Archive</a>
+    <a href="/Sermon-Prep-Dashboard/settings.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">⚙️ Settings</a>
+    <div id="drawer-admin-section" style="display:none;">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--stone-light);padding:10px 18px 4px;">My Pages</div>
+      <a href="/Sermon-Prep-Dashboard/library.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">📖 My Library</a>
+      <a href="/Sermon-Prep-Dashboard/chores.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">🏡 My Chores</a>
+    </div>
+  </div>
+  <div id="drawer-bottom" style="padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+    <div style="width:32px;height:32px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;" id="drawer-avatar">T</div>
+    <div>
+      <div id="drawer-name" style="font-size:12px;font-weight:600;color:var(--ink);"></div>
+      <div style="font-size:10px;color:var(--stone-light);">Candeo · Admin</div>
+    </div>
+  </div>
+</div>`;
+      document.body.insertAdjacentHTML('beforeend', drawerHTML);
+    }
+    // Set drawer user info
+    const drawerName = document.getElementById('drawer-name');
+    if (drawerName) drawerName.textContent = user.displayName || user.email;
+    const drawerUserName = document.getElementById('drawer-user-name');
+    if (drawerUserName) drawerUserName.textContent = user.displayName || user.email;
+    const drawerAvatar = document.getElementById('drawer-avatar');
+    if (drawerAvatar) drawerAvatar.textContent = (user.displayName || 'U')[0].toUpperCase();
+    // Inject hamburger button
+    if (window.innerWidth <= 768 && !document.getElementById('mobile-hamburger')) {
+      const hamburger = document.createElement('button');
+      hamburger.id = 'mobile-hamburger';
+      hamburger.style.cssText = 'width:36px;height:36px;border-radius:10px;background:var(--white);border:1px solid var(--border-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex-shrink:0;';
+      hamburger.innerHTML = '<div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div><div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div><div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div>';
+      hamburger.onclick = () => window.openMobileDrawer();
+      const topbar = document.querySelector('.topbar');
+      if (topbar) topbar.prepend(hamburger);
+    }
+
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
         document.getElementById('admin-nav-section').style.display = 'flex';
+        const drawerAdminSection = document.getElementById('drawer-admin-section');
+        if (drawerAdminSection) drawerAdminSection.style.display = 'block';
       }
     } catch(e) { console.error('Role check failed:', e); }
     await loadUserSettings();
@@ -884,7 +1009,7 @@ function renderPipeline(s) {
   if (workingStages.length === 0) return '';
   const statusIdx = STATUS_ORDER.indexOf(s.status);
   const color = s._color;
-  let html = '<div class="sc2-pipeline">';
+  let html = '<div class="sc2-pipeline pipeline">';
   workingStages.forEach((stage, i) => {
     const stageIdx = STATUS_ORDER.indexOf(stage.key);
     const isPast = stageIdx < statusIdx;
@@ -926,6 +1051,80 @@ function renderPipeline(s) {
     </div>`;
   html += '</div>';
   return html;
+}
+
+function renderMobilePipeline(s) {
+  if (s.status === 'completed') return '';
+  const workingStages = STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started');
+  const statusIdx = STATUS_ORDER.indexOf(s.status);
+  const currentStageLabel = STATUS_LABELS[s.status] || s.status;
+  const nextStage = STATUS_ORDER[STATUS_ORDER.indexOf(s.status) + 1];
+  const showDoneBtn = s.status !== 'completed' && s.status !== 'not-started' && nextStage;
+
+  const stageRows = workingStages.map(stage => {
+    const stageIdx = STATUS_ORDER.indexOf(stage.key);
+    const isDone = stageIdx < statusIdx;
+    const isCurrent = stageIdx === statusIdx;
+    const due = getStageDueDate(s.date, stage.key, s.customDeadlines);
+    const dueStr = due ? formatDate(due) : '';
+    const d = due ? daysUntil(due) : null;
+    const isOverdue = d !== null && d < 0;
+    const isDueToday = d === 0;
+
+    let dotStyle, dotContent;
+    if (isDone) {
+      dotStyle = 'background:var(--green-light);color:var(--green);border:1.5px solid var(--green-border);';
+      dotContent = '✓';
+    } else if (isCurrent) {
+      if (isOverdue || isDueToday) {
+        dotStyle = 'background:var(--amber-light);color:var(--amber);border:2px solid var(--amber);';
+        dotContent = '!';
+      } else {
+        dotStyle = 'background:var(--green-light);border:2px solid var(--green);';
+        dotContent = '';
+      }
+    } else {
+      dotStyle = 'background:var(--warm-bg);border:1px solid var(--border-md);';
+      dotContent = '';
+    }
+
+    const activeBg = isCurrent
+      ? ((isOverdue || isDueToday) ? 'background:var(--amber-light);' : 'background:var(--green-light);')
+      : '';
+    const stageColor = isDone ? 'color:var(--green);' : isCurrent ? 'color:var(--ink);' : 'color:var(--stone);';
+    const doneBtn = (isCurrent && showDoneBtn)
+      ? `<button onclick="advanceStatus('${s.id}')" style="font-size:10px;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid var(--green-border);background:var(--green-light);color:var(--green);cursor:pointer;font-family:var(--font);white-space:nowrap;flex-shrink:0;">✓ Done</button>`
+      : '';
+
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid var(--border);${activeBg}">
+      <div style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;${dotStyle}">${dotContent}</div>
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:600;${stageColor}">${stage.label}</div>
+        <div style="font-size:10px;color:var(--stone);margin-top:1px;">${dueStr}</div>
+      </div>
+      ${doneBtn}
+    </div>`;
+  }).join('');
+
+  const sermonDate = parseDate(s.date);
+  const preachDateStr = sermonDate ? sermonDate.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}) : '';
+  const preachRow = `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid var(--border);">
+    <span style="background:var(--warm-bg);border:1px solid var(--border-md);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:600;color:var(--stone);flex-shrink:0;">Preach</span>
+    <div style="flex:1;">
+      <div style="font-size:12px;font-weight:600;color:var(--stone);">Sermon day</div>
+      <div style="font-size:10px;color:var(--stone);margin-top:1px;">${preachDateStr}</div>
+    </div>
+  </div>`;
+
+  return `<div class="mobile-pipeline" style="display:none;">
+    <div class="mobile-pipeline-toggle" onclick="toggleMobilePipeline(this)" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:var(--bg);border-top:1px solid var(--border);">
+      <div style="font-size:11px;font-weight:600;color:var(--stone);">📋 ${currentStageLabel} · tap to expand</div>
+      <div style="font-size:11px;color:var(--stone-light);transition:transform 0.2s;">▼</div>
+    </div>
+    <div class="mobile-pipeline-stages" style="display:none;flex-direction:column;">
+      ${stageRows}${preachRow}
+    </div>
+  </div>`;
 }
 
 function renderSermonCard(s) {
@@ -976,6 +1175,7 @@ function renderSermonCard(s) {
       </div>
     </div>
     ${renderPipeline(s)}
+    ${renderMobilePipeline(s)}
     <div class="sc2-actions">
       <div class="sc2-prog-bg"><div class="sc2-prog-fill" style="width:${pct}%;background:${color};"></div></div>
       ${showDoneBtn ? `<button class="sc2-done-btn" onclick="advanceStatus('${s.id}')"><i class="ti ti-check"></i> Done: ${STATUS_LABELS[s.status]}</button>` : ''}
@@ -1626,6 +1826,26 @@ function renderAll() {
   renderCalendar();
   renderSidebarSection('mobile-upcoming-section', 'Upcoming Sermons', upcoming, 'upcoming');
   renderSidebarSection('mobile-completed-section', 'Completed Sermons', completed, 'completed');
+
+  // ── MOBILE LAYOUT ADJUSTMENTS ──────────────────────────────────────────────
+  if (window.innerWidth <= 768) {
+    // Move prep score card to top of left column (before tasks section)
+    const prepCard = document.querySelector('.prep-score-card');
+    const leftCol = document.querySelector('.left-col');
+    const firstSection = leftCol ? leftCol.querySelector('.section-header') : null;
+    if (prepCard && leftCol && firstSection) {
+      leftCol.insertBefore(prepCard, firstSection);
+    }
+    // Show mobile pipelines, hide desktop pipelines
+    document.querySelectorAll('.pipeline').forEach(p => p.style.display = 'none');
+    document.querySelectorAll('.mobile-pipeline').forEach(p => p.style.display = 'block');
+    // Ensure calendar appears before upcoming section
+    const calSection = document.getElementById('calendar-section');
+    const upcomingSection = document.getElementById('upcoming-section');
+    if (calSection && upcomingSection && upcomingSection.parentNode) {
+      upcomingSection.parentNode.insertBefore(calSection, upcomingSection);
+    }
+  }
 }
 
 // ── CARD TOGGLE ───────────────────────────────────────────────────────────────
@@ -2033,13 +2253,43 @@ async function loadRightColumn() {
 // ── TOPBAR GREETING ───────────────────────────────────────────────────────────
 function updateTopbar(displayName) {
   const hour = new Date().getHours();
-  const salutation = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const firstName = displayName ? displayName.split(' ')[0] : '';
+  const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+  const isMobile = window.innerWidth <= 768;
+  const firstName = (displayName || (isMobile ? 'Pastor' : '')).split(' ')[0];
   const greetingEl = document.getElementById('topbar-greeting');
-  if (greetingEl) greetingEl.textContent = firstName ? `${salutation}, ${firstName} 👋` : `${salutation} 👋`;
+  if (greetingEl) greetingEl.textContent = firstName ? `Good ${timeOfDay}, ${firstName} 👋` : `Good ${timeOfDay} 👋`;
   const dateEl = document.getElementById('topbar-date');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
 }
+
+// ── MOBILE DRAWER ─────────────────────────────────────────────────────────────
+window.openMobileDrawer = function() {
+  const drawer = document.getElementById('mobile-drawer');
+  const overlay = document.getElementById('mobile-drawer-overlay');
+  if (drawer) drawer.style.transform = 'translateX(0)';
+  if (overlay) overlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+};
+window.closeMobileDrawer = function() {
+  const drawer = document.getElementById('mobile-drawer');
+  const overlay = document.getElementById('mobile-drawer-overlay');
+  if (drawer) drawer.style.transform = 'translateX(-100%)';
+  if (overlay) overlay.style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+// ── MOBILE PIPELINE TOGGLE ─────────────────────────────────────────────────────
+window.toggleMobilePipeline = function(toggle) {
+  const stages = toggle.nextElementSibling;
+  const arrow = toggle.querySelector('div:last-child');
+  const isOpen = stages.style.display === 'flex';
+  stages.style.display = isOpen ? 'none' : 'flex';
+  stages.style.flexDirection = 'column';
+  arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+  const label = toggle.querySelector('div:first-child');
+  const stageName = label.textContent.replace(' · tap to expand','').replace(' · tap to collapse','');
+  label.textContent = stageName + (isOpen ? ' · tap to expand' : ' · tap to collapse');
+};
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 const t=today();
