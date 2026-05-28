@@ -276,7 +276,7 @@ function calcWeekScore(sermons, stages) {
     console.log('Sermon date:', s.date, 'Status:', s.status);
     const stageKeys = stages.map(st => st.key);
     const currentIdx = stageKeys.indexOf(s.status);
-    for (let i = currentIdx + 1; i < stages.length - 1; i++) {
+    for (let i = currentIdx; i < stages.length - 1; i++) {
       const stage = stages[i];
       if (!stage.dueDay && stage.dueDay !== 0) continue;
       const due = getStageDueDate(s.date, stage);
