@@ -747,6 +747,8 @@ window.loadSermons = async function() {
     const snap = await getDocs(sermonsRef());
     allSermons = snap.docs.map(d => ({id: d.id, ...d.data()}));
     allSermons.sort((a,b)=>a.date.localeCompare(b.date));
+    window._sermons = allSermons;
+    console.log('Sermons loaded:', allSermons.length, JSON.stringify(allSermons.map(s => ({id: s.id, title: s.title}))));
     hideError();
     setSyncStatus('synced','Synced');
     openCards.clear();
