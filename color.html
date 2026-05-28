@@ -17,13 +17,14 @@
   /* Stat cards */
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
   .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); padding: 16px 18px; }
-  .stat-label { font-size: 11px; font-weight: 600; color: var(--stone-light); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-  .stat-num { font-size: 28px; font-weight: 800; }
+  .stat-label { display: block; font-size: 11px; font-weight: 600; color: var(--stone-light); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .stat-number { display: block; font-size: 28px; font-weight: 800; }
 
   /* Filter bar */
-  .filter-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
-  .filter-bar .filter-search { flex: 1; min-width: 200px; background: var(--white); border: 1px solid var(--border-md); border-radius: 100px; padding: 8px 16px; font-family: var(--font); font-size: 13px; color: var(--ink); outline: none; }
+  .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+  .filter-bar .filter-search { flex: 1; background: var(--white); border: 1px solid var(--border-md); border-radius: 100px; padding: 8px 16px; font-family: var(--font); font-size: 13px; color: var(--ink); outline: none; }
   .filter-bar .filter-search:focus { border-color: var(--brand); }
+  .filter-bar .filter-btns { display: flex; gap: 6px; flex-shrink: 0; }
   .filter-btn { padding: 6px 14px; border: 1px solid var(--border-md); border-radius: 100px; background: var(--white); color: var(--stone); font-size: 12px; font-weight: 600; font-family: var(--font); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .filter-btn:hover { background: var(--warm-bg); }
   .filter-btn.active { background: var(--brand); color: white; border-color: var(--brand); }
@@ -31,9 +32,9 @@
   /* Idea cards */
   .ideas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
   .idea-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); }
-  .idea-card.type-illustration { border-left: 3px solid #1B4F8A; border-radius: 0 var(--r-xl) var(--r-xl) 0; }
-  .idea-card.type-quote        { border-left: 3px solid var(--amber); border-radius: 0 var(--r-xl) var(--r-xl) 0; }
-  .idea-card.type-story        { border-left: 3px solid var(--green); border-radius: 0 var(--r-xl) var(--r-xl) 0; }
+  .idea-card.type-illustration { border-left: 3px solid #1B4F8A; }
+  .idea-card.type-quote        { border-left: 3px solid var(--amber); }
+  .idea-card.type-story        { border-left: 3px solid var(--green); }
   .idea-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .idea-type-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
   .type-illustration .idea-type-badge { background: var(--blue-bg);     color: #1B4F8A; }
@@ -133,18 +134,32 @@
     <div class="error-banner" id="error-banner"></div>
 
     <div class="stats">
-      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-num" id="stat-total">—</div></div>
-      <div class="stat-card"><div class="stat-label">Illustrations</div><div class="stat-num" id="stat-illustrations">—</div></div>
-      <div class="stat-card"><div class="stat-label">Quotes</div><div class="stat-num" id="stat-quotes">—</div></div>
-      <div class="stat-card"><div class="stat-label">Stories</div><div class="stat-num" id="stat-stories">—</div></div>
+      <div class="stat-card">
+        <div class="stat-label">Total</div>
+        <div class="stat-number" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Illustrations</div>
+        <div class="stat-number" id="stat-illustrations">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Quotes</div>
+        <div class="stat-number" id="stat-quotes">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Stories</div>
+        <div class="stat-number" id="stat-stories">—</div>
+      </div>
     </div>
 
     <div class="filter-bar">
       <input class="filter-search" type="text" id="search-input" placeholder="Search..." oninput="renderIdeas()" />
-      <button class="filter-btn all active" id="filter-all" onclick="setTypeFilter('all')">All</button>
-      <button class="filter-btn illustration" id="filter-illustration" onclick="setTypeFilter('illustration')"><i class="ti ti-photo"></i> Illustrations</button>
-      <button class="filter-btn quote" id="filter-quote" onclick="setTypeFilter('quote')"><i class="ti ti-quote"></i> Quotes</button>
-      <button class="filter-btn story" id="filter-story" onclick="setTypeFilter('story')"><i class="ti ti-book"></i> Stories</button>
+      <div class="filter-btns">
+        <button class="filter-btn all active" id="filter-all" onclick="setTypeFilter('all')">All</button>
+        <button class="filter-btn illustration" id="filter-illustration" onclick="setTypeFilter('illustration')">Illustrations</button>
+        <button class="filter-btn quote" id="filter-quote" onclick="setTypeFilter('quote')">Quotes</button>
+        <button class="filter-btn story" id="filter-story" onclick="setTypeFilter('story')">Stories</button>
+      </div>
     </div>
 
     <div class="tag-filter" id="tag-filter"></div>
@@ -355,10 +370,10 @@ function updateStats() {
   const quotes = allIdeas.filter(i=>i.type==='quote').length;
   const stories= allIdeas.filter(i=>i.type==='story').length;
   const el = id => document.getElementById(id);
-  el('stat-total').textContent        = total;  el('stat-total').style.color        = total   ? 'var(--ink)'       : 'var(--stone-light)';
-  el('stat-illustrations').textContent= illus;  el('stat-illustrations').style.color= illus   ? 'var(--blue-text)' : 'var(--stone-light)';
-  el('stat-quotes').textContent       = quotes; el('stat-quotes').style.color       = quotes  ? 'var(--amber)'     : 'var(--stone-light)';
-  el('stat-stories').textContent      = stories;el('stat-stories').style.color      = stories ? 'var(--green)'     : 'var(--stone-light)';
+  el('stat-total').textContent        = String(total);   el('stat-total').style.color        = total   ? 'var(--ink)'       : 'var(--stone-light)';
+  el('stat-illustrations').textContent= String(illus);   el('stat-illustrations').style.color= illus   ? 'var(--blue-text)' : 'var(--stone-light)';
+  el('stat-quotes').textContent       = String(quotes);  el('stat-quotes').style.color       = quotes  ? 'var(--amber)'     : 'var(--stone-light)';
+  el('stat-stories').textContent      = String(stories); el('stat-stories').style.color      = stories ? 'var(--green)'     : 'var(--stone-light)';
 }
 
 // ── FILTERS ───────────────────────────────────────────────────────────────────
