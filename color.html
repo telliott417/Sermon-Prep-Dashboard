@@ -10,113 +10,32 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 <link rel="stylesheet" href="/Sermon-Prep-Dashboard/styles.css" />
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #fafaf9;
-    --text-primary: #1c1917; --text-secondary: #78716c; --text-tertiary: #a8a29e;
-    --border: rgba(28,25,23,0.12); --border-md: rgba(28,25,23,0.2);
-    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
-    --blue-bg: #e6f1fb; --blue-text: #185fa5;
-    --green-bg: #eaf3de; --green-text: #3b6d11;
-    --amber-bg: #faeeda; --amber-text: #854f0b;
-    --red-bg: #fcebeb; --red-text: #a32d2d;
-    --purple-bg: #eeedfe; --purple-text: #534ab7;
-    --teal-bg: #e1f5ee; --teal-text: #0f6e56;
-    --coral-bg: #faece7; --coral-text: #993c1d;
-    --gray-bg: #f0f0ef; --gray-text: #57534e;
-    --nav-width: 200px;
-    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1c1917; --bg-secondary: #292524; --bg-tertiary: #1c1917;
-      --text-primary: #fafaf9; --text-secondary: #a8a29e; --text-tertiary: #78716c;
-      --border: rgba(250,250,249,0.12); --border-md: rgba(250,250,249,0.22);
-      --blue-bg: #0c3d6e; --blue-text: #93c5fd;
-      --green-bg: #14401a; --green-text: #86efac;
-      --amber-bg: #451a03; --amber-text: #fcd34d;
-      --red-bg: #450a0a; --red-text: #fca5a5;
-      --purple-bg: #2e1065; --purple-text: #c4b5fd;
-      --teal-bg: #042f2e; --teal-text: #5eead4;
-      --coral-bg: #431407; --coral-text: #fdba74;
-      --gray-bg: #292524; --gray-text: #a8a29e;
-    }
-  }
-  html { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); font-size: 16px; }
-  body { min-height: 100vh; }
+  /* ── COLOR PAGE — SPECIFIC STYLES ── */
+  .main { margin-left: var(--nav-width); flex: 1; padding: 2rem 2.5rem 4rem; max-width: 1000px; min-width: 0; }
 
-  .app { display: flex; min-height: 100vh; }
-
-  /* ── NAV ── */
-  .nav { width: var(--nav-width); flex-shrink: 0; background: var(--bg); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; padding: 1.5rem 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 100; transition: transform 0.25s ease; }
-  .nav-logo { padding: 0 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); margin-bottom: 1rem; }
-  .nav-logo-title { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
-  .nav-logo-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
-  .nav-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-tertiary); padding: 0 1.25rem; margin-bottom: 4px; }
-  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 1.25rem; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; border-left: 2px solid transparent; }
-  .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
-  .nav-item.active { color: var(--blue-text); background: var(--blue-bg); border-left-color: var(--blue-text); }
-  .nav-item i { font-size: 16px; flex-shrink: 0; }
-  .nav-bottom { margin-top: auto; padding: 1rem 1.25rem 0; border-top: 0.5px solid var(--border); }
-  .sync-status { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
-  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; }
-  .sync-dot.synced { background: var(--green-text); }
-  .sync-dot.syncing { background: var(--amber-text); animation: pulse 1s infinite; }
-  .sync-dot.error { background: var(--red-text); }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-  /* ── MOBILE TOP BAR ── */
-  .mobile-topbar { display: none; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-bottom: 0.5px solid var(--border); position: sticky; top: 0; z-index: 50; }
-  .mobile-topbar h1 { font-size: 17px; font-weight: 600; flex: 1; }
-  .hamburger { background: none; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 6px 8px; cursor: pointer; color: var(--text-primary); font-size: 18px; display: flex; align-items: center; }
-  .nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
-  .nav-overlay.open { display: block; }
-
-  .main { flex: 1; padding: 2rem 2.5rem 4rem; max-width: 1000px; }
-
-  /* ── TOP BAR ── */
-  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px; }
-  .top-bar h1 { font-size: 20px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em; }
-  .top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-  .top-actions { display: flex; gap: 8px; align-items: center; }
-
-  /* ── STATS ── */
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-  .stat { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
-  .stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
-  .stat-num { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1; }
-
-  /* ── FILTERS ── */
+  /* Filter bar */
   .filter-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
-  .filter-search { flex: 1; min-width: 200px; padding: 8px 12px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-family: var(--font); font-size: 13px; outline: none; }
-  .filter-search:focus { border-color: var(--blue-text); }
-  .filter-btn { padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-secondary); font-size: 12px; font-family: var(--font); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .filter-bar .filter-search { flex: 1; min-width: 200px; }
+  .filter-btn { padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--white); color: var(--text-secondary); font-size: 12px; font-family: var(--font); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .filter-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
   .filter-btn.active { border-color: transparent; font-weight: 500; }
-  .filter-btn.all.active { background: var(--gray-bg); color: var(--gray-text); }
-  .filter-btn.illustration.active { background: var(--blue-bg); color: var(--blue-text); }
-  .filter-btn.quote.active { background: var(--purple-bg); color: var(--purple-text); }
-  .filter-btn.story.active { background: var(--amber-bg); color: var(--amber-text); }
+  .filter-btn.all.active          { background: var(--gray-bg);   color: var(--gray-text); }
+  .filter-btn.illustration.active { background: var(--blue-bg);   color: var(--blue-text); }
+  .filter-btn.quote.active        { background: var(--purple-bg); color: var(--purple-text); }
+  .filter-btn.story.active        { background: var(--amber-bg);  color: var(--amber-text); }
 
-  /* ── TAG FILTER ── */
-  .tag-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; align-items: center; }
-  .tag-filter-label { font-size: 11px; color: var(--text-tertiary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 2px; }
-  .tag-chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: var(--bg); border: 0.5px solid var(--border-md); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
-  .tag-chip:hover { border-color: var(--blue-text); color: var(--blue-text); }
-  .tag-chip.active { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
-
-  /* ── IDEA CARDS ── */
+  /* Idea cards */
   .ideas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
-  .idea-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.15s; }
+  .idea-card { background: var(--white); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.15s; }
   .idea-card:hover { border-color: var(--border-md); }
   .idea-card.type-illustration { border-top: 2.5px solid var(--blue-text); }
-  .idea-card.type-quote { border-top: 2.5px solid var(--purple-text); }
-  .idea-card.type-story { border-top: 2.5px solid var(--amber-text); }
+  .idea-card.type-quote        { border-top: 2.5px solid var(--purple-text); }
+  .idea-card.type-story        { border-top: 2.5px solid var(--amber-text); }
   .idea-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .idea-type-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
-  .type-illustration .idea-type-badge { background: var(--blue-bg); color: var(--blue-text); }
-  .type-quote .idea-type-badge { background: var(--purple-bg); color: var(--purple-text); }
-  .type-story .idea-type-badge { background: var(--amber-bg); color: var(--amber-text); }
+  .type-illustration .idea-type-badge { background: var(--blue-bg);   color: var(--blue-text); }
+  .type-quote        .idea-type-badge { background: var(--purple-bg); color: var(--purple-text); }
+  .type-story        .idea-type-badge { background: var(--amber-bg);  color: var(--amber-text); }
   .idea-actions { display: flex; gap: 4px; }
   .idea-action-btn { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 14px; padding: 3px; border-radius: var(--radius-md); }
   .idea-action-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
@@ -129,68 +48,29 @@
   .idea-tag:hover { border-color: var(--blue-text); color: var(--blue-text); }
   .idea-date { font-size: 11px; color: var(--text-tertiary); }
 
-  /* ── BUTTONS ── */
-  .btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-primary); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
-  .btn:hover { background: var(--bg-secondary); }
-  .btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
-  .btn.primary:hover { opacity: 0.85; }
+  /* Button variants */
   .btn.capture { background: var(--purple-bg); color: var(--purple-text); border-color: transparent; font-weight: 500; }
   .btn.capture:hover { opacity: 0.85; }
 
-  /* ── EMPTY / LOADING ── */
-  .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-secondary); font-size: 14px; grid-column: 1/-1; }
-  .empty-state i { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.3; }
-  .loading-state { text-align: center; padding: 4rem 1rem; color: var(--text-secondary); font-size: 14px; }
-  .loading-state i { font-size: 32px; display: block; margin-bottom: 10px; opacity: 0.35; animation: spin 1s linear infinite; }
-  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-  .error-banner { background: var(--red-bg); color: var(--red-text); border: 0.5px solid var(--red-text); border-radius: var(--radius-md); padding: 10px 14px; font-size: 13px; margin-bottom: 1rem; display: none; }
-  .error-banner.show { display: block; }
-
-  /* ── MODAL ── */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center; padding: 1rem; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--bg); border-radius: var(--radius-xl); border: 0.5px solid var(--border-md); padding: 24px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
-  .modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 18px; color: var(--text-primary); }
-  .form-field { margin-bottom: 13px; }
-  .form-field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
-  .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 8px 11px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); font-family: var(--font); font-size: 14px; outline: none; transition: border-color 0.15s; resize: vertical; }
-  .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--blue-text); }
-  .form-field textarea { min-height: 100px; line-height: 1.5; }
-
+  /* Type selector in modal */
   .type-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .type-option { padding: 10px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); text-align: center; cursor: pointer; transition: all 0.15s; }
   .type-option:hover { border-color: var(--blue-text); }
-  .type-option.selected-illustration { border-color: var(--blue-text); background: var(--blue-bg); }
-  .type-option.selected-quote { border-color: var(--purple-text); background: var(--purple-bg); }
-  .type-option.selected-story { border-color: var(--amber-text); background: var(--amber-bg); }
+  .type-option.selected-illustration { border-color: var(--blue-text);   background: var(--blue-bg); }
+  .type-option.selected-quote        { border-color: var(--purple-text); background: var(--purple-bg); }
+  .type-option.selected-story        { border-color: var(--amber-text);  background: var(--amber-bg); }
   .type-option-icon { font-size: 20px; margin-bottom: 4px; }
   .type-option-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
   .type-option.selected-illustration .type-option-label { color: var(--blue-text); }
-  .type-option.selected-quote .type-option-label { color: var(--purple-text); }
-  .type-option.selected-story .type-option-label { color: var(--amber-text); }
+  .type-option.selected-quote        .type-option-label { color: var(--purple-text); }
+  .type-option.selected-story        .type-option-label { color: var(--amber-text); }
 
-  .tag-picker { display: flex; gap: 6px; flex-wrap: wrap; }
-  .tag-pick { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: var(--bg); border: 0.5px solid var(--border-md); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
-  .tag-pick:hover { border-color: var(--blue-text); color: var(--blue-text); }
-  .tag-pick.selected { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
-  .custom-tag-row { display: flex; gap: 6px; margin-top: 6px; }
-  .custom-tag-row input { flex: 1; }
-  .custom-tag-row button { padding: 7px 12px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--bg); color: var(--text-secondary); cursor: pointer; font-family: var(--font); font-size: 12px; white-space: nowrap; }
-  .custom-tag-row button:hover { background: var(--bg-secondary); }
-
-  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
-  .action-btn { font-size: 12px; padding: 6px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border-md); background: transparent; color: var(--text-primary); font-family: var(--font); cursor: pointer; display: flex; align-items: center; gap: 4px; }
-  .action-btn:hover { background: var(--bg-secondary); }
-  .action-btn.primary { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+  /* Textarea in modal */
+  .form-field textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
 
   @media (max-width: 768px) {
-    .nav { position: fixed; left: 0; top: 0; bottom: 0; width: var(--nav-width); transform: translateX(-100%); z-index: 250; height: 100vh; }
-    .nav.open { transform: translateX(0); }
-    .mobile-topbar { display: flex; }
-    .app { display: block; }
-    .main { padding: 1rem 1rem 4rem; max-width: 100%; width: 100%; }
-    .top-bar { display: none; }
-    .stats { grid-template-columns: repeat(2,1fr); }
+    .main { margin-left: 0; padding: 1rem 1rem 4rem; max-width: 100%; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
     .ideas-grid { grid-template-columns: 1fr; }
   }
 </style>
@@ -208,48 +88,26 @@
     Sign in with Google
   </button>
 </div>
-  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
-
-  <!-- LEFT NAV -->
+  <div id="nav-overlay" style="display:none !important;" onclick="closeNav()"></div>
+  <div id="nav-user" style="display:none;"></div>
   <nav class="nav" id="main-nav">
-    <div class="nav-logo">
-      <div class="nav-logo-title">Sermon Prep</div>
-      <div class="nav-logo-sub" id="nav-date"></div>
+    <a class="nav-logo" href="/Sermon-Prep-Dashboard/">SR</a>
+    <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/" data-tip="Dashboard">🏠</a>
+    <a class="nav-icon-btn active" href="/Sermon-Prep-Dashboard/color.html" data-tip="Color">🎨</a>
+    <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/accountability.html" data-tip="Accountability">👥</a>
+    <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/archive.html" data-tip="Archive">📚</a>
+    <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/settings.html" data-tip="Settings">⚙️</a>
+    <div class="nav-sep"></div>
+    <div id="admin-nav-section" style="display:none;flex-direction:column;align-items:center;gap:4px;">
+      <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/library.html" data-tip="My Library">📖</a>
+      <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/chores.html" data-tip="My Chores">🏡</a>
     </div>
-    <div class="nav-section-label" style="margin-bottom:8px;">Pages</div>
-   <a class="nav-item" href="/Sermon-Prep-Dashboard/"><i class="ti ti-book"></i> Dashboard</a>
-<a class="nav-item active" href="/Sermon-Prep-Dashboard/color.html"><i class="ti ti-palette"></i> Color</a>
-<a class="nav-item" href="/Sermon-Prep-Dashboard/accountability.html"><i class="ti ti-users"></i> Accountability</a>
-<a class="nav-item" href="/Sermon-Prep-Dashboard/archive.html"><i class="ti ti-archive"></i> Archive</a>
-<a class="nav-item" href="/Sermon-Prep-Dashboard/settings.html"><i class="ti ti-settings"></i> Settings</a>
-<div id="admin-nav-section" style="display:none;">
-  <div class="nav-section-label" style="margin-bottom:8px;margin-top:1rem;">My Pages</div>
-  <a class="nav-item" href="/Sermon-Prep-Dashboard/library.html"><i class="ti ti-books"></i> My Library</a>
-  <a class="nav-item" href="/Sermon-Prep-Dashboard/chores.html"><i class="ti ti-home-check"></i> My Chores</a>
-</div>
-
-
     <div class="nav-bottom">
-      <div class="sync-status">
-        <div class="sync-dot" id="sync-dot"></div>
-        <span id="sync-label">Loading...</span>
-      </div>
-      <button class="btn" style="width:100%;justify-content:center;font-size:12px;" onclick="loadIdeas()">
-  <i class="ti ti-refresh"></i> Refresh
-</button>
-<div id="nav-user" style="font-size:11px; color:var(--text-tertiary); margin-top:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
-<button class="btn" style="width:100%;justify-content:center;font-size:12px;margin-top:6px;" onclick="signOut()">
-  <i class="ti ti-logout"></i> Sign out
-</button>
+      <div class="nav-avatar" id="nav-avatar" title="Sign out" onclick="signOut()">T</div>
     </div>
+    <div id="sync-dot" style="display:none;"></div>
+    <span id="sync-label" style="display:none;"></span>
   </nav>
-
-  <!-- MOBILE TOP BAR -->
-  <div class="mobile-topbar">
-    <button class="hamburger" onclick="openNav()"><i class="ti ti-menu-2"></i></button>
-    <h1><i class="ti ti-palette"></i> Color</h1>
-    <button class="btn capture" style="font-size:12px;padding:6px 10px;" onclick="openCapture()"><i class="ti ti-plus"></i> Capture</button>
-  </div>
 
   <!-- MAIN -->
   <main class="main">

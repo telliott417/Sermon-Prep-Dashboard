@@ -393,3 +393,65 @@ body { min-height: 100vh; }
   .todo-right { flex-direction: column; align-items: flex-end; gap: 4px; }
   .stages-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ════════════════════════════════════════════════════════════
+   SECONDARY PAGE SHARED STYLES
+   (accountability · color · archive · settings · library · chores)
+   ════════════════════════════════════════════════════════════ */
+
+/* ── PAGE TOP BAR ── */
+.top-bar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 12px; }
+.top-bar h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+.top-bar .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* ── STAT GRID (archive / color / chores) ── */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.stat { background: var(--white); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+.stat-num { font-size: 20px; font-weight: 600; color: var(--text-primary); line-height: 1; }
+.stat-num.small { font-size: 14px; font-weight: 500; padding-top: 3px; }
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+/* ── ICON BUTTON ── */
+.icon-btn { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 15px; padding: 3px; border-radius: var(--radius-md); }
+.icon-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.icon-btn.danger:hover { color: var(--red-text); background: var(--red-bg); }
+
+/* ── TAG FILTER ── */
+.tag-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; align-items: center; }
+.tag-filter-label { font-size: 11px; color: var(--text-tertiary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 2px; }
+.tag-chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: var(--white); border: 0.5px solid var(--border-md); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+.tag-chip:hover { border-color: var(--blue-text); color: var(--blue-text); }
+.tag-chip.active { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+
+/* ── TAG PICKER (in modals) ── */
+.tag-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag-pick { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: var(--white); border: 0.5px solid var(--border-md); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+.tag-pick:hover { border-color: var(--blue-text); color: var(--blue-text); }
+.tag-pick.selected { background: var(--blue-bg); color: var(--blue-text); border-color: transparent; font-weight: 500; }
+.custom-tag-row { display: flex; gap: 6px; margin-top: 6px; }
+.custom-tag-row input { flex: 1; }
+.custom-tag-row button { padding: 7px 12px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--white); color: var(--text-secondary); cursor: pointer; font-family: var(--font); font-size: 12px; white-space: nowrap; }
+.custom-tag-row button:hover { background: var(--bg-secondary); }
+
+/* ── FILTER SEARCH ── */
+.filter-search { padding: 7px 11px; border: 0.5px solid var(--border-md); border-radius: var(--radius-md); background: var(--white); color: var(--text-primary); font-family: var(--font); font-size: 13px; outline: none; }
+.filter-search:focus { border-color: var(--blue-text); }
+
+/* ── SECTION TABS ── */
+.section-tabs { display: flex; gap: 8px; margin-bottom: 1.25rem; border-bottom: 0.5px solid var(--border); }
+.tab { font-size: 13px; font-weight: 500; color: var(--text-secondary); padding: 8px 4px; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; margin-bottom: -0.5px; display: flex; align-items: center; gap: 6px; }
+.tab:hover { color: var(--text-primary); }
+.tab.active { color: var(--blue-text); border-bottom-color: var(--blue-text); }
+.tab-count { font-size: 10px; background: var(--bg-secondary); color: var(--text-tertiary); padding: 1px 6px; border-radius: 20px; }
+.tab.active .tab-count { background: var(--blue-bg); color: var(--blue-text); }
+
+/* ── MODAL EXTRAS ── */
+.modal-actions-right { display: flex; gap: 8px; }
+
+/* ── STAR RATING ── */
+.star-rating { display: flex; gap: 4px; }
+.star-btn { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--border-md); padding: 0; transition: color 0.1s; }
+.star-btn.filled { color: var(--amber-text); }
+.star-btn:hover { color: var(--amber-text); }
