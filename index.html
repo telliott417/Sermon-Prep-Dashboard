@@ -155,17 +155,6 @@ let currentUser = null;
 <!-- styles moved to styles.css -->
 </head>
 <body>
-<div id="debug-banner" style="position:fixed;bottom:0;left:0;right:0;background:#1A1714;color:white;font-size:11px;padding:6px 12px;z-index:9999;font-family:monospace;"></div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const banner = document.getElementById('debug-banner');
-  if (banner) {
-    banner.textContent = 'w:' + window.innerWidth + ' h:' + window.innerHeight + ' | media768:' + window.matchMedia('(max-width:768px)').matches + ' | topbar:' + (document.querySelector('.topbar') ? 'found' : 'missing');
-  }
-});
-</script>
-
 <div class="app">
 
 <!-- LOGIN SCREEN -->
