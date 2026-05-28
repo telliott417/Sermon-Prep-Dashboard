@@ -739,16 +739,12 @@ function sermonsRef() {
 
 window.loadSermons = async function() {
   if (!currentUser) return;
-  console.log('Loading sermons for UID:', currentUser.uid);
-  console.log('Sermons path:', `users/${currentUser.uid}/sermons`);
   setSyncStatus('syncing','Loading...');
   document.getElementById('active-section').innerHTML = `<div class="loading-state"><i class="ti ti-loader"></i>Loading...</div>`;
   try {
     const snap = await getDocs(sermonsRef());
     allSermons = snap.docs.map(d => ({id: d.id, ...d.data()}));
     allSermons.sort((a,b)=>a.date.localeCompare(b.date));
-    window._sermons = allSermons;
-    console.log('Sermons loaded:', allSermons.length, JSON.stringify(allSermons.map(s => ({id: s.id, title: s.title}))));
     hideError();
     setSyncStatus('synced','Synced');
     openCards.clear();
