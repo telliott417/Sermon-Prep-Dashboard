@@ -15,10 +15,10 @@
   .topbar { margin-bottom: 20px; }
 
   /* Stat cards */
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
-  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); padding: 16px 18px; }
-  .stat-label { display: block; font-size: 11px; font-weight: 600; color: var(--stone-light); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-  .stat-number { display: block; font-size: 28px; font-weight: 800; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stats-grid .stat-card { display: block; background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); padding: 16px 18px; }
+  .stat-label, .stat-card-label { display: block; font-size: 11px; font-weight: 600; color: var(--stone-light); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .stat-num, .stat-number, .stat-value { display: block; font-size: 28px; font-weight: 800; line-height: 1; color: var(--ink); font-family: var(--font); }
 
   /* Filter bar */
   .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
@@ -81,7 +81,7 @@
 
   @media (max-width: 768px) {
     .main { margin-left: 0; padding: 1rem 1rem 4rem; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .ideas-grid { grid-template-columns: 1fr; }
   }
 </style>
@@ -133,7 +133,7 @@
 
     <div class="error-banner" id="error-banner"></div>
 
-    <div class="stats">
+    <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">Total</div>
         <div class="stat-number" id="stat-total">—</div>
