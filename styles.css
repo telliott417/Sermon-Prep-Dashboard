@@ -455,3 +455,45 @@ body { min-height: 100vh; }
 .star-btn { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--border-md); padding: 0; transition: color 0.1s; }
 .star-btn.filled { color: var(--amber-text); }
 .star-btn:hover { color: var(--amber-text); }
+
+/* ══════════════════════════════════════
+   MOBILE BREAKPOINT — max-width: 768px
+   ══════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Nav — hide fixed nav, add top bar instead */
+  .nav { display: none; }
+  .main { margin-left: 0; padding: 16px 16px 60px; }
+
+  /* Topbar — stack vertically */
+  .topbar { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .topbar-actions { width: 100%; justify-content: flex-end; }
+
+  /* Two column — stack to single column */
+  .two-col { grid-template-columns: 1fr; }
+
+  /* Hero/prep score card — stack rings and stats */
+  .hero-inner, .prep-score-inner { flex-direction: column; align-items: center; }
+  .mini-stats-grid { grid-template-columns: 1fr 1fr; width: 100%; }
+
+  /* Member grid — single column */
+  .member-grid { grid-template-columns: 1fr; }
+
+  /* Team score card — stack the two halves */
+  .team-score-card { grid-template-columns: 1fr; }
+  .team-score-divider { width: 80%; height: 1px; margin: 12px auto; }
+
+  /* Calendar — allow horizontal scroll */
+  .cal-card { overflow-x: auto; }
+  .cal-grid { min-width: 500px; }
+
+  /* Stats block on hero */
+  .stats-block { grid-template-columns: 1fr; }
+
+  /* Right column full width */
+  .right-col { width: 100%; }
+
+  /* Sermon pipeline — allow scroll */
+  .pipeline { overflow-x: auto; }
+
+}
