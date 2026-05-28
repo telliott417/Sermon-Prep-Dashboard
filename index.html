@@ -20,7 +20,7 @@
   .two-col { display: block !important; }
   .right-col { display: none !important; }
   .left-col {
-    padding: 14px 16px 80px !important;
+    padding: 12px 10px 80px !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 14px !important;
@@ -29,42 +29,49 @@
     max-width: 100% !important;
   }
 
+  /* ── EDGE-TO-EDGE CARD RADIUS ── */
+  .todo-card { border-radius: 14px !important; }
+  .sc2-card, .sermon-card { border-radius: 14px !important; }
+  .prep-score-card { border-radius: 14px !important; }
+  .uc-card, .upcoming-sermon-card { border-radius: 14px !important; }
+  .cal-widget, .cal-card { border-radius: 14px !important; }
+
   /* ── HIDE DESKTOP NAV ── */
   .nav { display: none; }
-
-  /* ── HIDE HAMBURGER (drawer not yet active) ── */
-  #mobile-hamburger { display: none !important; }
 
   /* ── MOBILE TOPBAR ── */
   .topbar {
     display: flex !important;
+    flex-direction: row !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    padding: 14px 16px 12px !important;
+    gap: 8px !important;
+    padding: 12px 14px !important;
     background: var(--bg) !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 50 !important;
     border-bottom: 1px solid var(--border) !important;
     margin-bottom: 0 !important;
-    flex-direction: row !important;
     flex-wrap: nowrap !important;
     overflow: hidden !important;
   }
+  .topbar > div:first-of-type {
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
   .topbar-greeting {
-    font-size: 15px !important;
+    font-size: 14px !important;
     font-weight: 700 !important;
+    white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    min-width: 0 !important;
-    flex: 1 !important;
   }
   .topbar-date { display: none !important; }
-  .topbar-actions { display: flex !important; gap: 7px !important; flex-shrink: 0 !important; }
+  .topbar-actions { display: flex !important; gap: 6px !important; flex-shrink: 0 !important; }
   .topbar-actions .btn-ghost,
-  .topbar-actions .btn-brand { font-size: 11px !important; padding: 7px 10px !important; }
-  .topbar-actions .btn-ghost span { display: none; }
+  .topbar-actions .btn-brand { font-size: 11px !important; padding: 7px 10px !important; border-radius: 100px !important; }
+  .btn-add-color-text { display: none !important; }
 
   /* ── PREP SCORE CARD ── */
   .prep-score-card { padding: 18px 16px !important; }
@@ -195,7 +202,7 @@ let currentUser = null;
           <div class="topbar-date" id="topbar-date"></div>
         </div>
         <div class="topbar-actions">
-          <button class="btn-ghost" onclick="openColorModal()">🎨 Add Color</button>
+          <button class="btn btn-ghost" onclick="openColorModal()">🎨 <span class="btn-add-color-text">Add Color</span></button>
           <button class="btn-brand" onclick="openSermonModal()">+ Add Sermon</button>
         </div>
       </div>
@@ -2322,6 +2329,21 @@ window.toggleMobilePipeline = function(toggle) {
   const stageName = label.textContent.replace(' · tap to expand','').replace(' · tap to collapse','');
   label.textContent = stageName + (isOpen ? ' · tap to expand' : ' · tap to collapse');
 };
+
+// ── MOBILE HAMBURGER (early injection on DOM ready) ───────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.innerWidth <= 768 && !document.getElementById('mobile-hamburger')) {
+    const topbar = document.querySelector('.topbar');
+    if (topbar) {
+      const hamburger = document.createElement('button');
+      hamburger.id = 'mobile-hamburger';
+      hamburger.style.cssText = 'width:36px;height:36px;border-radius:10px;background:var(--white);border:1px solid var(--border-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex-shrink:0;';
+      hamburger.innerHTML = '<div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div><div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div><div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div>';
+      hamburger.onclick = () => window.openMobileDrawer();
+      topbar.prepend(hamburger);
+    }
+  }
+});
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 const t=today();
