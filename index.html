@@ -1051,6 +1051,59 @@ function isActive(s) {
   if (s.status!=='not-started') return true;
   return daysUntil(parseDate(s.date)) <= 21;
 }
+
+function getWeekStart(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1) - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+// Returns true if the sermon's current status is past the given stageKey
+function isStageCompleted(sermon, stageKey, stages) {
+  const stageKeys = stages.map(s => s.key);
+  const currentIdx = stageKeys.indexOf(sermon.status);
+  const stageIdx = stageKeys.indexOf(stageKey);
+  return stageIdx < currentIdx;
+}
+
+// Inner-ring score: start at 100 and deduct for each undone stage that is
+// overdue, due today, due tomorrow, or due in 2 days.
+function calculateWeekScore(sermons, stages) {
+  const todayDate = today();
+  let totalDeductions = 0;
+
+  const activeSermons = sermons.filter(s =>
+    s.status !== 'completed' &&
+    s.date &&
+    parseDate(s.date) >= todayDate
+  );
+
+  for (const sermon of activeSermons) {
+    const workingStages = stages.filter(st =>
+      st.key !== 'not-started' && st.key !== 'completed'
+    );
+    for (const stage of workingStages) {
+      if (isStageCompleted(sermon, stage.key, stages)) continue;
+      const dueDate = getStageDueDate(sermon.date, stage.key, sermon.customDeadlines);
+      if (!dueDate) continue;
+      const du = daysUntil(dueDate); // positive = future, negative = past
+      if (du < 0) {
+        const overdueDays = Math.abs(du);
+        totalDeductions += 10 + (overdueDays - 1) * 5;
+      } else if (du <= 1) {
+        totalDeductions += 10;
+      } else if (du === 2) {
+        totalDeductions += 5;
+      }
+    }
+  }
+
+  return Math.max(0, 100 - totalDeductions);
+}
+
 // ── USER SETTINGS ─────────────────────────────────────────────────────────────
 let userRole = 'member';
 
@@ -1106,6 +1159,7 @@ window.loadSermons = async function() {
     openCards.clear();
     renderAll();
     updateStreakData();
+    await initPrepScore(allSermons, STAGES);
   } catch(e) {
     setSyncStatus('error','Error');
     showError('Could not load sermons. '+e.message);
@@ -1578,6 +1632,94 @@ async function updateStreakData() {
   }
 }
 
+// ── PREP SCORE ENGINE ─────────────────────────────────────────────────────────
+
+// Load or create the streak_data document with 12 weeks of seed scores
+async function loadOrInitStreakData(uid) {
+  const ref = doc(db, 'users', uid, 'meta', 'streak_data');
+  const snap = await getDoc(ref);
+  if (snap.exists()) return snap.data();
+
+  // New user — seed 12 weeks of 75
+  const weeklyScores = [];
+  const now = getWeekStart();
+  for (let i = 11; i >= 0; i--) {
+    const weekDate = new Date(now);
+    weekDate.setDate(now.getDate() - i * 7);
+    weeklyScores.push({ weekStart: toYMD(weekDate), score: 75 });
+  }
+  const data = { weeklyScores, currentStreak: 0, bestStreak: 0, lastRecorded: null };
+  await setDoc(ref, data);
+  return data;
+}
+
+// Overall = rolling 12-week average
+function calculateOverallScore(streakData) {
+  const scores = streakData.weeklyScores || [];
+  if (scores.length === 0) return 75;
+  const sum = scores.reduce((acc, w) => acc + (w.score ?? 75), 0);
+  return Math.round(sum / scores.length);
+}
+
+// On Monday after 12:01 am, lock in this week's score if not yet recorded
+async function maybeRecordWeeklyScore(uid, weekScore, streakData) {
+  const now = new Date();
+  const isMonday = now.getDay() === 1;
+  const isPastMidnight = now.getHours() > 0 || (now.getHours() === 0 && now.getMinutes() >= 1);
+  const thisWeekStart = toYMD(getWeekStart());
+  const alreadyRecorded = (streakData.weeklyScores || []).some(w => w.weekStart === thisWeekStart);
+  if (!isMonday || !isPastMidnight || alreadyRecorded) return streakData;
+
+  const updated = { ...streakData };
+  updated.weeklyScores = [...(streakData.weeklyScores || []), { weekStart: thisWeekStart, score: weekScore }];
+  if (updated.weeklyScores.length > 12) updated.weeklyScores = updated.weeklyScores.slice(-12);
+
+  // Recalculate streak (consecutive weeks >= 80)
+  const sorted = [...updated.weeklyScores].sort((a, b) => a.weekStart.localeCompare(b.weekStart));
+  let streak = 0;
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    if (sorted[i].score >= 80) streak++;
+    else break;
+  }
+  updated.currentStreak = streak;
+  updated.bestStreak = Math.max(streak, streakData.bestStreak || 0);
+  updated.lastRecorded = thisWeekStart;
+
+  await setDoc(doc(db, 'users', uid, 'meta', 'streak_data'), updated);
+  return updated;
+}
+
+// Main prep score init — call after sermons + stages are loaded
+async function initPrepScore(sermons, stages) {
+  try {
+    const weekScore = calculateWeekScore(sermons, stages);
+    let sd = await loadOrInitStreakData(currentUser.uid);
+    sd = await maybeRecordWeeklyScore(currentUser.uid, weekScore, sd);
+    const overallScore = calculateOverallScore(sd);
+    updatePrepScoreDisplay(overallScore, weekScore);
+
+    // Days-to-sermon mini-stat
+    const nextUp = sermons
+      .filter(s => s.status !== 'completed' && s.date && parseDate(s.date) >= today())
+      .sort((a, b) => a.date.localeCompare(b.date))[0];
+    if (nextUp) {
+      const days = daysUntil(parseDate(nextUp.date));
+      const dStr = days === 0 ? 'Today!' : days === 1 ? '1d' : `${days}d`;
+      const dSub = parseDate(nextUp.date).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+      const dCls = days <= 3 ? 'red' : days <= 7 ? 'amber' : 'neutral';
+      const dCard = document.getElementById('ms-days');
+      const dNum = document.getElementById('ms-days-num');
+      const dSubEl = document.getElementById('ms-days-sub');
+      if (dCard) dCard.className = 'mini-stat ' + dCls;
+      if (dNum) { dNum.className = 'mini-stat-num col-' + dCls; dNum.textContent = dStr; }
+      if (dSubEl) { dSubEl.className = 'mini-stat-sub sub-' + dCls; dSubEl.textContent = dSub; }
+    }
+  } catch(e) {
+    console.error('Prep score error:', e);
+    updatePrepScoreDisplay(75, 75);
+  }
+}
+
 // ── STAT CARD ─────────────────────────────────────────────────────────────────
 function renderStatCard(active, behind, allFuture) {
   // LEFT: Days to next sermon
@@ -1658,56 +1800,77 @@ function getScoreColor(score) {
 }
 
 // ── PREP SCORE DISPLAY ────────────────────────────────────────────────────────
-function updatePrepScoreDisplay(overall, week, ctx) {
+function updatePrepScoreDisplay(overall, week) {
   const oc = getScoreColor(Math.round(overall));
   const wc = getScoreColor(Math.round(week));
+
   const outerArc = document.getElementById('outer-arc');
   const innerArc = document.getElementById('inner-arc');
-  if (outerArc) { outerArc.style.strokeDashoffset = 496.5 * (1 - overall/100); outerArc.style.stroke = oc; }
-  if (innerArc) { innerArc.style.strokeDashoffset = 376.8 * (1 - week/100); innerArc.style.stroke = wc; }
+  if (outerArc) { outerArc.style.strokeDashoffset = (496.5 * (1 - overall/100)).toFixed(1); outerArc.style.stroke = oc; }
+  if (innerArc) { innerArc.style.strokeDashoffset = (376.8 * (1 - week/100)).toFixed(1); innerArc.style.stroke = wc; }
+
   const co = document.getElementById('center-overall');
   const cw = document.getElementById('center-week');
   if (co) { co.textContent = Math.round(overall); co.style.color = oc; }
   if (cw) { cw.textContent = Math.round(week); cw.style.color = wc; }
-  if (ctx) updateRightMiniStats(ctx);
-}
 
-function updateRightMiniStats({ allFuture, behind, inProgress, weekTotal, weekDone, overdueCount }) {
-  function set(cardId, numId, subId, cls, num, sub) {
-    const card = document.getElementById(cardId);
-    const numEl = document.getElementById(numId);
-    const subEl = document.getElementById(subId);
-    if (card) card.className = 'mini-stat ' + cls;
-    if (numEl) { numEl.className = 'mini-stat-num col-' + cls; numEl.textContent = num; }
-    if (subEl) { subEl.className = 'mini-stat-sub sub-' + cls; subEl.textContent = sub; }
+  // Mini-stats derived from allSermons (available after load)
+  function setMini(cardId, numId, subId, cls, num, sub) {
+    const c = document.getElementById(cardId);
+    const n = document.getElementById(numId);
+    const s = document.getElementById(subId);
+    if (c) c.className = 'mini-stat ' + cls;
+    if (n) { n.className = 'mini-stat-num col-' + cls; n.textContent = num; }
+    if (s) { s.className = 'mini-stat-sub sub-' + cls; s.textContent = sub; }
   }
 
-  // Days to next sermon
-  const next = allFuture.length > 0 ? allFuture[0] : null;
-  const dDays = next ? daysUntil(parseDate(next.date)) : null;
-  const dStr = dDays === null ? '—' : dDays === 0 ? 'Today!' : dDays === 1 ? '1d' : `${dDays}d`;
-  const dSub = next ? next.date.slice(5).replace('-', '/') : '—';
-  const daysCls = dDays === null ? 'neutral' : dDays <= 3 ? 'red' : dDays <= 7 ? 'amber' : 'neutral';
-  set('ms-days','ms-days-num','ms-days-sub', daysCls, dStr, dSub);
+  const activeSrms = allSermons.filter(s => s.status !== 'completed' && s.status !== 'not-started');
+  const behindSrms = activeSrms.filter(s => isBehind(s));
+  const onTrackSrms = activeSrms.filter(s => !isBehind(s));
 
   // On Track
-  const onTrackCount = inProgress.filter(s => !isBehind(s)).length;
-  const onTrackCls = behind.length > 0 ? (behind.length >= inProgress.length ? 'red' : 'amber') : (inProgress.length > 0 ? 'green' : 'neutral');
-  const onTrackSub = behind.length === 0 ? (inProgress.length > 0 ? 'All good' : '—') : `${behind.length} behind`;
-  set('ms-ontrack','ms-ontrack-num','ms-ontrack-sub', onTrackCls, inProgress.length > 0 ? `${onTrackCount}/${inProgress.length}` : '—', onTrackSub);
+  if (activeSrms.length === 0) {
+    setMini('ms-ontrack','ms-ontrack-num','ms-ontrack-sub','neutral','—','No sermons');
+  } else if (behindSrms.length === 0) {
+    setMini('ms-ontrack','ms-ontrack-num','ms-ontrack-sub','green',`${onTrackSrms.length}/${activeSrms.length}`,'All good');
+  } else {
+    const cls = behindSrms.length >= activeSrms.length ? 'red' : 'amber';
+    setMini('ms-ontrack','ms-ontrack-num','ms-ontrack-sub', cls, `${onTrackSrms.length}/${activeSrms.length}`, `${behindSrms.length} behind`);
+  }
 
-  // Tasks this week
+  // Tasks this week (Mon–Sun)
+  const ws = getWeekStart();
+  const we = new Date(ws); we.setDate(ws.getDate() + 6); we.setHours(23,59,59,999);
+  let weekTotal = 0, weekDone = 0;
+  allSermons.filter(s => isActive(s) && s.status !== 'completed').forEach(s => {
+    const statusIdx = STATUS_ORDER.indexOf(s.status);
+    STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started').forEach(st => {
+      const stIdx = STATUS_ORDER.indexOf(st.key);
+      const due = getStageDueDate(s.date, st.key, s.customDeadlines);
+      if (!due || due < ws || due > we) return;
+      weekTotal++;
+      if (stIdx < statusIdx) weekDone++;
+    });
+  });
   const tasksCls = weekTotal === 0 ? 'neutral' : weekDone >= weekTotal ? 'green' : weekDone / weekTotal >= 0.5 ? 'amber' : 'red';
   const tasksSub = weekTotal === 0 ? 'No tasks' : weekDone >= weekTotal ? 'All done ✓' : `${weekTotal - weekDone} left`;
-  set('ms-tasks','ms-tasks-num','ms-tasks-sub', tasksCls, weekTotal > 0 ? `${weekDone}/${weekTotal}` : '—', tasksSub);
+  setMini('ms-tasks','ms-tasks-num','ms-tasks-sub', tasksCls, weekTotal > 0 ? `${weekDone}/${weekTotal}` : '—', tasksSub);
 
   // Overdue
+  let overdueCount = 0;
+  allSermons.filter(s => isActive(s) && s.status !== 'completed').forEach(s => {
+    const statusIdx = STATUS_ORDER.indexOf(s.status);
+    STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started').forEach(st => {
+      const stIdx = STATUS_ORDER.indexOf(st.key);
+      if (stIdx < statusIdx) return;
+      const due = getStageDueDate(s.date, st.key, s.customDeadlines);
+      if (due && daysUntil(due) < 0) overdueCount++;
+    });
+  });
   const overdueCls = overdueCount === 0 ? 'green' : overdueCount <= 2 ? 'amber' : 'red';
-  const overdueSub = overdueCount === 0 ? 'None 🎉' : `${overdueCount} overdue`;
-  set('ms-overdue','ms-overdue-num','ms-overdue-sub', overdueCls, String(overdueCount), overdueSub);
+  setMini('ms-overdue','ms-overdue-num','ms-overdue-sub', overdueCls, String(overdueCount), overdueCount === 0 ? 'None 🎉' : `${overdueCount} overdue`);
 }
 
-// Legacy no-op ring updaters (keep for any remaining calls)
 function updateOverall(pct) {}
 function updateWeek(pct) {}
 
@@ -1761,6 +1924,7 @@ window.startPrep = async function(id) {
   s.status = firstStage.key;
   renderAll();
   await saveSermonToDb(s);
+  await initPrepScore(allSermons, STAGES);
 };
 
 // ── SIDEBAR ───────────────────────────────────────────────────────────────────
@@ -1821,10 +1985,8 @@ function renderAll() {
     });
   });
 
-  // Overall score = on-track %, week score = this week's task completion
-  const overallScore = inProgress.length > 0 ? Math.round(onTrack.length / inProgress.length * 100) : 100;
-  const weekScore = weekTotal > 0 ? Math.round(weekDone / weekTotal * 100) : 100;
-  updatePrepScoreDisplay(overallScore, weekScore, { allFuture, behind, inProgress, weekTotal, weekDone, overdueCount });
+  // Quick sync display — initPrepScore() will override with real rolling-average scores
+  updatePrepScoreDisplay(75, 75);
 
   renderStatCard(active, behind, allFuture);
   renderTodo();
@@ -1874,6 +2036,7 @@ window.advanceStatus = async function(id) {
     s.status=newStatus;
     renderAll();
     await saveSermonToDb(s);
+    await initPrepScore(allSermons, STAGES);
   }
 };
 
@@ -2134,27 +2297,48 @@ async function loadTeamCard() {
       return;
     }
 
-    // Load each member's sermon data
+    // Load each member's sermon + settings + streak data
+    const defaultMemberStages = [
+      { key:'not-started', label:'Not yet started', dueDay:null, weeksBack:null },
+      ...DEFAULT_STAGES,
+      { key:'completed', label:'Completed', dueDay:0, weeksBack:0 }
+    ];
     const memberPromises = teamMembers.map(async (mData) => {
       const uid = mData.uid;
       try {
-        const sermonsSnap = await getDocs(collection(db, 'users', uid, 'sermons'));
+        const [sermonsSnap, settingsSnap, streakSnap] = await Promise.all([
+          getDocs(collection(db, 'users', uid, 'sermons')),
+          getDoc(doc(db, 'users', uid, 'meta', 'settings')),
+          getDoc(doc(db, 'users', uid, 'meta', 'streak_data'))
+        ]);
         const sermons = sermonsSnap.docs.map(d => ({id:d.id,...d.data()}));
+        const memberSettings = settingsSnap.exists() ? settingsSnap.data() : null;
+        const memberStages = memberSettings?.stages ? [
+          { key:'not-started', label:'Not yet started', dueDay:null, weeksBack:null },
+          ...memberSettings.stages,
+          { key:'completed', label:'Completed', dueDay:0, weeksBack:0 }
+        ] : defaultMemberStages;
+
+        // Overall score from 12-week rolling average (or 75 fallback)
+        const memberOverall = streakSnap.exists() ? calculateOverallScore(streakSnap.data()) : 75;
+
+        // Week score from deadline proximity
+        const memberWeekScore = calculateWeekScore(sermons, memberStages);
+
         const activeS = sermons.filter(s => isActive(s) && s.status !== 'completed');
         const behind = activeS.filter(s => isBehind(s));
-        const inProg = activeS.filter(s => s.status !== 'not-started');
-        const onTrack = inProg.filter(s => !isBehind(s));
-        const score = inProg.length > 0 ? Math.round(onTrack.length / inProg.length * 100) : 100;
-        const nextSermon = activeS.sort((a,b) => a.date.localeCompare(b.date))[0];
-        return { uid, name: mData.name || 'Member', score, behind: behind.length, nextSermon };
-      } catch(e) { return { uid, name: mData.name || 'Member', score: 100, behind: 0, nextSermon: null }; }
+        const nextSermon = [...activeS].sort((a,b) => a.date.localeCompare(b.date))[0];
+        return { uid, name: mData.name || 'Member', score: memberOverall, weekScore: memberWeekScore, behind: behind.length, nextSermon };
+      } catch(e) { return { uid, name: mData.name || 'Member', score: 75, weekScore: 75, behind: 0, nextSermon: null }; }
     });
     const members = await Promise.all(memberPromises);
     members.sort((a,b) => b.score - a.score);
 
     const itemsHtml = members.map(m => {
       const sc = getScoreColor(m.score);
+      const wc = getScoreColor(m.weekScore);
       const outerOffset = (131.9 * (1 - m.score/100)).toFixed(1);
+      const innerOffset = (81.7 * (1 - m.weekScore/100)).toFixed(1);
       const isYou = m.uid === currentUser.uid;
       const stageBg = m.behind > 0 ? 'var(--red-light)' : 'var(--green-light)';
       const stageFg = m.behind > 0 ? 'var(--red)' : 'var(--green)';
@@ -2167,6 +2351,10 @@ async function loadTeamCard() {
             <circle cx="26" cy="26" r="21" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="5"/>
             <circle cx="26" cy="26" r="21" fill="none" stroke="${sc}" stroke-width="5" stroke-linecap="round"
               stroke-dasharray="131.9 131.9" stroke-dashoffset="${outerOffset}" transform="rotate(-90 26 26)"/>
+            <circle cx="26" cy="26" r="17" fill="none" stroke="var(--bg)" stroke-width="1.5"/>
+            <circle cx="26" cy="26" r="13" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="3.5"/>
+            <circle cx="26" cy="26" r="13" fill="none" stroke="${wc}" stroke-width="3.5" stroke-linecap="round"
+              stroke-dasharray="81.7 81.7" stroke-dashoffset="${innerOffset}" transform="rotate(-90 26 26)"/>
           </svg>
           <div class="team-rings-center">
             <div class="team-score-num" style="color:${sc}">${m.score}</div>
@@ -2242,6 +2430,8 @@ const todayLabelEl=document.getElementById('today-label');
 if(todayLabelEl) todayLabelEl.textContent=t.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 // Set initial greeting without name (name will update on auth)
 updateTopbar(null);
+// Show placeholder rings immediately before data loads
+updatePrepScoreDisplay(75, 75);
 // Show placeholder streak bars immediately
 renderStreakSection();
 </script>
