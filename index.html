@@ -40,61 +40,22 @@
   .nav { display: none; }
 
   /* ── MOBILE TOPBAR ── */
-  .topbar {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 8px !important;
-    padding: 12px 14px !important;
-    background: var(--bg) !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 50 !important;
-    border-bottom: 1px solid var(--border) !important;
-    margin-bottom: 0 !important;
-    flex-wrap: nowrap !important;
-    overflow: hidden !important;
-  }
-  .topbar > div:first-of-type {
-    flex: 1 !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-  }
-  .topbar-greeting {
-    display: block !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    flex: 1 !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    margin: 0 8px !important;
-  }
-  .topbar-date { display: none !important; }
+  .topbar { display: flex !important; flex-direction: row !important; align-items: center !important; gap: 8px !important; padding: 12px 14px !important; flex-wrap: nowrap !important; overflow: hidden !important; position: sticky !important; top: 0 !important; z-index: 50 !important; background: var(--bg) !important; border-bottom: 1px solid var(--border) !important; }
+  .topbar-greeting { flex: 1 !important; min-width: 0 !important; font-size: 14px !important; font-weight: 700 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; margin: 0 !important; display: block !important; }
   .topbar-actions { display: flex !important; gap: 6px !important; flex-shrink: 0 !important; }
-  .topbar-actions .btn-ghost {
-    display: flex !important;
-    width: 34px !important;
-    height: 34px !important;
-    padding: 0 !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 100px !important;
-    font-size: 16px !important;
-    flex-shrink: 0 !important;
-  }
+  .topbar-actions .btn-ghost { width: 34px !important; height: 34px !important; padding: 0 !important; justify-content: center !important; border-radius: 100px !important; font-size: 16px !important; display: flex !important; align-items: center !important; flex-shrink: 0 !important; }
   .topbar-actions .btn-brand { font-size: 11px !important; padding: 7px 11px !important; border-radius: 100px !important; }
   .btn-add-color-text { display: none !important; }
 
   /* ── PREP SCORE CARD ── */
   .prep-score-card { padding: 18px 16px !important; }
   .prep-score-title { text-align: center !important; }
-  .prep-score-inner { flex-direction: column !important; align-items: center !important; gap: 14px !important; }
-  .rings-wrap { width: 160px !important; height: 160px !important; }
-  .rings-svg { width: 160px !important; height: 160px !important; }
-  .center-overall { font-size: 34px !important; }
-  .center-week { font-size: 20px !important; }
+  .prep-score-inner { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 16px !important; }
+  .rings-wrap { position: relative !important; width: 160px !important; height: 160px !important; flex-shrink: 0 !important; }
+  .rings-svg { width: 160px !important; height: 160px !important; display: block !important; }
+  .rings-center { position: absolute !important; inset: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; pointer-events: none !important; }
+  .center-overall { font-size: 32px !important; font-weight: 800 !important; line-height: 1 !important; }
+  .center-week { font-size: 20px !important; font-weight: 800 !important; line-height: 1 !important; }
   .mini-stats-grid { width: 100% !important; grid-template-columns: 1fr 1fr !important; }
   .mini-stat { min-height: 70px !important; }
   .mini-stat-num { font-size: 22px !important; }
@@ -211,10 +172,7 @@ let currentUser = null;
     <!-- TOPBAR — full width across both columns -->
     <div class="topbar-wrap">
       <div class="topbar">
-        <div>
-          <div class="topbar-greeting" id="topbar-greeting">Good morning 👋</div>
-          <div class="topbar-date" id="topbar-date"></div>
-        </div>
+        <div class="topbar-greeting" id="topbar-greeting">Good morning 👋</div>
         <div class="topbar-actions">
           <button class="btn btn-ghost" onclick="openColorModal()">🎨 <span class="btn-add-color-text">Add Color</span></button>
           <button class="btn-brand" onclick="openSermonModal()">+ Add Sermon</button>
@@ -2307,12 +2265,9 @@ async function loadRightColumn() {
 function updateTopbar(displayName) {
   const hour = new Date().getHours();
   const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-  const isMobile = window.innerWidth <= 768;
-  const firstName = (displayName || (isMobile ? 'Pastor' : '')).split(' ')[0];
+  const firstName = (displayName || '').split(' ')[0];
   const greetingEl = document.getElementById('topbar-greeting');
   if (greetingEl) greetingEl.textContent = firstName ? `Good ${timeOfDay}, ${firstName} 👋` : `Good ${timeOfDay} 👋`;
-  const dateEl = document.getElementById('topbar-date');
-  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
 }
 
 // ── MOBILE DRAWER ─────────────────────────────────────────────────────────────
@@ -2360,11 +2315,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-const t=today();
-const navDateEl=document.getElementById('nav-date');
-if(navDateEl) navDateEl.textContent=t.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-const todayLabelEl=document.getElementById('today-label');
-if(todayLabelEl) todayLabelEl.textContent=t.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 // Set initial greeting without name (name will update on auth)
 updateTopbar(null);
 // Show placeholder rings immediately before data loads

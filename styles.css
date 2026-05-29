@@ -66,9 +66,8 @@ body { min-height: 100vh; }
 
 /* ── TOPBAR ── */
 .topbar { display: flex; align-items: center; justify-content: space-between; }
-.topbar-greeting { font-size: 22px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; line-height: 1.2; }
-.topbar-date { font-size: 13px; color: var(--stone); margin-top: 3px; }
-.topbar-actions { display: flex; gap: 8px; align-items: center; }
+.topbar-greeting { font-size: 18px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; line-height: 1.2; flex: 1; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
 
 /* ── BUTTONS ── */
 .btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--border-md); border-radius: var(--radius-md); background: var(--white); color: var(--ink); font-size: 13px; font-family: var(--font); cursor: pointer; transition: background 0.15s; white-space: nowrap; }
