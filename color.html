@@ -75,7 +75,7 @@
   .form-field textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
 
   @media (max-width: 768px) {
-    .main { padding: 12px 12px 80px; }
+    .main { padding: 12px 12px 24px; }
     .filter-bar { flex-direction: column; align-items: stretch; }
     .filter-bar .filter-btns { flex-wrap: wrap; }
   }
@@ -115,6 +115,7 @@
   <div class="main-wrap">
     <div class="topbar-wrap">
       <div class="topbar">
+        <button class="mob-ham" onclick="toggleMobNav()" aria-label="Menu">☰</button>
         <div class="topbar-greeting">Color 🎨</div>
         <div class="topbar-actions">
           <button class="btn btn-brand" onclick="openCapture()">+ Add Color</button>
@@ -160,13 +161,18 @@
       </div>
     </main>
   </div>
-  <nav class="mob-nav">
-    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/">🏠<span>Home</span></a>
-    <a class="mob-nav-item active" href="/Sermon-Prep-Dashboard/color.html">🎨<span>Color</span></a>
-    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/accountability.html">👥<span>Team</span></a>
-    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/archive.html">📚<span>Archive</span></a>
-    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/settings.html">⚙️<span>Settings</span></a>
-  </nav>
+  <div class="mob-drawer" id="mob-drawer">
+    <div class="mob-drawer-overlay" onclick="closeMobNav()"></div>
+    <div class="mob-drawer-panel">
+      <div class="mob-drawer-logo">SR</div>
+      <a class="mob-drawer-item" href="/Sermon-Prep-Dashboard/"><span class="mob-drawer-icon">🏠</span>Dashboard</a>
+      <a class="mob-drawer-item active" href="/Sermon-Prep-Dashboard/color.html"><span class="mob-drawer-icon">🎨</span>Color</a>
+      <a class="mob-drawer-item" href="/Sermon-Prep-Dashboard/accountability.html"><span class="mob-drawer-icon">👥</span>Accountability</a>
+      <a class="mob-drawer-item" href="/Sermon-Prep-Dashboard/archive.html"><span class="mob-drawer-icon">📚</span>Archive</a>
+      <div class="mob-drawer-sep"></div>
+      <a class="mob-drawer-item" href="/Sermon-Prep-Dashboard/settings.html"><span class="mob-drawer-icon">⚙️</span>Settings</a>
+    </div>
+  </div>
 </div>
 
 <!-- CAPTURE MODAL -->
@@ -542,6 +548,10 @@ window.deleteIdea = async function(id) {
 
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)window.closeModal();});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')window.closeModal();});
+
+// ── MOBILE DRAWER ─────────────────────────────────────────────────────────────
+window.toggleMobNav = () => document.getElementById('mob-drawer').classList.toggle('open');
+window.closeMobNav  = () => document.getElementById('mob-drawer').classList.remove('open');
 
 </script>
 </body>
