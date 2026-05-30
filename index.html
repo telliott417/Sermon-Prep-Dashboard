@@ -2333,7 +2333,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const topbar = document.querySelector('.topbar');
   const banner = document.createElement('div');
   banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1A1714;color:white;font-size:10px;padding:6px;z-index:9999;word-break:break-all;';
-  banner.textContent = topbar ? 'TOPBAR children: ' + Array.from(topbar.children).map(c => c.id || c.className || c.tagName).join(' | ') : 'NO TOPBAR';
+  banner.textContent = 'TOPBAR el: ' + (topbar ? topbar.parentElement.className : 'NOT FOUND') +
+    ' | children: ' + (topbar ? Array.from(topbar.children).map(c => (c.id || c.className || c.tagName)).join(' | ') : 'none') +
+    ' | greeting text: ' + (document.getElementById('topbar-greeting') ? document.getElementById('topbar-greeting').textContent.slice(0,20) : 'NOT FOUND');
   document.body.appendChild(banner);
 });
 </script>
