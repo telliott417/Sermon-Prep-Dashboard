@@ -460,7 +460,7 @@ body { min-height: 100vh; }
   .main { margin-left: 0; padding: 0; max-width: 100%; width: 100%; overflow-x: hidden; }
   .sidebar { display: none; }
   .mobile-section { display: block; }
-  .two-col { display: block !important; }
+  .two-col { display: block !important; padding: 0 !important; }
   .right-col { display: none !important; }
   .left-col { padding: 8px 2px 80px !important; display: flex !important; flex-direction: column !important; gap: 14px !important; overflow-x: hidden !important; width: 100% !important; max-width: 100% !important; }
 
