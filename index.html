@@ -781,9 +781,14 @@ function getProgressPct(status) {
   return totalWorkingStages > 0 ? Math.round((completedStages / totalWorkingStages) * 100) : 0;
 }
 function isActive(s) {
-  if (s.status==='completed') return false;
-  if (s.status!=='not-started') return true;
-  return daysUntil(parseDate(s.date)) <= 21;
+  if (s.status === 'completed') return false;
+  if (s.status !== 'not-started') return true;
+  // Auto-activate when first stage deadline is within 7 days or has passed
+  const firstStage = STAGES.find(st => st.key !== 'not-started' && st.key !== 'completed' && st.dueDay !== null);
+  if (!firstStage) return daysUntil(parseDate(s.date)) <= 21;
+  const firstDue = getStageDueDate(s.date, firstStage.key, s.customDeadlines);
+  if (!firstDue) return daysUntil(parseDate(s.date)) <= 21;
+  return daysUntil(firstDue) <= 7;
 }
 
 function getWeekStart(date = new Date()) {
