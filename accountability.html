@@ -93,7 +93,6 @@
 
   @media (max-width: 768px) {
     .main { margin-left: 0; padding: 1rem 1rem 4rem; }
-    .member-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -111,10 +110,6 @@
 </div>
 
 <div class="app">
-  <!-- compat: hidden elements JS may reference -->
-  <div id="nav-overlay" style="display:none !important;" onclick="closeNav()"></div>
-  <div id="nav-user" style="display:none;"></div>
-
   <nav class="nav" id="main-nav">
     <a class="nav-logo" href="/Sermon-Prep-Dashboard/">SR</a>
     <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/" data-tip="Dashboard">🏠</a>
@@ -150,7 +145,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, query, where, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
@@ -198,7 +193,8 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
     document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('nav-user').textContent = user.displayName || user.email;
+    const navAvatar = document.getElementById('nav-avatar');
+    if (navAvatar) navAvatar.textContent = (user.displayName || user.email || '?').charAt(0).toUpperCase();
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
@@ -214,8 +210,6 @@ onAuthStateChanged(auth, async user => {
 
 window.signIn = async () => { try { await signInWithPopup(auth, provider); } catch(e) { console.error(e); } };
 window.signOut = async () => { await fbSignOut(auth); };
-window.openNav = () => { document.getElementById('main-nav').classList.add('open'); document.getElementById('nav-overlay').classList.add('open'); document.body.style.overflow='hidden'; };
-window.closeNav = () => { document.getElementById('main-nav').classList.remove('open'); document.getElementById('nav-overlay').classList.remove('open'); document.body.style.overflow=''; };
 
 function setSyncStatus(state, label) {
   document.getElementById('sync-dot').className = 'sync-dot '+state;
@@ -238,7 +232,7 @@ function getStageDueDate(sermonDateStr, stage) {
   if (diff < 0) diff += 7;
   const result = new Date(base);
   result.setDate(base.getDate() - diff);
-  if (result >= sermonDate && stage.key !== 'completed' && stage.key !== 'run' && stage.key !== 'final') {
+  if (result >= sermonDate && stage.key !== 'completed') {
     result.setDate(result.getDate() - 7);
   }
   return result;
@@ -273,8 +267,6 @@ function calcWeekScore(sermons, stages) {
   const todayDate = new Date(); todayDate.setHours(0,0,0,0);
   let deductions = 0;
   for (const s of sermons.filter(s => s.status !== 'completed' && s.date && new Date(s.date.replace(/-/g,'/')) >= todayDate)) {
-    console.log('=== calcWeekScore for sermon:', s.title, '===');
-    console.log('Sermon date:', s.date, 'Status:', s.status);
     const stageKeys = stages.map(st => st.key);
     const currentIdx = stageKeys.indexOf(s.status);
     for (let i = currentIdx; i < stages.length - 1; i++) {
@@ -283,13 +275,11 @@ function calcWeekScore(sermons, stages) {
       const due = getStageDueDate(s.date, stage);
       if (!due) continue;
       const diff = Math.round((due - todayDate) / 86400000);
-      console.log('Stage:', stage.label, 'Due:', due ? due.toDateString() : 'null', 'Days diff:', diff, 'Deduction:', diff < 0 ? Math.min(20, 10 + (Math.abs(diff)-1)*5) : diff <= 1 ? 10 : diff === 2 ? 5 : 0);
       if (diff < 0) deductions += Math.min(20, 10 + (Math.abs(diff) - 1) * 5);
       else if (diff <= 1) deductions += 10;
       else if (diff === 2) deductions += 5;
     }
   }
-  console.log('Total deductions:', deductions, 'Final score:', Math.max(0, 100 - deductions));
   return Math.max(0, 100 - deductions);
 }
 
@@ -339,33 +329,21 @@ window.refreshTeam = async () => { await init(); };
 // ── ONBOARD ───────────────────────────────────────────────────────────────────
 function renderOnboard(teamExists, team) {
   document.getElementById('topbar-actions').innerHTML = '';
-  if (teamExists) {
-    document.getElementById('main-content').innerHTML = `
-      <div class="onboard-panel">
-        <h2>Join your team</h2>
-        <p>Enter the team code your team leader shared with you to join the accountability group.</p>
-        <div class="onboard-row">
-          <input type="text" id="join-code" placeholder="TEAM CODE" maxlength="20" />
-          <button class="btn primary" onclick="joinTeam()"><i class="ti ti-arrow-right"></i> Join</button>
-        </div>
-        <div class="onboard-error" id="join-error"></div>
-        <div class="onboard-divider"><span>or</span></div>
-        <button class="btn" onclick="showCreate()"><i class="ti ti-plus"></i> Create a new team</button>
-      </div>`;
-  } else {
-    document.getElementById('main-content').innerHTML = `
-      <div class="onboard-panel">
-        <h2>Join your team</h2>
-        <p>Enter the team code your team leader shared with you, or create a new team.</p>
-        <div class="onboard-row">
-          <input type="text" id="join-code" placeholder="TEAM CODE" maxlength="20" />
-          <button class="btn primary" onclick="joinTeam()"><i class="ti ti-arrow-right"></i> Join</button>
-        </div>
-        <div class="onboard-error" id="join-error"></div>
-        <div class="onboard-divider"><span>or</span></div>
-        <button class="btn" onclick="showCreate()"><i class="ti ti-plus"></i> Create a new team</button>
-      </div>`;
-  }
+  const desc = teamExists
+    ? 'Enter the team code your team leader shared with you to join the accountability group.'
+    : 'Enter the team code your team leader shared with you, or create a new team.';
+  document.getElementById('main-content').innerHTML = `
+    <div class="onboard-panel">
+      <h2>Join your team</h2>
+      <p>${desc}</p>
+      <div class="onboard-row">
+        <input type="text" id="join-code" placeholder="TEAM CODE" maxlength="20" />
+        <button class="btn primary" onclick="joinTeam()"><i class="ti ti-arrow-right"></i> Join</button>
+      </div>
+      <div class="onboard-error" id="join-error"></div>
+      <div class="onboard-divider"><span>or</span></div>
+      <button class="btn" onclick="showCreate()"><i class="ti ti-plus"></i> Create a new team</button>
+    </div>`;
 }
 
 window.showCreate = () => {
@@ -651,7 +629,7 @@ async function renderTeam(team) {
               <span class="sermon-row-stage ${stageClass}">${stageLabel}</span>
               ${s.context ? `<span class="sermon-row-context">${s.context}</span>` : ''}
             </div>
-            <div class="sermon-row-stages" style="display:none;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);display:none;flex-wrap:wrap;align-items:center;gap:4px;">
+            <div class="sermon-row-stages" style="display:none;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);flex-wrap:wrap;align-items:center;gap:4px;">
               ${stages.filter(st=>st.key!=='not-started').map(st => {
                 const idx = statusOrder.indexOf(st.key);
                 const currentIdx = statusOrder.indexOf(s.status);
@@ -717,7 +695,6 @@ window.toggleSermonExpand = function(row) {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-document.addEventListener('keydown', e => { if(e.key==='Escape') window.closeNav(); });
 </script>
 </body>
 </html>

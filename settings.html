@@ -14,10 +14,6 @@
   .main { margin-left: var(--nav-width); flex: 1; padding: 2rem 2.5rem 4rem; min-width: 0; }
   .topbar { margin-bottom: 20px; }
 
-  /* Brand button */
-  .btn-brand { background: var(--brand); color: var(--white) !important; border-color: var(--brand); }
-  .btn-brand:hover { opacity: 0.9; background: var(--brand); }
-
   /* Settings sections */
   .settings-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); padding: 20px 22px; margin-bottom: 14px; }
   .settings-section-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
@@ -78,8 +74,6 @@
 </div>
 
 <div class="app">
-  <div id="nav-overlay" style="display:none !important;" onclick="closeNav()"></div>
-  <div id="nav-user" style="display:none;"></div>
   <nav class="nav" id="main-nav">
     <a class="nav-logo" href="/Sermon-Prep-Dashboard/">SR</a>
     <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/" data-tip="Dashboard">🏠</a>
@@ -146,12 +140,12 @@ const WEEKS = [
 ];
 
 const DEFAULT_STAGES = [
-  { key: 'study',   label: 'Study',        dueDay: 1, sBack: 1 },
-  { key: 'idea',    label: 'Main idea',     dueDay: 2, sBack: 1 },
-  { key: 'outline', label: 'Outline',       dueDay: 3, sBack: 1 },
-  { key: 'draft',   label: 'Draft',         dueDay: 1, sBack: 0 },
-  { key: 'final',   label: 'Final',         dueDay: 2, sBack: 0 },
-  { key: 'run',     label: 'Run-through',   dueDay: 3, sBack: 0 },
+  { key: 'study',   label: 'Study',        dueDay: 1, weeksBack: 1 },
+  { key: 'idea',    label: 'Main idea',     dueDay: 2, weeksBack: 1 },
+  { key: 'outline', label: 'Outline',       dueDay: 3, weeksBack: 1 },
+  { key: 'draft',   label: 'Draft',         dueDay: 1, weeksBack: 0 },
+  { key: 'final',   label: 'Final',         dueDay: 2, weeksBack: 0 },
+  { key: 'run',     label: 'Run-through',   dueDay: 3, weeksBack: 0 },
 ];
 
 const DEFAULT_CONTEXTS = ['Salt','Candeo','Youth'];
@@ -164,8 +158,9 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
     document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('nav-user').textContent = user.displayName || user.email;
     document.getElementById('user-subtitle').textContent = user.email;
+    const navAvatar = document.getElementById('nav-avatar');
+    if (navAvatar) navAvatar.textContent = (user.displayName || user.email || '?').charAt(0).toUpperCase();
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
@@ -181,8 +176,6 @@ onAuthStateChanged(auth, async user => {
 
 window.signIn = async () => { try { await signInWithPopup(auth, provider); } catch(e) { console.error(e); } };
 window.signOut = async () => { await fbSignOut(auth); };
-window.openNav = () => { document.getElementById('main-nav').classList.add('open'); document.getElementById('nav-overlay').classList.add('open'); document.body.style.overflow='hidden'; };
-window.closeNav = () => { document.getElementById('main-nav').classList.remove('open'); document.getElementById('nav-overlay').classList.remove('open'); document.body.style.overflow=''; };
 
 function setSyncStatus(state, label) {
   document.getElementById('sync-dot').className = 'sync-dot '+state;
@@ -231,9 +224,6 @@ newStages.push({
 
     await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'settings'), settings);
 
-    // Apply deadline changes to all non-completed sermons
-    await applySettingsToSermons();
-
     setSyncStatus('synced','Saved ✓');
     msg.textContent = 'Settings saved!'; msg.className = 'save-msg saved';
     setTimeout(() => { msg.textContent = ''; msg.className = 'save-msg'; }, 3000);
@@ -243,11 +233,6 @@ newStages.push({
   }
   btn.textContent = 'Save settings'; btn.disabled = false;
 };
-
-async function applySettingsToSermons() {
-  // Just saves the settings — sermon deadline calculations are done on the fly in the dashboard
-  // so no sermon documents need updating. Deadlines are computed from settings at render time.
-}
 
 // ── RENDER SETTINGS ───────────────────────────────────────────────────────────
 function renderSettings() {
@@ -408,7 +393,6 @@ window.deleteContext = (idx) => {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-document.addEventListener('keydown', e => { if(e.key==='Escape') window.closeNav(); });
 </script>
 </body>
 </html>

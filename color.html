@@ -59,10 +59,6 @@
   .tag-chip.active { background: var(--brand); color: white; border-color: var(--brand); }
   .tag-chip:hover { border-color: var(--stone); }
 
-  /* Add Color button */
-  .btn-brand { background: var(--brand); color: var(--white) !important; border-color: var(--brand); }
-  .btn-brand:hover { opacity: 0.9; background: var(--brand); }
-
   /* Type selector in modal */
   .type-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .type-option { padding: 10px; border: 1px solid var(--border-md); border-radius: var(--r-lg); text-align: center; cursor: pointer; transition: all 0.15s; }
@@ -81,8 +77,6 @@
 
   @media (max-width: 768px) {
     .main { margin-left: 0; padding: 1rem 1rem 4rem; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .ideas-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -99,8 +93,6 @@
     Sign in with Google
   </button>
 </div>
-  <div id="nav-overlay" style="display:none !important;" onclick="closeNav()"></div>
-  <div id="nav-user" style="display:none;"></div>
   <nav class="nav" id="main-nav">
     <a class="nav-logo" href="/Sermon-Prep-Dashboard/">SR</a>
     <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/" data-tip="Dashboard">🏠</a>
@@ -127,7 +119,7 @@
         <div class="topbar-date" id="topbar-date"></div>
       </div>
       <div class="topbar-actions">
-        <button class="btn btn-brand" onclick="openAddModal()">+ Add Color</button>
+        <button class="btn btn-brand" onclick="openCapture()">+ Add Color</button>
       </div>
     </div>
 
@@ -254,8 +246,8 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
     if (loginScreen) loginScreen.style.display = 'none';
-const navUser = document.getElementById('nav-user');
-if (navUser) navUser.textContent = user.displayName || user.email;
+    const navAvatar = document.getElementById('nav-avatar');
+    if (navAvatar) navAvatar.textContent = (user.displayName || user.email || '?').charAt(0).toUpperCase();
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
@@ -283,19 +275,6 @@ window.signOut = async () => {
   await fbSignOut(auth);
 };
 
-// ── NAV ───────────────────────────────────────────────────────────────────────
-window.openNav = function() {
-  document.getElementById('main-nav').classList.add('open');
-  document.getElementById('nav-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-};
-window.closeNav = function() {
-  document.getElementById('main-nav').classList.remove('open');
-  document.getElementById('nav-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-};
-
-function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
 function formatDateShort(str) {
   if (!str) return '';
   const d = new Date(str);
@@ -487,7 +466,6 @@ window.addCustomTag = function() {
   renderTagPicker();
 };
 
-window.openAddModal = function() { window.openCapture(); };
 window.openCapture = function() {
   editingId = null;
   document.getElementById('modal-title').textContent = 'Capture idea';
@@ -555,7 +533,7 @@ window.deleteIdea = async function(id) {
 };
 
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)window.closeModal();});
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){window.closeNav();window.closeModal();}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')window.closeModal();});
 
 document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 </script>

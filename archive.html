@@ -65,9 +65,6 @@
 
   @media (max-width: 768px) {
     .main { margin-left: 0; padding: 1rem 1rem 4rem; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .archive-card { flex-wrap: wrap; }
-    .archive-actions { width: 100%; margin-top: 8px; }
   }
 </style>
 </head>
@@ -85,8 +82,6 @@
 </div>
 
 <div class="app">
-  <div id="nav-overlay" style="display:none !important;" onclick="closeNav()"></div>
-  <div id="nav-user" style="display:none;"></div>
   <nav class="nav" id="main-nav">
     <a class="nav-logo" href="/Sermon-Prep-Dashboard/">SR</a>
     <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/" data-tip="Dashboard">🏠</a>
@@ -211,7 +206,7 @@ const BIBLE_BOOKS = [
   { name: 'Joshua',        abbr: ['josh','jos','jsh'],                    short: 'Josh', testament: 'ot' },
   { name: 'Judges',        abbr: ['judg','jdg','jg','jdgs'],              short: 'Judg', testament: 'ot' },
   { name: 'Ruth',          abbr: ['rut','ru'],                            short: 'Ruth', testament: 'ot' },
-  { name: '1 Samuel',      abbr: ['1sam','1sa','1s','isa','1samuel'],     short: '1Sam', testament: 'ot' },
+  { name: '1 Samuel',      abbr: ['1sam','1sa','1s','1samuel'],            short: '1Sam', testament: 'ot' },
   { name: '2 Samuel',      abbr: ['2sam','2sa','2s','2samuel'],           short: '2Sam', testament: 'ot' },
   { name: '1 Kings',       abbr: ['1kgs','1ki','1k','1kings'],            short: '1Kgs', testament: 'ot' },
   { name: '2 Kings',       abbr: ['2kgs','2ki','2k','2kings'],            short: '2Kgs', testament: 'ot' },
@@ -296,7 +291,8 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
     document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('nav-user').textContent = user.displayName || user.email;
+    const navAvatar = document.getElementById('nav-avatar');
+    if (navAvatar) navAvatar.textContent = (user.displayName || user.email || '?').charAt(0).toUpperCase();
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
@@ -312,8 +308,6 @@ onAuthStateChanged(auth, async user => {
 
 window.signIn = async () => { try { await signInWithPopup(auth, provider); } catch(e) { console.error(e); } };
 window.signOut = async () => { await fbSignOut(auth); };
-window.openNav = () => { document.getElementById('main-nav').classList.add('open'); document.getElementById('nav-overlay').classList.add('open'); document.body.style.overflow='hidden'; };
-window.closeNav = () => { document.getElementById('main-nav').classList.remove('open'); document.getElementById('nav-overlay').classList.remove('open'); document.body.style.overflow=''; };
 
 function setSyncStatus(state, label) {
   document.getElementById('sync-dot').className = 'sync-dot '+state;
@@ -491,7 +485,6 @@ function renderArchive(sermons) {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-document.addEventListener('keydown', e => { if(e.key==='Escape') window.closeNav(); });
 </script>
 </body>
 </html>
