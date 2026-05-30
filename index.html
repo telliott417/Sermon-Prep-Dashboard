@@ -553,14 +553,16 @@ onAuthStateChanged(auth, async user => {
     const drawerAvatar = document.getElementById('drawer-avatar');
     if (drawerAvatar) drawerAvatar.textContent = (user.displayName || 'U')[0].toUpperCase();
     // Inject hamburger button
-    if (window.innerWidth <= 768 && !document.getElementById('mobile-hamburger')) {
-      const hamburger = document.createElement('button');
-      hamburger.id = 'mobile-hamburger';
-      hamburger.style.cssText = 'width:36px;height:36px;border-radius:10px;background:var(--white);border:1px solid var(--border-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex-shrink:0;';
-      hamburger.innerHTML = '<div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div><div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div><div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div>';
-      hamburger.onclick = () => window.openMobileDrawer();
-      const topbar = document.querySelector('.topbar');
-      if (topbar) topbar.prepend(hamburger);
+    if (window.innerWidth <= 768) {
+      const topbar = document.querySelector('.topbar-wrap .topbar');
+      if (topbar && !topbar.querySelector('#mobile-hamburger')) {
+        const hamburger = document.createElement('button');
+        hamburger.id = 'mobile-hamburger';
+        hamburger.style.cssText = 'width:36px;height:36px;border-radius:10px;background:var(--white);border:1px solid var(--border-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex-shrink:0;';
+        hamburger.innerHTML = '<div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div><div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div><div style="width:16px;height:1.5px;background:var(--ink);border-radius:2px;"></div>';
+        hamburger.onclick = () => window.openMobileDrawer();
+        topbar.prepend(hamburger);
+      }
     }
 
     try {
@@ -2270,7 +2272,7 @@ async function loadRightColumn() {
 function updateTopbar(displayName) {
   const hour = new Date().getHours();
   const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-  const firstName = (displayName || '').split(' ')[0];
+  const firstName = (displayName || '').split(' ')[0] || (window.innerWidth <= 768 ? 'Pastor' : '');
   const greetingEl = document.getElementById('topbar-greeting');
   if (greetingEl) greetingEl.textContent = firstName ? `Good ${timeOfDay}, ${firstName} 👋` : `Good ${timeOfDay} 👋`;
 }
@@ -2306,9 +2308,9 @@ window.toggleMobilePipeline = function(toggle) {
 
 // ── MOBILE HAMBURGER (early injection on DOM ready) ───────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  if (window.innerWidth <= 768 && !document.getElementById('mobile-hamburger')) {
-    const topbar = document.querySelector('.topbar');
-    if (topbar) {
+  if (window.innerWidth <= 768) {
+    const topbar = document.querySelector('.topbar-wrap .topbar');
+    if (topbar && !topbar.querySelector('#mobile-hamburger')) {
       const hamburger = document.createElement('button');
       hamburger.id = 'mobile-hamburger';
       hamburger.style.cssText = 'width:36px;height:36px;border-radius:10px;background:var(--white);border:1px solid var(--border-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;flex-shrink:0;';
@@ -2328,16 +2330,5 @@ updatePrepScoreDisplay(75, 75);
 renderStreakSection();
 </script>
 
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-  const topbar = document.querySelector('.topbar');
-  const banner = document.createElement('div');
-  banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1A1714;color:white;font-size:10px;padding:6px;z-index:9999;word-break:break-all;';
-  banner.textContent = 'TOPBAR el: ' + (topbar ? topbar.parentElement.className : 'NOT FOUND') +
-    ' | children: ' + (topbar ? Array.from(topbar.children).map(c => (c.id || c.className || c.tagName)).join(' | ') : 'none') +
-    ' | greeting text: ' + (document.getElementById('topbar-greeting') ? document.getElementById('topbar-greeting').textContent.slice(0,20) : 'NOT FOUND');
-  document.body.appendChild(banner);
-});
-</script>
 </body>
 </html>

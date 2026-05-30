@@ -383,16 +383,6 @@ body { min-height: 100vh; }
   .right-col { display: none; }
 }
 
-@media (max-width: 768px) {
-  .app { display: block; }
-  .main-wrap { display: block; width: 100%; }
-  .main { padding: 1rem 1rem 5rem; max-width: 100%; width: 100%; }
-  .sidebar { display: none; }
-  .mobile-section { display: block; }
-  .todo-right { flex-direction: column; align-items: flex-end; gap: 4px; }
-  .stages-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
 /* ════════════════════════════════════════════════════════════
    SECONDARY PAGE SHARED STYLES
    (accountability · color · archive · settings · library · chores)
@@ -460,39 +450,53 @@ body { min-height: 100vh; }
    ══════════════════════════════════════ */
 @media (max-width: 768px) {
 
-  /* Nav — hide fixed nav, add top bar instead */
-  .nav { display: none; }
-  .main { margin-left: 0; padding: 16px 16px 60px; }
+  /* ── LAYOUT ── */
+  .app { display: block; }
+  .main-wrap { display: block; width: 100%; margin-left: 0 !important; }
+  .topbar-wrap { padding: 0 !important; }
+  .main { margin-left: 0; padding: 16px 16px 60px; max-width: 100%; width: 100%; }
+  .sidebar { display: none; }
+  .mobile-section { display: block; }
+  .two-col { display: block !important; }
+  .right-col { display: none !important; }
+  .left-col { padding: 12px 10px 80px !important; width: 100% !important; max-width: 100% !important; }
 
-  /* Topbar — stack vertically */
-  .topbar { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .topbar-actions { width: 100%; justify-content: flex-end; }
+  /* ── NAV ── */
+  .nav { display: none !important; }
 
-  /* Two column — stack to single column */
-  .two-col { grid-template-columns: 1fr; }
+  /* ── TOPBAR ── */
+  .topbar { display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; flex-wrap: nowrap !important; gap: 8px !important; padding: 12px 14px !important; position: sticky !important; top: 0 !important; z-index: 50 !important; background: var(--bg) !important; border-bottom: 1px solid var(--border) !important; }
+  .topbar-greeting { flex: 1 !important; min-width: 0 !important; font-size: 14px !important; font-weight: 700 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+  .topbar-actions { flex-shrink: 0 !important; display: flex !important; gap: 6px !important; width: auto !important; justify-content: flex-end !important; }
+  .topbar-actions .btn-ghost { width: 34px !important; height: 34px !important; padding: 0 !important; justify-content: center !important; border-radius: 100px !important; }
+  .topbar-actions .btn-brand { font-size: 11px !important; padding: 7px 11px !important; }
+  .btn-add-color-text { display: none !important; }
 
-  /* Hero/prep score card — stack rings and stats */
-  .hero-inner, .prep-score-inner { flex-direction: column; align-items: center; }
-  .mini-stats-grid { grid-template-columns: 1fr 1fr; width: 100%; }
+  /* ── PREP SCORE RINGS ── */
+  .rings-wrap { position: relative !important; width: 160px !important; height: 160px !important; }
+  .rings-svg { width: 160px !important; height: 160px !important; }
+  .rings-center { position: absolute !important; inset: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }
+  .hero-inner { flex-direction: column; align-items: center; }
+  .prep-score-inner { flex-direction: column !important; align-items: center !important; gap: 16px !important; }
+  .mini-stats-grid { width: 100% !important; grid-template-columns: 1fr 1fr !important; }
 
-  /* Member grid — single column */
-  .member-grid { grid-template-columns: 1fr; }
+  /* ── PIPELINE ── */
+  .pipeline { display: none !important; }
 
-  /* Team score card — stack the two halves */
-  .team-score-card { grid-template-columns: 1fr; }
-  .team-score-divider { width: 80%; height: 1px; margin: 12px auto; }
-
-  /* Calendar — allow horizontal scroll */
+  /* ── CALENDAR ── */
   .cal-card { overflow-x: auto; }
   .cal-grid { min-width: 500px; }
 
-  /* Stats block on hero */
+  /* ── TEAM / MEMBER ── */
+  .member-grid { grid-template-columns: 1fr; }
+  .team-score-card { grid-template-columns: 1fr; }
+  .team-score-divider { width: 80%; height: 1px; margin: 12px auto; }
+
+  /* ── STATS / FORMS ── */
   .stats-block { grid-template-columns: 1fr; }
+  .stages-grid { grid-template-columns: repeat(2, 1fr); }
 
-  /* Right column full width */
-  .right-col { width: 100%; }
-
-  /* Sermon pipeline — allow scroll */
-  .pipeline { overflow-x: auto; }
+  /* ── TODO ── */
+  .todo-right { flex-direction: column; align-items: flex-end; gap: 4px; }
 
 }
