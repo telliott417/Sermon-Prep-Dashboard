@@ -320,13 +320,13 @@ body { min-height: 100vh; }
 .prep-score-card { background: var(--white); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); border: 1px solid var(--border); padding: 18px; }
 .prep-score-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--stone-light); margin-bottom: 14px; }
 .prep-score-inner { display: flex; align-items: center; gap: 16px; }
-.rings-wrap { position: relative; width: 210px; height: 210px; flex-shrink: 0; }
-.rings-svg { width: 210px; height: 210px; }
+.rings-wrap { position: relative; width: 300px; height: 300px; flex-shrink: 0; }
+.rings-svg { width: 300px; height: 300px; }
 .rings-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; pointer-events: none; }
-.center-overall { font-size: 42px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; transition: color 0.4s; }
+.center-overall { font-size: 54px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; transition: color 0.4s; }
 .center-overall-label { font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--stone-light); }
 .center-sep { width: 20px; height: 1px; background: var(--border-md); margin: 4px 0; }
-.center-week { font-size: 24px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; transition: color 0.4s; }
+.center-week { font-size: 32px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; transition: color 0.4s; }
 .center-week-label { font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--stone-light); }
 .mini-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; }
 .mini-stat { border-radius: 12px; padding: 11px 13px; display: flex; flex-direction: column; justify-content: space-between; min-height: 80px; border: 1px solid var(--border); transition: background 0.3s, border-color 0.3s; }
@@ -462,7 +462,7 @@ body { min-height: 100vh; }
   .mobile-section { display: block; }
   .two-col { display: block !important; }
   .right-col { display: none !important; }
-  .left-col { padding: 12px 10px 80px !important; display: flex !important; flex-direction: column !important; gap: 14px !important; overflow-x: hidden !important; width: 100% !important; max-width: 100% !important; }
+  .left-col { padding: 8px 6px 80px !important; display: flex !important; flex-direction: column !important; gap: 14px !important; overflow-x: hidden !important; width: 100% !important; max-width: 100% !important; }
 
   /* ── NAV ── */
   .nav { display: none !important; }
