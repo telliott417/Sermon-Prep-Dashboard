@@ -462,7 +462,7 @@ body { min-height: 100vh; }
   .mobile-section { display: block; }
   .two-col { display: block !important; }
   .right-col { display: none !important; }
-  .left-col { padding: 8px 6px 80px !important; display: flex !important; flex-direction: column !important; gap: 14px !important; overflow-x: hidden !important; width: 100% !important; max-width: 100% !important; }
+  .left-col { padding: 8px 2px 80px !important; display: flex !important; flex-direction: column !important; gap: 14px !important; overflow-x: hidden !important; width: 100% !important; max-width: 100% !important; }
 
   /* ── NAV ── */
   .nav { display: none !important; }
