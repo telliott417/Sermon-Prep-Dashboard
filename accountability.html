@@ -208,7 +208,15 @@ onAuthStateChanged(auth, async user => {
     buildMobileDrawer(); injectHamburger();
     const dName = document.getElementById('drawer-name'); if (dName) dName.textContent = user.displayName || user.email;
     const dUser = document.getElementById('drawer-user-name'); if (dUser) dUser.textContent = user.displayName || user.email;
-    const dAvatar = document.getElementById('drawer-avatar'); if (dAvatar) dAvatar.textContent = (user.displayName||user.email||'?')[0].toUpperCase();
+    const dAvatar = document.getElementById('drawer-avatar');
+    if (dAvatar) {
+      if (user.photoURL) {
+        dAvatar.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" referrerpolicy="no-referrer"/>`;
+        dAvatar.style.background = 'none';
+      } else {
+        dAvatar.textContent = (user.displayName||user.email||'?')[0].toUpperCase();
+      }
+    }
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
@@ -418,7 +426,6 @@ async function renderTeam(team) {
 
   // Populate topbar-actions with refresh, team code badge, leave team
   document.getElementById('topbar-actions').innerHTML = `
-    <button class="btn btn-ghost" onclick="refreshTeam()"><i class="ti ti-refresh"></i> Refresh</button>
     <div class="team-code-badge">
       Team: <span class="team-code-value">${team.code}</span>
       <button class="copy-btn" onclick="copyCode('${team.code}')" title="Copy code"><i class="ti ti-copy"></i></button>
@@ -732,8 +739,11 @@ function buildMobileDrawer() {
     ${links}
   </div>
   <div style="padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;">
-    <div id="drawer-avatar" style="width:32px;height:32px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">?</div>
-    <div id="drawer-name" style="font-size:12px;font-weight:600;color:var(--ink);"></div>
+    <div id="drawer-avatar" style="width:32px;height:32px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;overflow:hidden;">?</div>
+    <div style="flex:1;min-width:0;">
+      <div id="drawer-name" style="font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+    </div>
+    <button onclick="signOut()" style="background:none;border:none;cursor:pointer;padding:6px;color:var(--stone-light);font-size:16px;border-radius:6px;display:flex;align-items:center;flex-shrink:0;" title="Sign out"><i class="ti ti-logout"></i></button>
   </div>
 </div>`);
 }
