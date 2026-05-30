@@ -2327,5 +2327,15 @@ updatePrepScoreDisplay(75, 75);
 // Show placeholder streak bars immediately
 renderStreakSection();
 </script>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const topbar = document.querySelector('.topbar');
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1A1714;color:white;font-size:10px;padding:6px;z-index:9999;word-break:break-all;';
+  banner.textContent = topbar ? 'TOPBAR children: ' + Array.from(topbar.children).map(c => c.id || c.className || c.tagName).join(' | ') : 'NO TOPBAR';
+  document.body.appendChild(banner);
+});
+</script>
 </body>
 </html>
