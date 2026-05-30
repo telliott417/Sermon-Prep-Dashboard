@@ -67,7 +67,6 @@
     <!-- TOPBAR — full width across both columns -->
     <div class="topbar-wrap">
       <div class="topbar">
-        <button class="mob-ham" onclick="toggleMobNav()" aria-label="Menu">☰</button>
         <div class="topbar-greeting" id="topbar-greeting">Good morning 👋</div>
         <div class="topbar-actions">
           <button class="btn btn-ghost" onclick="openColorModal()">🎨 <span class="btn-add-color-text">Add Color</span></button>
@@ -241,18 +240,6 @@
     </div><!-- /.right-col -->
     </div><!-- /.two-col -->
   </div><!-- /.main-wrap -->
-  <div class="mob-drawer" id="mob-drawer">
-    <div class="mob-drawer-overlay" onclick="closeMobNav()"></div>
-    <div class="mob-drawer-panel">
-      <div class="mob-drawer-logo">SR</div>
-      <a class="mob-drawer-item active" href="/Sermon-Prep-Dashboard/"><span class="mob-drawer-icon">🏠</span>Dashboard</a>
-      <a class="mob-drawer-item" href="/Sermon-Prep-Dashboard/color.html"><span class="mob-drawer-icon">🎨</span>Color</a>
-      <a class="mob-drawer-item" href="/Sermon-Prep-Dashboard/accountability.html"><span class="mob-drawer-icon">👥</span>Accountability</a>
-      <a class="mob-drawer-item" href="/Sermon-Prep-Dashboard/archive.html"><span class="mob-drawer-icon">📚</span>Archive</a>
-      <div class="mob-drawer-sep"></div>
-      <a class="mob-drawer-item" href="/Sermon-Prep-Dashboard/settings.html"><span class="mob-drawer-icon">⚙️</span>Settings</a>
-    </div>
-  </div>
 
 </div>
 
@@ -2237,10 +2224,6 @@ updatePrepScoreDisplay(75, 75);
 // Show placeholder streak bars immediately
 renderStreakSection();
 
-// ── MOBILE DRAWER ─────────────────────────────────────────────────────────────
-window.toggleMobNav = () => document.getElementById('mob-drawer').classList.toggle('open');
-window.closeMobNav  = () => document.getElementById('mob-drawer').classList.remove('open');
-document.addEventListener('keydown', e => { if (e.key === 'Escape') window.closeMobNav(); });
 </script>
 
 </body>

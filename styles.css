@@ -377,8 +377,6 @@ body { min-height: 100vh; }
 .hamburger { display: none; }
 .nav-overlay { display: none !important; }
 .mobile-section { display: none; }
-.mob-ham { display: none; }
-.mob-drawer { display: none; }
 
 @media (max-width: 1300px) {
   .two-col { grid-template-columns: 1fr; }
@@ -533,22 +531,5 @@ body { min-height: 100vh; }
   .archive-card { flex-wrap: wrap; }
   .archive-actions { width: 100%; margin-top: 8px; }
 
-  /* ── HAMBURGER BUTTON ── */
-  .mob-ham { display: flex !important; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border-md); background: var(--white); font-size: 18px; cursor: pointer; flex-shrink: 0; font-family: var(--font); color: var(--ink); transition: background 0.15s; }
-  .mob-ham:hover { background: var(--warm-bg); }
-
-  /* ── SLIDE-OUT DRAWER ── */
-  .mob-drawer { display: block !important; position: fixed; inset: 0; z-index: 400; pointer-events: none; }
-  .mob-drawer.open { pointer-events: auto; }
-  .mob-drawer-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.22s; }
-  .mob-drawer.open .mob-drawer-overlay { opacity: 1; }
-  .mob-drawer-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 230px; background: #111009; display: flex; flex-direction: column; padding: 16px 0 24px; transform: translateX(-100%); transition: transform 0.22s cubic-bezier(0.4,0,0.2,1); }
-  .mob-drawer.open .mob-drawer-panel { transform: translateX(0); }
-  .mob-drawer-logo { width: 36px; height: 36px; border-radius: 10px; background: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: white; margin: 0 16px 20px; flex-shrink: 0; }
-  .mob-drawer-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #7A7570; text-decoration: none; font-size: 14px; font-weight: 500; font-family: var(--font); transition: background 0.12s, color 0.12s; }
-  .mob-drawer-item:hover { background: rgba(255,255,255,0.06); color: #C0BCB8; }
-  .mob-drawer-item.active { color: #4ADA7A; background: rgba(10,122,58,0.18); }
-  .mob-drawer-item .mob-drawer-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
-  .mob-drawer-sep { height: 0.5px; background: rgba(255,255,255,0.06); margin: 8px 16px; }
 
 }
