@@ -11,8 +11,7 @@
 <link rel="stylesheet" href="/Sermon-Prep-Dashboard/styles.css" />
 <style>
   /* ── SETTINGS PAGE — SPECIFIC STYLES ── */
-  .main { margin-left: var(--nav-width); flex: 1; padding: 2rem 2.5rem 4rem; min-width: 0; }
-  .topbar { margin-bottom: 20px; }
+  .main { padding: 1.25rem 2rem 4rem; min-width: 0; }
 
   /* Settings sections */
   .settings-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-xl); box-shadow: var(--shadow-sm); padding: 20px 22px; margin-bottom: 14px; }
@@ -55,8 +54,9 @@
   .save-msg.error { color: var(--red); }
 
   @media (max-width: 768px) {
-    .main { margin-left: 0; padding: 1rem 1rem 4rem; }
+    .main { padding: 12px 12px 80px; }
     .deadline-selects { flex-wrap: wrap; }
+    .stage-item { flex-wrap: wrap; }
   }
 </style>
 </head>
@@ -92,20 +92,28 @@
     <span id="sync-label" style="display:none;"></span>
   </nav>
 
-  <main class="main">
-    <div class="topbar">
-      <div>
+  <div class="main-wrap">
+    <div class="topbar-wrap">
+      <div class="topbar">
         <div class="topbar-greeting">Settings ⚙️</div>
-        <div class="topbar-date" id="topbar-date"></div>
-      </div>
-      <div class="topbar-actions">
-        <span class="save-msg" id="save-msg"></span>
-        <button class="btn btn-brand" id="save-btn" onclick="saveSettings()">Save settings</button>
+        <div class="topbar-actions">
+          <span class="save-msg" id="save-msg"></span>
+          <button class="btn btn-brand" id="save-btn" onclick="saveSettings()">Save settings</button>
+        </div>
       </div>
     </div>
-    <div id="user-subtitle" style="display:none;"></div>
-    <div id="settings-body"><div class="loading-state"><i class="ti ti-loader"></i>Loading your settings...</div></div>
-  </main>
+    <main class="main">
+      <div id="user-subtitle" style="display:none;"></div>
+      <div id="settings-body"><div class="loading-state"><i class="ti ti-loader"></i>Loading your settings...</div></div>
+    </main>
+  </div>
+  <nav class="mob-nav">
+    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/">🏠<span>Home</span></a>
+    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/color.html">🎨<span>Color</span></a>
+    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/accountability.html">👥<span>Team</span></a>
+    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/archive.html">📚<span>Archive</span></a>
+    <a class="mob-nav-item active" href="/Sermon-Prep-Dashboard/settings.html">⚙️<span>Settings</span></a>
+  </nav>
 </div>
 
 <div class="save-bar" style="display:none;"></div>
@@ -392,7 +400,6 @@ window.deleteContext = (idx) => {
 };
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 </script>
 </body>
 </html>

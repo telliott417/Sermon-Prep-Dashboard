@@ -11,8 +11,7 @@
 <link rel="stylesheet" href="/Sermon-Prep-Dashboard/styles.css" />
 <style>
   /* ── COLOR PAGE — SPECIFIC STYLES ── */
-  .main { margin-left: var(--nav-width); flex: 1; padding: 2rem 2.5rem 4rem; min-width: 0; }
-  .topbar { margin-bottom: 20px; }
+  .main { padding: 1.25rem 2rem 4rem; min-width: 0; }
 
   /* Stat cards */
   .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
@@ -76,7 +75,9 @@
   .form-field textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
 
   @media (max-width: 768px) {
-    .main { margin-left: 0; padding: 1rem 1rem 4rem; }
+    .main { padding: 12px 12px 80px; }
+    .filter-bar { flex-direction: column; align-items: stretch; }
+    .filter-bar .filter-btns { flex-wrap: wrap; }
   }
 </style>
 </head>
@@ -111,54 +112,61 @@
     <span id="sync-label" style="display:none;"></span>
   </nav>
 
-  <!-- MAIN -->
-  <main class="main">
-    <div class="topbar">
-      <div>
+  <div class="main-wrap">
+    <div class="topbar-wrap">
+      <div class="topbar">
         <div class="topbar-greeting">Color 🎨</div>
-        <div class="topbar-date" id="topbar-date"></div>
-      </div>
-      <div class="topbar-actions">
-        <button class="btn btn-brand" onclick="openCapture()">+ Add Color</button>
-      </div>
-    </div>
-
-    <div class="error-banner" id="error-banner"></div>
-
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total</div>
-        <div class="stat-number" id="stat-total">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Illustrations</div>
-        <div class="stat-number" id="stat-illustrations">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Quotes</div>
-        <div class="stat-number" id="stat-quotes">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Stories</div>
-        <div class="stat-number" id="stat-stories">—</div>
+        <div class="topbar-actions">
+          <button class="btn btn-brand" onclick="openCapture()">+ Add Color</button>
+        </div>
       </div>
     </div>
 
-    <div class="filter-bar">
-      <input class="filter-search" type="text" id="search-input" placeholder="Search..." oninput="renderIdeas()" />
-      <div class="filter-btns">
-        <button class="filter-btn all active" id="filter-all" onclick="setTypeFilter('all')">All</button>
-        <button class="filter-btn illustration" id="filter-illustration" onclick="setTypeFilter('illustration')">Illustrations</button>
-        <button class="filter-btn quote" id="filter-quote" onclick="setTypeFilter('quote')">Quotes</button>
-        <button class="filter-btn story" id="filter-story" onclick="setTypeFilter('story')">Stories</button>
-      </div>
-    </div>
+    <main class="main">
+      <div class="error-banner" id="error-banner"></div>
 
-    <div class="tag-filter" id="tag-filter"></div>
-    <div class="ideas-grid" id="ideas-grid">
-      <div class="loading-state"><i class="ti ti-loader"></i>Loading your color...</div>
-    </div>
-  </main>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total</div>
+          <div class="stat-number" id="stat-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Illustrations</div>
+          <div class="stat-number" id="stat-illustrations">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Quotes</div>
+          <div class="stat-number" id="stat-quotes">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Stories</div>
+          <div class="stat-number" id="stat-stories">—</div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <input class="filter-search" type="text" id="search-input" placeholder="Search..." oninput="renderIdeas()" />
+        <div class="filter-btns">
+          <button class="filter-btn all active" id="filter-all" onclick="setTypeFilter('all')">All</button>
+          <button class="filter-btn illustration" id="filter-illustration" onclick="setTypeFilter('illustration')">Illustrations</button>
+          <button class="filter-btn quote" id="filter-quote" onclick="setTypeFilter('quote')">Quotes</button>
+          <button class="filter-btn story" id="filter-story" onclick="setTypeFilter('story')">Stories</button>
+        </div>
+      </div>
+
+      <div class="tag-filter" id="tag-filter"></div>
+      <div class="ideas-grid" id="ideas-grid">
+        <div class="loading-state"><i class="ti ti-loader"></i>Loading your color...</div>
+      </div>
+    </main>
+  </div>
+  <nav class="mob-nav">
+    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/">🏠<span>Home</span></a>
+    <a class="mob-nav-item active" href="/Sermon-Prep-Dashboard/color.html">🎨<span>Color</span></a>
+    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/accountability.html">👥<span>Team</span></a>
+    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/archive.html">📚<span>Archive</span></a>
+    <a class="mob-nav-item" href="/Sermon-Prep-Dashboard/settings.html">⚙️<span>Settings</span></a>
+  </nav>
 </div>
 
 <!-- CAPTURE MODAL -->
@@ -535,7 +543,6 @@ window.deleteIdea = async function(id) {
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)window.closeModal();});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')window.closeModal();});
 
-document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 </script>
 </body>
 </html>
