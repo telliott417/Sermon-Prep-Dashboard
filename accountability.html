@@ -296,7 +296,8 @@ function getProgressPct(status, statusOrder) {
 function calcWeekScore(sermons, stages) {
   const todayDate = new Date(); todayDate.setHours(0,0,0,0);
   let deductions = 0;
-  for (const s of sermons.filter(s => s.status !== 'completed' && s.date && new Date(s.date.replace(/-/g,'/')) >= todayDate)) {
+  const activeSermons = sermons.filter(s => s.status !== 'completed' && s.date && new Date(s.date.replace(/-/g,'/')) >= todayDate);
+  for (const s of activeSermons) {
     const stageKeys = stages.map(st => st.key);
     const currentIdx = stageKeys.indexOf(s.status);
     for (let i = currentIdx; i < stages.length - 1; i++) {
@@ -310,7 +311,7 @@ function calcWeekScore(sermons, stages) {
       else if (diff === 2) deductions += 5;
     }
   }
-  return Math.max(0, 100 - deductions);
+  return { score: Math.max(0, 100 - deductions), hasData: activeSermons.length > 0 };
 }
 
 // ── TEAM LOGIC ────────────────────────────────────────────────────────────────
@@ -479,7 +480,8 @@ async function renderTeam(team) {
       const statusOrder = stages.map(s=>s.key);
       const streakData = streakSnap.exists() ? streakSnap.data() : {};
       const overallScore = calculateOverallScore(streakData);
-      const weekScore = calcWeekScore(sermons, stages);
+      const memberWeekResult = calcWeekScore(sermons, stages);
+      const weekScore = memberWeekResult.score;
       return { member, sermons, stages, statusOrder, overallScore, weekScore };
     } catch(e) {
       return { member, sermons: [], stages: [], statusOrder: [], overallScore: 75, weekScore: 75 };

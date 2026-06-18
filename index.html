@@ -736,6 +736,9 @@ function calculateWeekScore(sermons, stages) {
     parseDate(s.date) >= todayDate
   );
 
+  // No active sermons — return 100 for display but flag as no-data week
+  if (activeSermons.length === 0) return { score: 100, hasData: false };
+
   for (const sermon of activeSermons) {
     const workingStages = stages.filter(st =>
       st.key !== 'not-started' && st.key !== 'completed'
@@ -744,7 +747,7 @@ function calculateWeekScore(sermons, stages) {
       if (isStageCompleted(sermon, stage.key, stages)) continue;
       const dueDate = getStageDueDate(sermon.date, stage.key, sermon.customDeadlines);
       if (!dueDate) continue;
-      const du = daysUntil(dueDate); // positive = future, negative = past
+      const du = daysUntil(dueDate);
       if (du < 0) {
         const overdueDays = Math.abs(du);
         totalDeductions += Math.min(20, 10 + (overdueDays - 1) * 5);
@@ -756,7 +759,7 @@ function calculateWeekScore(sermons, stages) {
     }
   }
 
-  return Math.max(0, 100 - totalDeductions);
+  return { score: Math.max(0, 100 - totalDeductions), hasData: true };
 }
 
 // ── USER SETTINGS ─────────────────────────────────────────────────────────────
@@ -1406,7 +1409,10 @@ function calculateOverallScore(streakData) {
 }
 
 // On Monday after 12:01 am, lock in this week's score if not yet recorded
-async function maybeRecordWeeklyScore(uid, weekScore, streakData) {
+async function maybeRecordWeeklyScore(uid, weekScore, weekHasData, streakData) {
+  // Never record weeks with no active sermons
+  if (!weekHasData) return streakData;
+
   const now = new Date();
   const isMonday = now.getDay() === 1;
   const isPastMidnight = now.getHours() > 0 || (now.getHours() === 0 && now.getMinutes() >= 1);
@@ -1418,7 +1424,6 @@ async function maybeRecordWeeklyScore(uid, weekScore, streakData) {
   updated.weeklyScores = [...(streakData.weeklyScores || []), { weekStart: thisWeekStart, score: weekScore }];
   if (updated.weeklyScores.length > 12) updated.weeklyScores = updated.weeklyScores.slice(-12);
 
-  // Recalculate streak (consecutive weeks >= 80)
   const sorted = [...updated.weeklyScores].sort((a, b) => a.weekStart.localeCompare(b.weekStart));
   let streak = 0;
   for (let i = sorted.length - 1; i >= 0; i--) {
@@ -1436,9 +1441,11 @@ async function maybeRecordWeeklyScore(uid, weekScore, streakData) {
 // Main prep score init — call after sermons + stages are loaded
 async function initPrepScore(sermons, stages) {
   try {
-    const weekScore = calculateWeekScore(sermons, stages);
+    const weekResult = calculateWeekScore(sermons, stages);
+    const weekScore = weekResult.score;
+    const weekHasData = weekResult.hasData;
     let sd = await loadOrInitStreakData(currentUser.uid);
-    sd = await maybeRecordWeeklyScore(currentUser.uid, weekScore, sd);
+    sd = await maybeRecordWeeklyScore(currentUser.uid, weekScore, weekHasData, sd);
     const overallScore = calculateOverallScore(sd);
     updatePrepScoreDisplay(overallScore, weekScore);
 
@@ -2093,7 +2100,8 @@ async function loadTeamCard() {
         const memberOverall = streakSnap.exists() ? calculateOverallScore(streakSnap.data()) : 75;
 
         // Week score from deadline proximity
-        const memberWeekScore = calculateWeekScore(sermons, memberStages);
+        const memberWeekResult = calculateWeekScore(sermons, memberStages);
+        const memberWeekScore = memberWeekResult.score;
 
         // Match accountability.html: any future sermon, not just those within 21 days
         const activeS = sermons.filter(s => s.status !== 'completed' && parseDate(s.date) >= today());
