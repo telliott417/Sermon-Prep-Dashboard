@@ -668,9 +668,9 @@ function getStageDueDate(sermonDateStr, stageKey, customDeadlines) {
   const result = new Date(base);
   result.setDate(base.getDate() - diff);
 
-  // Safety check — any stage except 'completed' that falls on or after sermon date gets pushed back 7 days
-  if (result >= sermonDate && stage.key !== 'completed') {
-    result.setDate(result.getDate() - 7);
+  // Safety check — any stage except 'completed' that falls after sermon date gets clamped to sermon date
+  if (result > sermonDate && stage.key !== 'completed') {
+    result = new Date(sermonDate);
   }
 
   return result;
@@ -899,9 +899,9 @@ function validateSermonDeadlines(sermon, stages) {
   workingStages.forEach(stage => {
     let d = getStageDueDate(sermon.date, stage.key, sermon.customDeadlines);
     if (!d) return;
-    // Safety: if on or after sermon date, pull back 7 days
-    if (d >= sermonDate) {
-      d = new Date(d); d.setDate(d.getDate() - 7);
+    // Safety: if after sermon date, clamp to sermon date
+    if (d > sermonDate) {
+      d = new Date(sermonDate);
       corrected = true;
     }
     // Ensure ordering: each stage date >= previous stage date

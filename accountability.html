@@ -262,8 +262,8 @@ function getStageDueDate(sermonDateStr, stage) {
   if (diff < 0) diff += 7;
   const result = new Date(base);
   result.setDate(base.getDate() - diff);
-  if (result >= sermonDate && stage.key !== 'completed') {
-    result.setDate(result.getDate() - 7);
+  if (result > sermonDate && stage.key !== 'completed') {
+    result = new Date(sermonDate);
   }
   return result;
 }
