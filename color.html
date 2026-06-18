@@ -209,7 +209,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -226,6 +226,10 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 let currentUser = null;
+
+getRedirectResult(auth).then(result => {
+  if (result?.user) console.log('Redirect sign-in success:', result.user.displayName);
+}).catch(e => console.error('Redirect result error:', e));
 
 const PRESET_TAGS = [
   'Grace','Suffering','Faith','Hope','Prayer','Family','Culture',
@@ -279,9 +283,9 @@ loadIdeas();
 
 window.signIn = async () => {
   try {
-    await signInWithPopup(auth, provider);
+    await signInWithRedirect(auth, provider);
   } catch(e) {
-    console.error(e);
+    console.error('Redirect sign-in error:', e);
   }
 };
 

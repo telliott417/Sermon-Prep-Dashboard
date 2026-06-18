@@ -323,7 +323,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, writeBatch, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -340,6 +340,10 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 let currentUser = null;
+
+getRedirectResult(auth).then(result => {
+  if (result?.user) console.log('Redirect sign-in success:', result.user.displayName);
+}).catch(e => console.error('Redirect result error:', e));
 
 const DEFAULT_STAGES = [
   { key: 'study',   label: 'Study',        dueDay: 1, weeksBack: 1 },
@@ -487,11 +491,9 @@ onAuthStateChanged(auth, async user => {
 
 window.signIn = async () => {
   try {
-    await signInWithPopup(auth, provider);
+    await signInWithRedirect(auth, provider);
   } catch(e) {
-    const err = document.getElementById('login-error');
-    err.style.display = 'block';
-    err.textContent = 'Sign-in failed: ' + e.message;
+    console.error('Redirect sign-in error:', e);
   }
 };
 
@@ -503,24 +505,24 @@ window.signOut = async () => {
 const WELCOME_STEPS = [
   {
     icon: 'ti-layout-dashboard',
-    title: 'Welcome to your Sermon Prep Dashboard',
-    body: `This is your personal space to plan, track, and finish every sermon well. Your data is completely your own — no one else can see it except on the Accountability page, where your team gets a summary view of your progress.`
+    title: 'Welcome to Sunday Ready',
+    body: `Your personal sermon prep dashboard. Plan every sermon, track every stage, and step into Sunday confident you've given your best to the Word. Your data is your own — private by default, shareable with your team when you're ready.`
   },
   {
     icon: 'ti-book',
-    title: 'Your sermon prep, stage by stage',
+    title: 'Your prep, stage by stage',
     body: `Every sermon moves through stages — from Study all the way to preaching. Due dates are calculated automatically based on your sermon date. You can customize your stages and deadlines anytime in Settings.`,
     stages: true
   },
   {
-    icon: 'ti-plus',
-    title: 'Capture your Color',
-    body: `The Color page is your personal library of illustrations, quotes, and stories. Any time you hear a great illustration, read a powerful quote, or think of a story that might preach — capture it. Tag it by theme and find it later when you need it.`
+    icon: 'ti-palette',
+    title: 'Every sermon needs color',
+    body: `The Color page is your personal library of illustrations, quotes, and stories. Any time you hear a great illustration, read a powerful quote, or think of a story that might preach — capture it. Tag it by theme and find it later when you need it most.`
   },
   {
     icon: 'ti-users',
     title: 'Stay accountable together',
-    body: `Head to the Accountability page and enter your team code to connect with your staff. You'll be able to see each other's prep status at a glance — green means on track, red means behind. Iron sharpens iron.`,
+    body: `Head to the Accountability page and create or join a team. You'll be able to see each other's prep status at a glance — green means on track, red means behind. Iron sharpens iron.`,
     code: true
   }
 ];
@@ -573,9 +575,9 @@ function renderWelcomeStep() {
 
   // Team code for step 4
   const codeBox = step.code ? `
-    <div style="display:flex;align-items:center;justify-content:center;gap:10px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px;margin:12px 0;border:0.5px solid var(--border);">
-      <i class="ti ti-key" style="color:var(--text-tertiary);font-size:16px;"></i>
-      <span style="font-size:18px;font-weight:600;letter-spacing:0.12em;color:#185fa5;">CANDEO</span>
+    <div style="display:flex;align-items:center;gap:10px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px;margin:12px 0;border:0.5px solid var(--border);">
+      <i class="ti ti-key" style="color:var(--text-tertiary);font-size:16px;flex-shrink:0;"></i>
+      <span style="font-size:13px;color:var(--text-secondary);line-height:1.5;">Each team gets a unique code. Share it with your staff to connect — then everyone can see each other's prep at a glance.</span>
     </div>` : '';
 
   document.getElementById('welcome-body').innerHTML = `
