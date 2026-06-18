@@ -665,7 +665,7 @@ function getStageDueDate(sermonDateStr, stageKey, customDeadlines) {
   const baseDow = base.getDay();
   let diff = baseDow - stage.dueDay;
   if (diff < 0) diff += 7;
-  const result = new Date(base);
+  let result = new Date(base);
   result.setDate(base.getDate() - diff);
 
   // Safety check — any stage except 'completed' that falls after sermon date gets clamped to sermon date
@@ -2043,11 +2043,19 @@ async function loadTeamCard() {
   const el = document.getElementById('team-card-inner');
   if (!el || !currentUser) return;
   try {
-    // Get user's team code from users/{uid}/meta/team → .code
-    const teamMetaSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'));
-    if (!teamMetaSnap.exists() || !teamMetaSnap.data().code) {
+    // Read from new plural teams doc, fall back to legacy singular
+    let teamCodes = [];
+    const newSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'teams'));
+    if (newSnap.exists() && newSnap.data().codes?.length) {
+      teamCodes = newSnap.data().codes;
+    } else {
+      const oldSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'));
+      if (oldSnap.exists() && oldSnap.data().code) teamCodes = [oldSnap.data().code];
+    }
+
+    if (teamCodes.length === 0) {
       el.innerHTML = `
-<div class="r-card-title" style="margin-bottom:12px;">Team · Candeo</div>
+<div class="r-card-title" style="margin-bottom:12px;">Team</div>
 <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:16px 8px 8px;">
   <div style="font-size:28px;margin-bottom:8px;">👥</div>
   <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;">No team yet</div>
@@ -2056,22 +2064,7 @@ async function loadTeamCard() {
 </div>`;
       return;
     }
-    const teamCode = teamMetaSnap.data().code;
 
-    // Load team document — members stored as array in teams/{code}
-    const teamSnap = await getDoc(doc(db, 'teams', teamCode));
-    if (!teamSnap.exists()) {
-      el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team · ${teamCode}</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">Team not found.</div>`;
-      return;
-    }
-    const teamMembers = teamSnap.data().members || [];
-    if (teamMembers.length === 0) {
-      el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team · ${teamCode}</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">No members yet.</div>`;
-      return;
-    }
-
-    // Load each member's sermon + settings + streak data
-    // Fallback stages match accountability.html exactly
     const defaultMemberStages = [
       { key:'not-started', label:'Not yet started', dueDay:null,  weeksBack:null },
       { key:'study',       label:'Study',           dueDay:2,     weeksBack:2 },
@@ -2082,74 +2075,90 @@ async function loadTeamCard() {
       { key:'run',         label:'Run-through',      dueDay:4,     weeksBack:1 },
       { key:'completed',   label:'Completed',        dueDay:0,     weeksBack:0 }
     ];
-    const memberPromises = teamMembers.map(async (mData) => {
-      const uid = mData.uid;
-      try {
-        const [sermonsSnap, settingsSnap, streakSnap] = await Promise.all([
-          getDocs(collection(db, 'users', uid, 'sermons')),
-          getDoc(doc(db, 'users', uid, 'meta', 'settings')),
-          getDoc(doc(db, 'users', uid, 'meta', 'streak_data'))
-        ]);
-        const sermons = sermonsSnap.docs.map(d => ({id:d.id,...d.data()}));
-        const memberSettings = settingsSnap.exists() ? settingsSnap.data() : null;
-        const memberStages = memberSettings?.stages ? [
-          { key:'not-started', label:'Not yet started', dueDay:null, weeksBack:null },
-          ...memberSettings.stages,
-          { key:'completed',   label:'Completed',       dueDay:0,    weeksBack:0 }
-        ] : defaultMemberStages;
 
-        // Overall score from 12-week rolling average (or 75 fallback)
-        const memberOverall = streakSnap.exists() ? calculateOverallScore(streakSnap.data()) : 75;
+    async function loadMembersForTeam(teamMembers) {
+      const results = await Promise.all(teamMembers.map(async (mData) => {
+        const uid = mData.uid;
+        try {
+          const [sermonsSnap, settingsSnap, streakSnap] = await Promise.all([
+            getDocs(collection(db, 'users', uid, 'sermons')),
+            getDoc(doc(db, 'users', uid, 'meta', 'settings')),
+            getDoc(doc(db, 'users', uid, 'meta', 'streak_data'))
+          ]);
+          const sermons = sermonsSnap.docs.map(d => ({id:d.id,...d.data()}));
+          const memberSettings = settingsSnap.exists() ? settingsSnap.data() : null;
+          const memberStages = memberSettings?.stages ? [
+            { key:'not-started', label:'Not yet started', dueDay:null, weeksBack:null },
+            ...memberSettings.stages,
+            { key:'completed',   label:'Completed',       dueDay:0,    weeksBack:0 }
+          ] : defaultMemberStages;
+          const memberOverall = streakSnap.exists() ? calculateOverallScore(streakSnap.data()) : 75;
+          const memberWeekScore = calculateWeekScore(sermons, memberStages).score;
+          const activeS = sermons.filter(s => s.status !== 'completed' && parseDate(s.date) >= today());
+          const behind = activeS.filter(s => isBehind(s));
+          const nextSermon = [...activeS].sort((a,b) => a.date.localeCompare(b.date))[0];
+          return { uid, name: mData.name || 'Member', score: memberOverall, weekScore: memberWeekScore, behind: behind.length, nextSermon };
+        } catch(e) { return { uid, name: mData.name || 'Member', score: 75, weekScore: 75, behind: 0, nextSermon: null }; }
+      }));
+      return results.sort((a,b) => b.score - a.score);
+    }
 
-        // Week score from deadline proximity
-        const memberWeekResult = calculateWeekScore(sermons, memberStages);
-        const memberWeekScore = memberWeekResult.score;
-
-        // Match accountability.html: any future sermon, not just those within 21 days
-        const activeS = sermons.filter(s => s.status !== 'completed' && parseDate(s.date) >= today());
-        const behind = activeS.filter(s => isBehind(s));
-        const nextSermon = [...activeS].sort((a,b) => a.date.localeCompare(b.date))[0];
-        return { uid, name: mData.name || 'Member', score: memberOverall, weekScore: memberWeekScore, behind: behind.length, nextSermon };
-      } catch(e) { return { uid, name: mData.name || 'Member', score: 75, weekScore: 75, behind: 0, nextSermon: null }; }
-    });
-    const members = await Promise.all(memberPromises);
-    members.sort((a,b) => b.score - a.score);
-
-    const itemsHtml = members.map(m => {
-      const sc = getScoreColor(m.score);
-      const wc = getScoreColor(m.weekScore);
-      const outerOffset = (131.9 * (1 - m.score/100)).toFixed(1);
-      const innerOffset = (81.7 * (1 - m.weekScore/100)).toFixed(1);
-      const isYou = m.uid === currentUser.uid;
-      const stageBg = m.behind > 0 ? 'var(--red-light)' : 'var(--green-light)';
-      const stageFg = m.behind > 0 ? 'var(--red)' : 'var(--green)';
-      const stageLabel = m.nextSermon
-        ? `${STATUS_LABELS[m.nextSermon.status] || m.nextSermon.status} · ${m.behind > 0 ? m.behind + ' behind' : 'On track'}`
-        : 'No active sermon';
-      return `<div class="team-item">
-        <div class="team-rings-wrap">
-          <svg class="team-rings-svg" viewBox="0 0 52 52">
-            <circle cx="26" cy="26" r="21" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="5"/>
-            <circle cx="26" cy="26" r="21" fill="none" stroke="${sc}" stroke-width="5" stroke-linecap="round"
-              stroke-dasharray="131.9 131.9" stroke-dashoffset="${outerOffset}" transform="rotate(-90 26 26)"/>
-            <circle cx="26" cy="26" r="17" fill="none" stroke="var(--bg)" stroke-width="1.5"/>
-            <circle cx="26" cy="26" r="13" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="3.5"/>
-            <circle cx="26" cy="26" r="13" fill="none" stroke="${wc}" stroke-width="3.5" stroke-linecap="round"
-              stroke-dasharray="81.7 81.7" stroke-dashoffset="${innerOffset}" transform="rotate(-90 26 26)"/>
-          </svg>
-          <div class="team-rings-center">
-            <div class="team-score-num" style="color:${sc}">${m.score}</div>
+    function renderMemberItems(members) {
+      return members.map(m => {
+        const sc = getScoreColor(m.score);
+        const wc = getScoreColor(m.weekScore);
+        const outerOffset = (131.9 * (1 - m.score/100)).toFixed(1);
+        const innerOffset = (81.7 * (1 - m.weekScore/100)).toFixed(1);
+        const isYou = m.uid === currentUser.uid;
+        const stageBg = m.behind > 0 ? 'var(--red-light)' : 'var(--green-light)';
+        const stageFg = m.behind > 0 ? 'var(--red)' : 'var(--green)';
+        const stageLabel = m.nextSermon
+          ? `${STATUS_LABELS[m.nextSermon.status] || m.nextSermon.status} · ${m.behind > 0 ? m.behind + ' behind' : 'On track'}`
+          : 'No active sermon';
+        return `<div class="team-item">
+          <div class="team-rings-wrap">
+            <svg class="team-rings-svg" viewBox="0 0 52 52">
+              <circle cx="26" cy="26" r="21" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="5"/>
+              <circle cx="26" cy="26" r="21" fill="none" stroke="${sc}" stroke-width="5" stroke-linecap="round"
+                stroke-dasharray="131.9 131.9" stroke-dashoffset="${outerOffset}" transform="rotate(-90 26 26)"/>
+              <circle cx="26" cy="26" r="17" fill="none" stroke="var(--bg)" stroke-width="1.5"/>
+              <circle cx="26" cy="26" r="13" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="3.5"/>
+              <circle cx="26" cy="26" r="13" fill="none" stroke="${wc}" stroke-width="3.5" stroke-linecap="round"
+                stroke-dasharray="81.7 81.7" stroke-dashoffset="${innerOffset}" transform="rotate(-90 26 26)"/>
+            </svg>
+            <div class="team-rings-center">
+              <div class="team-score-num" style="color:${sc}">${m.score}</div>
+            </div>
           </div>
-        </div>
-        <div class="team-info">
-          <div class="team-name">${m.name}${isYou ? ' <span style="font-size:8px;background:var(--warm-bg);border:1px solid var(--border);padding:1px 5px;border-radius:3px;color:var(--stone);">you</span>' : ''}</div>
-          <div class="team-sermon">${m.nextSermon ? (m.nextSermon.title || 'Untitled') : '—'}</div>
-          <span class="team-stage" style="background:${stageBg};color:${stageFg};">${stageLabel}</span>
-        </div>
-      </div>`;
-    }).join('');
+          <div class="team-info">
+            <div class="team-name">${m.name}${isYou ? ' <span style="font-size:8px;background:var(--warm-bg);border:1px solid var(--border);padding:1px 5px;border-radius:3px;color:var(--stone);">you</span>' : ''}</div>
+            <div class="team-sermon">${m.nextSermon ? (m.nextSermon.title || 'Untitled') : '—'}</div>
+            <span class="team-stage" style="background:${stageBg};color:${stageFg};">${stageLabel}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
 
-    el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team · ${teamCode}</div>${itemsHtml}`;
+    // Load all teams and render each as a section
+    const teamSnaps = await Promise.all(teamCodes.map(code => getDoc(doc(db, 'teams', code))));
+    const teams = teamSnaps.filter(s => s.exists()).map(s => s.data());
+
+    if (teams.length === 0) {
+      el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">No teams found.</div>`;
+      return;
+    }
+
+    let html = '';
+    for (const team of teams) {
+      const teamMembers = team.members || [];
+      const members = await loadMembersForTeam(teamMembers);
+      const teamName = team.name || team.code;
+      html += `<div style="margin-bottom:${teams.length > 1 ? '16px' : '0'};">
+        <div class="r-card-title" style="margin-bottom:10px;">${teamName}</div>
+        ${members.length ? renderMemberItems(members) : '<div style="font-size:11px;color:var(--stone-light);padding:4px 0;">No members yet.</div>'}
+      </div>`;
+    }
+    el.innerHTML = html;
   } catch(e) {
     console.error('Team card failed:', e);
     el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">Could not load team.</div>`;

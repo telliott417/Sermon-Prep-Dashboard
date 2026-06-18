@@ -16,25 +16,23 @@
   /* Button variants */
   .btn.danger { color: var(--red); border-color: var(--red-border); }
   .btn.danger:hover { background: var(--red-light); }
+  .btn-ghost { background: none; border: 1px solid var(--border-md); color: var(--stone); border-radius: var(--radius-md); padding: 7px 14px; font-size: 13px; cursor: pointer; font-family: var(--font); }
+  .btn-ghost:hover { background: var(--warm-bg); }
+  .btn-brand { background: var(--brand); color: white; border: none; border-radius: var(--radius-md); padding: 7px 14px; font-size: 13px; cursor: pointer; font-family: var(--font); font-weight: 500; }
+  .btn-brand:hover { opacity: 0.9; }
 
-  /* Join / create team panel */
-  .onboard-panel { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 2rem; max-width: 480px; }
-  .onboard-panel h2 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-  .onboard-panel p { font-size: 13px; color: var(--stone); margin-bottom: 1.25rem; line-height: 1.6; }
-  .onboard-row { display: flex; gap: 8px; margin-bottom: 12px; }
-  .onboard-row input { flex: 1; padding: 9px 12px; border: 1px solid var(--border-md); border-radius: var(--radius-md); background: var(--warm-bg); color: var(--ink); font-family: var(--font); font-size: 14px; outline: none; text-transform: uppercase; letter-spacing: 0.08em; }
+  /* Onboard two-column layout */
+  .onboard-wrap { max-width: 720px; }
+  .onboard-grid { display: grid; grid-template-columns: 1fr 1px 1fr; background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+  .onboard-col { padding: 2rem; }
+  .onboard-col h2 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .onboard-col p { font-size: 12px; color: var(--stone); margin-bottom: 1.25rem; line-height: 1.6; }
+  .onboard-vdivider { background: var(--border); }
+  .onboard-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .onboard-row input { flex: 1; padding: 9px 12px; border: 1px solid var(--border-md); border-radius: var(--radius-md); background: var(--warm-bg); color: var(--ink); font-family: var(--font); font-size: 14px; outline: none; }
+  .onboard-row input.code-input { text-transform: uppercase; letter-spacing: 0.08em; }
   .onboard-row input:focus { border-color: var(--blue-text); }
-  .onboard-divider { display: flex; align-items: center; gap: 10px; margin: 1.25rem 0; }
-  .onboard-divider span { font-size: 12px; color: var(--stone-light); }
-  .onboard-divider::before, .onboard-divider::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
   .onboard-error { font-size: 12px; color: var(--red); margin-top: 6px; min-height: 18px; }
-
-  /* Team header (topbar-actions) */
-  .team-code-badge { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1px solid var(--border-md); border-radius: var(--radius-md); padding: 7px 14px; font-size: 13px; color: var(--stone); }
-  .team-code-value { font-weight: 700; letter-spacing: 0.1em; color: var(--blue-text); }
-  .copy-btn { background: none; border: none; cursor: pointer; color: var(--stone-light); font-size: 15px; padding: 2px; }
-  .copy-btn:hover { color: var(--blue-text); }
-  .copied-msg { font-size: 11px; color: var(--green); }
 
   /* Member grid */
   .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
@@ -75,10 +73,9 @@
   .prog-pct { font-size: 10px; color: var(--stone-light); white-space: nowrap; }
   .no-sermons-msg { padding: 1.5rem 18px; font-size: 13px; color: var(--stone-light); text-align: center; }
 
-  /* Rings wrap + photo/initials overlay */
+  /* Score rings */
   .rings-outer-wrap { position: relative; display: inline-block; flex-shrink: 0; }
   .member-rings-wrap { position: relative; width: 80px; height: 80px; cursor: pointer; }
-  /* Score tooltip */
   .score-tooltip { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); background: var(--white); border: 1px solid var(--border-md); border-radius: var(--r-lg); padding: 14px 16px; display: none; gap: 16px; align-items: center; white-space: nowrap; z-index: 200; box-shadow: 0 4px 16px rgba(20,18,16,0.12); }
   .score-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--border-md); }
   .score-tooltip::before { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--white); z-index: 1; }
@@ -92,15 +89,12 @@
 
   @media (max-width: 768px) {
     .main { padding: 12px 12px 24px; }
-    /* Hide overflow topbar items on mobile */
-    .team-code-badge { display: none !important; }
-    #topbar-actions .btn.danger { display: none !important; }
-    /* Stack team score card vertically */
     .team-score-wrap { padding: 16px !important; }
     .team-score-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
     .team-score-divider { width: 80% !important; height: 1px !important; background: var(--border) !important; margin: 12px auto !important; }
-    /* Member grid single column */
     .member-grid { grid-template-columns: 1fr !important; }
+    .onboard-grid { grid-template-columns: 1fr !important; }
+    .onboard-vdivider { width: 100% !important; height: 1px !important; }
   }
 </style>
 </head>
@@ -149,7 +143,42 @@
       </div>
     </main>
   </div>
+</div>
 
+<!-- JOIN TEAM MODAL -->
+<div class="modal-overlay" id="join-team-modal">
+  <div class="modal">
+    <h2>Join a team</h2>
+    <div class="form-field">
+      <label>Team code</label>
+      <input type="text" id="modal-join-code" placeholder="e.g. CANDEO" style="text-transform:uppercase;letter-spacing:0.08em;" />
+    </div>
+    <div class="onboard-error" id="modal-join-error"></div>
+    <div class="modal-actions">
+      <button class="action-btn" onclick="closeTeamModal()">Cancel</button>
+      <button class="action-btn primary" onclick="joinTeamFromModal()">Join team</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE TEAM MODAL -->
+<div class="modal-overlay" id="create-team-modal">
+  <div class="modal">
+    <h2>Create a team</h2>
+    <div class="form-field">
+      <label>Team name</label>
+      <input type="text" id="modal-create-name" placeholder="e.g. Candeo Staff" />
+    </div>
+    <div class="form-field">
+      <label>Team code</label>
+      <input type="text" id="modal-create-code" placeholder="e.g. CANDEO" style="text-transform:uppercase;letter-spacing:0.08em;" />
+    </div>
+    <div class="onboard-error" id="modal-create-error"></div>
+    <div class="modal-actions">
+      <button class="action-btn" onclick="closeTeamModal()">Cancel</button>
+      <button class="action-btn primary" onclick="createTeamFromModal()">Create team</button>
+    </div>
+  </div>
 </div>
 
 <script type="module">
@@ -191,11 +220,6 @@ function calculateOverallScore(streakData) {
   if (scores.length === 0) return 75;
   const sum = scores.reduce((acc, w) => acc + (w.score ?? 75), 0);
   return Math.round(sum / scores.length);
-}
-function getWeekScore(streakData) {
-  const scores = streakData.weeklyScores || [];
-  if (scores.length === 0) return 75;
-  return scores[scores.length - 1].score ?? 75;
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
@@ -260,7 +284,7 @@ function getStageDueDate(sermonDateStr, stage) {
   const baseDow = base.getDay();
   let diff = baseDow - stage.dueDay;
   if (diff < 0) diff += 7;
-  const result = new Date(base);
+  let result = new Date(base);
   result.setDate(base.getDate() - diff);
   if (result > sermonDate && stage.key !== 'completed') {
     result = new Date(sermonDate);
@@ -288,7 +312,7 @@ function getProgressPct(status, statusOrder) {
   const idx = statusOrder.indexOf(status);
   if (idx <= 0) return 0;
   if (status === 'completed') return 100;
-  const totalWorkingStages = statusOrder.length - 2; // exclude not-started and completed
+  const totalWorkingStages = statusOrder.length - 2;
   const completedStages = idx - 1;
   return totalWorkingStages > 0 ? Math.round((completedStages / totalWorkingStages) * 100) : 0;
 }
@@ -314,14 +338,27 @@ function calcWeekScore(sermons, stages) {
   return { score: Math.max(0, 100 - deductions), hasData: activeSermons.length > 0 };
 }
 
-// ── TEAM LOGIC ────────────────────────────────────────────────────────────────
-const TEAM_CODE = 'CANDEO';
-const TEAM_DOC = doc(db, 'teams', TEAM_CODE);
+// ── MIGRATION ─────────────────────────────────────────────────────────────────
+async function migrateTeamData(uid) {
+  const oldRef = doc(db, 'users', uid, 'meta', 'team');
+  const newRef = doc(db, 'users', uid, 'meta', 'teams');
+  const [oldSnap, newSnap] = await Promise.all([getDoc(oldRef), getDoc(newRef)]);
 
+  if (newSnap.exists()) return newSnap.data().codes || [];
+
+  if (oldSnap.exists() && oldSnap.data().code) {
+    const code = oldSnap.data().code;
+    await setDoc(newRef, { codes: [code] });
+    return [code];
+  }
+
+  return [];
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
   setSyncStatus('syncing', 'Loading...');
   try {
-    // Check role — family members see a read-only message instead of team join
     const profileSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'));
     const role = profileSnap.exists() ? profileSnap.data().role : 'member';
     if (role === 'family') {
@@ -335,19 +372,25 @@ async function init() {
       setSyncStatus('synced', '');
       return;
     }
-    const snap = await getDoc(TEAM_DOC);
-    if (!snap.exists()) {
-      renderOnboard(false);
-    } else {
-      const team = snap.data();
-      const members = team.members || [];
-      const isMember = members.some(m => m.uid === currentUser.uid);
-      if (!isMember) {
-        renderOnboard(true, team);
-      } else {
-        await renderTeam(team);
-      }
+
+    const teamCodes = await migrateTeamData(currentUser.uid);
+
+    if (teamCodes.length === 0) {
+      renderOnboard();
+      setSyncStatus('synced', '');
+      return;
     }
+
+    const teamSnaps = await Promise.all(teamCodes.map(code => getDoc(doc(db, 'teams', code))));
+    const teams = teamSnaps.filter(snap => snap.exists()).map(snap => snap.data());
+
+    if (teams.length === 0) {
+      renderOnboard();
+      setSyncStatus('synced', '');
+      return;
+    }
+
+    await renderAllTeams(teams);
     setSyncStatus('synced', 'Synced');
   } catch(e) {
     setSyncStatus('error', 'Error');
@@ -355,65 +398,63 @@ async function init() {
   }
 }
 
-window.refreshTeam = async () => { await init(); };
-
 // ── ONBOARD ───────────────────────────────────────────────────────────────────
-function renderOnboard(teamExists, team) {
+function renderOnboard() {
   document.getElementById('topbar-actions').innerHTML = '';
-  const desc = teamExists
-    ? 'Enter the team code your team leader shared with you to join the accountability group.'
-    : 'Enter the team code your team leader shared with you, or create a new team.';
   document.getElementById('main-content').innerHTML = `
-    <div class="onboard-panel">
-      <h2>Join your team</h2>
-      <p>${desc}</p>
-      <div class="onboard-row">
-        <input type="text" id="join-code" placeholder="TEAM CODE" maxlength="20" />
-        <button class="btn primary" onclick="joinTeam()"><i class="ti ti-arrow-right"></i> Join</button>
+    <div class="onboard-wrap">
+      <div style="font-size:13px;color:var(--stone);margin-bottom:1.25rem;line-height:1.6;">Connect with your team to see each other's prep at a glance.</div>
+      <div class="onboard-grid">
+        <div class="onboard-col">
+          <h2>Create a team</h2>
+          <p>Start a team for your staff. Share the code and they can join instantly.</p>
+          <div class="onboard-row">
+            <input type="text" id="create-name" placeholder="Team name e.g. Candeo Staff" />
+          </div>
+          <div class="onboard-row">
+            <input type="text" id="create-code" class="code-input" placeholder="Team code e.g. CANDEO" maxlength="20" />
+            <button class="btn primary" onclick="createTeam()"><i class="ti ti-plus"></i> Create</button>
+          </div>
+          <div class="onboard-error" id="create-error"></div>
+        </div>
+        <div class="onboard-vdivider"></div>
+        <div class="onboard-col">
+          <h2>Join a team</h2>
+          <p>Enter the team code your team leader shared with you.</p>
+          <div class="onboard-row" style="margin-top:36px;">
+            <input type="text" id="join-code" class="code-input" placeholder="Enter team code" maxlength="20" />
+            <button class="btn primary" onclick="joinTeam()"><i class="ti ti-arrow-right"></i> Join</button>
+          </div>
+          <div class="onboard-error" id="join-error"></div>
+        </div>
       </div>
-      <div class="onboard-error" id="join-error"></div>
-      <div class="onboard-divider"><span>or</span></div>
-      <button class="btn" onclick="showCreate()"><i class="ti ti-plus"></i> Create a new team</button>
     </div>`;
 }
 
-window.showCreate = () => {
-  document.getElementById('main-content').innerHTML = `
-    <div class="onboard-panel">
-      <h2>Create a team</h2>
-      <p>Choose a team code your staff will use to join. Keep it simple — like your church name.</p>
-      <div class="onboard-row">
-        <input type="text" id="create-code" placeholder="e.g. CANDEO" maxlength="20" style="text-transform:uppercase;" />
-        <button class="btn primary" onclick="createTeam()"><i class="ti ti-plus"></i> Create</button>
-      </div>
-      <div class="onboard-error" id="create-error"></div>
-      <div style="margin-top:12px;">
-        <button class="btn" onclick="init()">← Back</button>
-      </div>
-    </div>`;
-};
-
-window.createTeam = async () => {
-  const code = document.getElementById('create-code').value.trim().toUpperCase();
-  const errEl = document.getElementById('create-error');
+// ── TEAM SAVE LOGIC ───────────────────────────────────────────────────────────
+async function doCreateTeam(name, code, errEl) {
+  if (!name) { errEl.textContent = 'Please enter a team name.'; return; }
   if (!code) { errEl.textContent = 'Please enter a team code.'; return; }
   try {
     const existing = await getDoc(doc(db, 'teams', code));
     if (existing.exists()) { errEl.textContent = 'That code is already taken. Try another.'; return; }
     await setDoc(doc(db, 'teams', code), {
       code,
+      name,
       createdBy: currentUser.uid,
       createdAt: new Date().toISOString(),
       members: [{ uid: currentUser.uid, name: currentUser.displayName, email: currentUser.email, photo: currentUser.photoURL || '' }]
     });
-    await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'), { code });
+    const teamsRef = doc(db, 'users', currentUser.uid, 'meta', 'teams');
+    const teamsSnap = await getDoc(teamsRef);
+    const existingCodes = teamsSnap.exists() ? (teamsSnap.data().codes || []) : [];
+    await setDoc(teamsRef, { codes: [...existingCodes, code] });
+    closeTeamModal();
     await init();
   } catch(e) { errEl.textContent = 'Error: ' + e.message; }
-};
+}
 
-window.joinTeam = async () => {
-  const code = document.getElementById('join-code').value.trim().toUpperCase();
-  const errEl = document.getElementById('join-error');
+async function doJoinTeam(code, errEl) {
   if (!code) { errEl.textContent = 'Please enter a team code.'; return; }
   try {
     const snap = await getDoc(doc(db, 'teams', code));
@@ -423,37 +464,85 @@ window.joinTeam = async () => {
     await updateDoc(doc(db, 'teams', code), {
       members: arrayUnion({ uid: currentUser.uid, name: currentUser.displayName, email: currentUser.email, photo: currentUser.photoURL || '' })
     });
-    await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'), { code });
+    const teamsRef = doc(db, 'users', currentUser.uid, 'meta', 'teams');
+    const teamsSnap = await getDoc(teamsRef);
+    const existingCodes = teamsSnap.exists() ? (teamsSnap.data().codes || []) : [];
+    if (!existingCodes.includes(code)) {
+      await setDoc(teamsRef, { codes: [...existingCodes, code] });
+    }
+    closeTeamModal();
     await init();
   } catch(e) { errEl.textContent = 'Error: ' + e.message; }
+}
+
+window.createTeam = async () => {
+  const name = document.getElementById('create-name').value.trim();
+  const code = document.getElementById('create-code').value.trim().toUpperCase();
+  await doCreateTeam(name, code, document.getElementById('create-error'));
 };
 
-// ── RENDER TEAM ───────────────────────────────────────────────────────────────
-async function renderTeam(team) {
-  const members = team.members || [];
+window.joinTeam = async () => {
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
+  await doJoinTeam(code, document.getElementById('join-error'));
+};
+
+window.createTeamFromModal = async () => {
+  const name = document.getElementById('modal-create-name').value.trim();
+  const code = document.getElementById('modal-create-code').value.trim().toUpperCase();
+  await doCreateTeam(name, code, document.getElementById('modal-create-error'));
+};
+
+window.joinTeamFromModal = async () => {
+  const code = document.getElementById('modal-join-code').value.trim().toUpperCase();
+  await doJoinTeam(code, document.getElementById('modal-join-error'));
+};
+
+// ── RENDER ALL TEAMS ──────────────────────────────────────────────────────────
+async function renderAllTeams(teams) {
   const content = document.getElementById('main-content');
 
-  // Populate topbar-actions with refresh, team code badge, leave team
   document.getElementById('topbar-actions').innerHTML = `
-    <div class="team-code-badge">
-      Team: <span class="team-code-value">${team.code}</span>
-      <button class="copy-btn" onclick="copyCode('${team.code}')" title="Copy code"><i class="ti ti-copy"></i></button>
-      <span class="copied-msg" id="copied-msg"></span>
-    </div>
-    <button class="btn danger" onclick="leaveTeam()"><i class="ti ti-logout"></i> Leave team</button>`;
+    <button class="btn-ghost" onclick="showJoinTeamModal()">+ Join team</button>
+    <button class="btn-brand" onclick="showCreateTeamModal()">+ Create team</button>`;
 
-  content.innerHTML = `
-    <div id="team-score-card"></div>
-    <div class="section-header">
-      <div class="section-title">Team members</div>
-      <div class="section-line"></div>
-      <div class="section-count">${members.length}</div>
+  content.innerHTML = teams.map(team => `
+    <div id="team-section-${team.code}" style="margin-bottom:32px;">
+      <div class="section-header">
+        <div class="section-title">${team.name || team.code}</div>
+        <div class="section-line"></div>
+        <div class="section-count" id="count-${team.code}">${team.members.length} member${team.members.length !== 1 ? 's' : ''}</div>
+        <button class="btn-ghost" style="font-size:11px;padding:4px 10px;" onclick="leaveTeam('${team.code}')">Leave</button>
+      </div>
+      <div id="team-score-${team.code}"></div>
+      <div id="member-grid-${team.code}" class="member-grid">
+        <div class="loading-state"><i class="ti ti-loader"></i>Loading...</div>
+      </div>
     </div>
-    <div class="member-grid" id="member-grid">
-      <div class="loading-state"><i class="ti ti-loader"></i>Loading member data...</div>
-    </div>`;
+  `).join('');
 
-  // Load each member's sermons, settings, and streak_data
+  for (const team of teams) {
+    await loadTeamMembers(team);
+  }
+}
+
+// ── LOAD TEAM MEMBERS ─────────────────────────────────────────────────────────
+async function loadTeamMembers(team) {
+  const members = team.members || [];
+  const gridEl = document.getElementById(`member-grid-${team.code}`);
+  const scoreEl = document.getElementById(`team-score-${team.code}`);
+  if (!gridEl || !scoreEl) return;
+
+  const defaultStages = [
+    {key:'not-started',label:'Not yet started',dueDay:null,weeksBack:null},
+    {key:'study',label:'Study',dueDay:2,weeksBack:2},
+    {key:'idea',label:'Main idea',dueDay:2,weeksBack:2},
+    {key:'outline',label:'Outline',dueDay:3,weeksBack:2},
+    {key:'draft',label:'Draft',dueDay:2,weeksBack:1},
+    {key:'final',label:'Final',dueDay:3,weeksBack:1},
+    {key:'run',label:'Run-through',dueDay:4,weeksBack:1},
+    {key:'completed',label:'Completed',dueDay:0,weeksBack:0}
+  ];
+
   const memberData = await Promise.all(members.map(async member => {
     try {
       const [sermonsSnap, settingsSnap, streakSnap] = await Promise.all([
@@ -467,111 +556,99 @@ async function renderTeam(team) {
         {key:'not-started',label:'Not yet started',dueDay:null,weeksBack:null},
         ...settings.stages,
         {key:'completed',label:'Completed',dueDay:0,weeksBack:0}
-      ] : [
-        {key:'not-started',label:'Not yet started',dueDay:null,weeksBack:null},
-        {key:'study',label:'Study',dueDay:2,weeksBack:2},
-        {key:'idea',label:'Main idea',dueDay:2,weeksBack:2},
-        {key:'outline',label:'Outline',dueDay:3,weeksBack:2},
-        {key:'draft',label:'Draft',dueDay:2,weeksBack:1},
-        {key:'final',label:'Final',dueDay:3,weeksBack:1},
-        {key:'run',label:'Run-through',dueDay:4,weeksBack:1},
-        {key:'completed',label:'Completed',dueDay:0,weeksBack:0}
-      ];
-      const statusOrder = stages.map(s=>s.key);
+      ] : defaultStages;
+      const statusOrder = stages.map(s => s.key);
       const streakData = streakSnap.exists() ? streakSnap.data() : {};
       const overallScore = calculateOverallScore(streakData);
-      const memberWeekResult = calcWeekScore(sermons, stages);
-      const weekScore = memberWeekResult.score;
+      const weekScore = calcWeekScore(sermons, stages).score;
       return { member, sermons, stages, statusOrder, overallScore, weekScore };
     } catch(e) {
       return { member, sermons: [], stages: [], statusOrder: [], overallScore: 75, weekScore: 75 };
     }
   }));
 
-  // Sort members: those with upcoming sermons first (by nearest date), then those without
   memberData.sort((a, b) => {
-    const aNext = a.sermons
-      .filter(s => s.status !== 'completed' && daysUntil(parseDate(s.date)) >= 0)
-      .sort((x,y) => x.date.localeCompare(y.date))[0];
-    const bNext = b.sermons
-      .filter(s => s.status !== 'completed' && daysUntil(parseDate(s.date)) >= 0)
-      .sort((x,y) => x.date.localeCompare(y.date))[0];
+    const aNext = a.sermons.filter(s => s.status !== 'completed' && daysUntil(parseDate(s.date)) >= 0).sort((x,y) => x.date.localeCompare(y.date))[0];
+    const bNext = b.sermons.filter(s => s.status !== 'completed' && daysUntil(parseDate(s.date)) >= 0).sort((x,y) => x.date.localeCompare(y.date))[0];
     if (aNext && bNext) return aNext.date.localeCompare(bNext.date);
-    if (aNext) return -1;
-    if (bNext) return 1;
-    return 0;
+    if (aNext) return -1; if (bNext) return 1; return 0;
   });
 
   // ── TEAM SCORE CARD ──────────────────────────────────────────────────────────
-  const avgOverall = Math.round(memberData.reduce((sum, d) => sum + d.overallScore, 0) / memberData.length);
-  const avgWeek    = Math.round(memberData.reduce((sum, d) => sum + d.weekScore,    0) / memberData.length);
-  const avgOC = getScoreColor(avgOverall);
-  const avgWC = getScoreColor(avgWeek);
-  const avgOuterOff = (276.5 * (1 - avgOverall / 100)).toFixed(1);
-  const avgWeekOff  = (276.5 * (1 - avgWeek    / 100)).toFixed(1);
+  if (memberData.length > 0) {
+    const avgOverall = Math.round(memberData.reduce((sum, d) => sum + d.overallScore, 0) / memberData.length);
+    const avgWeek    = Math.round(memberData.reduce((sum, d) => sum + d.weekScore,    0) / memberData.length);
+    const avgOC = getScoreColor(avgOverall);
+    const avgWC = getScoreColor(avgWeek);
+    const avgOuterOff = (276.5 * (1 - avgOverall / 100)).toFixed(1);
+    const avgWeekOff  = (276.5 * (1 - avgWeek    / 100)).toFixed(1);
+    const teamName = team.name || team.code;
 
-  const makeTeamRing = (score, color, offset) => `
-    <div class="team-ring-svg" style="position:relative;width:100px;height:100px;flex-shrink:0;">
-      <svg width="100" height="100" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="9"/>
-        <circle cx="50" cy="50" r="44" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round"
-          stroke-dasharray="276.5 276.5" stroke-dashoffset="${offset}" transform="rotate(-90 50 50)"/>
-      </svg>
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
-        <span style="font-size:22px;font-weight:800;color:${color};">${score}</span>
-      </div>
-    </div>`;
-
-  const makeMemberDot = (d, scoreType) => {
-    const score = scoreType === 'overall' ? d.overallScore : d.weekScore;
-    const color = getScoreColor(score);
-    const dotOffset = (69.1 * (1 - score / 100)).toFixed(1);
-    const firstName = (d.member.name || d.member.email || '?').split(' ')[0];
-    return `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;" title="${firstName}: ${score}">
-        <div style="position:relative;width:28px;height:28px;">
-          <svg width="28" height="28" viewBox="0 0 28 28">
-            <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="3"/>
-            <circle cx="14" cy="14" r="11" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round"
-              stroke-dasharray="69.1 69.1" stroke-dashoffset="${dotOffset}" transform="rotate(-90 14 14)"/>
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-            <span style="font-size:7px;font-weight:700;color:${color};">${score}</span>
-          </div>
+    const makeTeamRing = (score, color, offset) => `
+      <div style="position:relative;width:100px;height:100px;flex-shrink:0;">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="9"/>
+          <circle cx="50" cy="50" r="44" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round"
+            stroke-dasharray="276.5 276.5" stroke-dashoffset="${offset}" transform="rotate(-90 50 50)"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:22px;font-weight:800;color:${color};">${score}</span>
         </div>
-        <span style="font-size:9px;color:var(--stone);max-width:28px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${firstName}</span>
       </div>`;
-  };
 
-  document.getElementById('team-score-card').innerHTML = `
-    <div class="team-score-wrap" style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-sm);padding:22px 28px;margin-bottom:16px;">
-      <div class="team-score-grid" style="display:grid;grid-template-columns:1fr 1px 1fr;gap:24px;align-items:center;">
-        <div style="display:flex;align-items:center;gap:20px;">
-          ${makeTeamRing(avgOverall, avgOC, avgOuterOff)}
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--ink);">${team.code} Team</div>
-            <div style="font-size:11px;color:var(--stone);margin-top:2px;">Average overall prep score</div>
-            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-              ${memberData.map(d => makeMemberDot(d, 'overall')).join('')}
+    const makeMemberDot = (d, scoreType) => {
+      const score = scoreType === 'overall' ? d.overallScore : d.weekScore;
+      const color = getScoreColor(score);
+      const dotOffset = (69.1 * (1 - score / 100)).toFixed(1);
+      const firstName = (d.member.name || d.member.email || '?').split(' ')[0];
+      return `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;" title="${firstName}: ${score}">
+          <div style="position:relative;width:28px;height:28px;">
+            <svg width="28" height="28" viewBox="0 0 28 28">
+              <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(20,18,16,0.07)" stroke-width="3"/>
+              <circle cx="14" cy="14" r="11" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round"
+                stroke-dasharray="69.1 69.1" stroke-dashoffset="${dotOffset}" transform="rotate(-90 14 14)"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:7px;font-weight:700;color:${color};">${score}</span>
+            </div>
+          </div>
+          <span style="font-size:9px;color:var(--stone);max-width:28px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${firstName}</span>
+        </div>`;
+    };
+
+    scoreEl.innerHTML = `
+      <div class="team-score-wrap" style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-sm);padding:22px 28px;margin-bottom:16px;">
+        <div class="team-score-grid" style="display:grid;grid-template-columns:1fr 1px 1fr;gap:24px;align-items:center;">
+          <div style="display:flex;align-items:center;gap:20px;">
+            ${makeTeamRing(avgOverall, avgOC, avgOuterOff)}
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--ink);">${teamName}</div>
+              <div style="font-size:11px;color:var(--stone);margin-top:2px;">Average overall prep score</div>
+              <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                ${memberData.map(d => makeMemberDot(d, 'overall')).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="team-score-divider" style="width:1px;height:80px;background:var(--border);margin:auto;"></div>
+          <div style="display:flex;align-items:center;gap:20px;">
+            ${makeTeamRing(avgWeek, avgWC, avgWeekOff)}
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--ink);">${teamName}</div>
+              <div style="font-size:11px;color:var(--stone);margin-top:2px;">Resets every Monday</div>
+              <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                ${memberData.map(d => makeMemberDot(d, 'week')).join('')}
+              </div>
             </div>
           </div>
         </div>
-        <div class="team-score-divider" style="width:1px;height:80px;background:var(--border);margin:auto;"></div>
-        <div style="display:flex;align-items:center;gap:20px;">
-          ${makeTeamRing(avgWeek, avgWC, avgWeekOff)}
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--ink);">${team.code} Team</div>
-            <div style="font-size:11px;color:var(--stone);margin-top:2px;">Resets every Monday</div>
-            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-              ${memberData.map(d => makeMemberDot(d, 'week')).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>`;
+      </div>`;
+  }
 
-  document.getElementById('member-grid').innerHTML = memberData.map(({member, sermons, stages, statusOrder, overallScore, weekScore}) => {
+  // ── MEMBER CARDS ─────────────────────────────────────────────────────────────
+  gridEl.innerHTML = memberData.map(({member, sermons, stages, statusOrder, overallScore, weekScore}) => {
     const isYou = member.uid === currentUser.uid;
+    const canRemove = team.createdBy === currentUser.uid && !isYou;
     const upcoming = sermons
       .filter(s => s.status !== 'completed' && daysUntil(parseDate(s.date)) >= 0)
       .sort((a,b) => a.date.localeCompare(b.date))
@@ -581,7 +658,6 @@ async function renderTeam(team) {
     const trackClass = upcoming.length === 0 ? 'no-sermons' : anyBehind ? 'behind' : 'on-track';
     const trackLabel = upcoming.length === 0 ? 'No sermons' : anyBehind ? 'Behind' : 'On track';
 
-    // Score rings
     const sc = getScoreColor(overallScore);
     const wc = getScoreColor(weekScore);
     const outerOffset = (213.6 * (1 - overallScore / 100)).toFixed(1);
@@ -609,9 +685,7 @@ async function renderTeam(team) {
                   <circle cx="26" cy="26" r="22" fill="none" stroke="${sc}" stroke-width="5" stroke-linecap="round"
                     stroke-dasharray="138.2 138.2" stroke-dashoffset="${tooltipOuter}" transform="rotate(-90 26 26)"/>
                 </svg>
-                <div class="tooltip-ring-center">
-                  <span class="tooltip-score" style="color:${sc};">${overallScore}</span>
-                </div>
+                <div class="tooltip-ring-center"><span class="tooltip-score" style="color:${sc};">${overallScore}</span></div>
               </div>
               <span class="tooltip-label">Overall</span>
             </div>
@@ -623,9 +697,7 @@ async function renderTeam(team) {
                   <circle cx="26" cy="26" r="22" fill="none" stroke="${wc}" stroke-width="5" stroke-linecap="round"
                     stroke-dasharray="138.2 138.2" stroke-dashoffset="${tooltipInner}" transform="rotate(-90 26 26)"/>
                 </svg>
-                <div class="tooltip-ring-center">
-                  <span class="tooltip-score" style="color:${wc};">${weekScore}</span>
-                </div>
+                <div class="tooltip-ring-center"><span class="tooltip-score" style="color:${wc};">${weekScore}</span></div>
               </div>
               <span class="tooltip-label">This week</span>
             </div>
@@ -633,13 +705,10 @@ async function renderTeam(team) {
         </div>
       </div>`;
 
-    // Member subtitle: sermon count + status summary
     const behindCount = upcoming.filter(s => isSermonBehind(s, stages)).length;
     const subInfo = upcoming.length === 0
       ? 'No upcoming sermons'
-      : behindCount > 0
-        ? `${upcoming.length} upcoming · ${behindCount} behind`
-        : `${upcoming.length} upcoming · on track`;
+      : behindCount > 0 ? `${upcoming.length} upcoming · ${behindCount} behind` : `${upcoming.length} upcoming · on track`;
 
     const sermonRows = upcoming.length === 0
       ? `<div class="no-sermons-msg">No upcoming sermons</div>`
@@ -647,13 +716,9 @@ async function renderTeam(team) {
           const behind = isSermonBehind(s, stages);
           const pct = getProgressPct(s.status, statusOrder);
           const stageLabel = stages.find(st=>st.key===s.status)?.label || s.status;
-          const stageClass = s.status === 'not-started'
-            ? (behind ? 'stage-behind' : 'stage-neutral')
-            : behind ? 'stage-behind' : 'stage-on-track';
-          const progClass = s.status === 'not-started'
-            ? (behind ? 'behind' : 'neutral')
-            : behind ? 'behind' : 'on-track';
-          return `<div class="sermon-row" onclick="toggleSermonExpand(this)" style="cursor:pointer;">
+          const stageClass = s.status === 'not-started' ? (behind ? 'stage-behind' : 'stage-neutral') : behind ? 'stage-behind' : 'stage-on-track';
+          const progClass  = s.status === 'not-started' ? (behind ? 'behind' : 'neutral') : behind ? 'behind' : 'on-track';
+          return `<div class="sermon-row" onclick="toggleSermonExpand(this)">
             <div class="sermon-row-title">${s.title||'Untitled'}${s.text ? ` <span class="sermon-row-scripture">· ${s.text}</span>` : ''}</div>
             <div class="sermon-row-meta">
               <span class="sermon-row-date">${formatDateFull(parseDate(s.date))}</span>
@@ -663,8 +728,8 @@ async function renderTeam(team) {
             <div class="sermon-row-stages" style="display:none;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);flex-wrap:wrap;align-items:center;gap:4px;">
               ${stages.filter(st=>st.key!=='not-started').map(st => {
                 const idx = statusOrder.indexOf(st.key);
-                const currentIdx = statusOrder.indexOf(s.status);
-                const isDone = idx < currentIdx;
+                const curIdx = statusOrder.indexOf(s.status);
+                const isDone = idx < curIdx;
                 const isCurrent = st.key === s.status;
                 const isLast = idx === stages.length - 1;
                 return `<span style="font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;${isDone?'text-decoration:line-through;color:var(--stone-light);':''}${isCurrent?'border:1.5px solid rgba(255,255,255,0.5);color:var(--ink);padding:1px 7px;':'color:var(--stone-light);'}">${st.label}</span>${!isLast?`<span style="font-size:10px;color:var(--stone-light);">›</span>`:''}`
@@ -684,47 +749,70 @@ async function renderTeam(team) {
           <div class="member-name">${member.name || member.email}${isYou ? '<span class="member-you">You</span>' : ''}</div>
           <div class="member-sub">${subInfo}</div>
         </div>
-        <span class="member-status-badge ${trackClass}">${trackLabel}</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+          <span class="member-status-badge ${trackClass}">${trackLabel}</span>
+          ${canRemove ? `<button onclick="removeMember('${team.code}','${member.uid}')" style="font-size:10px;color:var(--red);background:none;border:none;cursor:pointer;padding:2px 0;font-family:var(--font);">Remove</button>` : ''}
+        </div>
       </div>
       <div class="sermon-rows">${sermonRows}</div>
     </div>`;
   }).join('');
 }
 
-window.copyCode = (code) => {
-  navigator.clipboard.writeText(code);
-  const el = document.getElementById('copied-msg');
-  el.textContent = 'Copied!';
-  setTimeout(() => { el.textContent = ''; }, 2000);
+// ── REMOVE MEMBER ─────────────────────────────────────────────────────────────
+window.removeMember = async (teamCode, memberUid) => {
+  if (!confirm('Remove this member from the team?')) return;
+  try {
+    const teamSnap = await getDoc(doc(db, 'teams', teamCode));
+    if (!teamSnap.exists()) return;
+    const team = teamSnap.data();
+    if (team.createdBy !== currentUser.uid) { alert('Only the team creator can remove members.'); return; }
+    const member = team.members.find(m => m.uid === memberUid);
+    if (!member) return;
+    await updateDoc(doc(db, 'teams', teamCode), { members: arrayRemove(member) });
+    await init();
+  } catch(e) { alert('Error: ' + e.message); }
 };
 
-window.leaveTeam = async () => {
-  if (!confirm('Leave this team? You can rejoin with the team code.')) return;
+// ── LEAVE TEAM ────────────────────────────────────────────────────────────────
+window.leaveTeam = async (teamCode) => {
+  if (!confirm('Leave this team?')) return;
   try {
-    const teamSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'));
+    const teamSnap = await getDoc(doc(db, 'teams', teamCode));
     if (teamSnap.exists()) {
-      const code = teamSnap.data().code;
-      const teamDoc = await getDoc(doc(db, 'teams', code));
-      if (teamDoc.exists()) {
-        const member = teamDoc.data().members.find(m => m.uid === currentUser.uid);
-        if (member) await updateDoc(doc(db, 'teams', code), { members: arrayRemove(member) });
-      }
+      const member = teamSnap.data().members.find(m => m.uid === currentUser.uid);
+      if (member) await updateDoc(doc(db, 'teams', teamCode), { members: arrayRemove(member) });
     }
-    await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'), {});
+    const teamsRef = doc(db, 'users', currentUser.uid, 'meta', 'teams');
+    const teamsSnap = await getDoc(teamsRef);
+    if (teamsSnap.exists()) {
+      const codes = (teamsSnap.data().codes || []).filter(c => c !== teamCode);
+      await setDoc(teamsRef, { codes });
+    }
     await init();
   } catch(e) { alert('Error leaving team: ' + e.message); }
+};
+
+// ── MODALS ────────────────────────────────────────────────────────────────────
+window.showJoinTeamModal = function() {
+  document.getElementById('join-team-modal').classList.add('open');
+};
+window.showCreateTeamModal = function() {
+  document.getElementById('create-team-modal').classList.add('open');
+};
+window.closeTeamModal = function() {
+  document.getElementById('join-team-modal').classList.remove('open');
+  document.getElementById('create-team-modal').classList.remove('open');
 };
 
 window.toggleSermonExpand = function(row) {
   const stagesEl = row.querySelector('.sermon-row-stages');
   const isOpen = stagesEl.style.display === 'flex';
-  // Close all open ones first
   document.querySelectorAll('.sermon-row-stages').forEach(el => el.style.display = 'none');
-  // Open this one if it wasn't already open
   if (!isOpen) stagesEl.style.display = 'flex';
 };
 
-// ── MOBILE DRAWER (matches dashboard design) ──────────────────────────────
+// ── MOBILE DRAWER ─────────────────────────────────────────────────────────────
 function buildMobileDrawer() {
   if (document.getElementById('mobile-drawer')) return;
   const nav = [
@@ -779,7 +867,9 @@ window.closeMobileDrawer = () => {
   if(d) d.style.transform='translateX(-100%)'; if(o) o.style.display='none';
   document.body.style.overflow='';
 };
-document.addEventListener('keydown', e => { if (e.key === 'Escape') window.closeMobileDrawer(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { window.closeMobileDrawer(); window.closeTeamModal(); }
+});
 window.addEventListener('DOMContentLoaded', () => { buildMobileDrawer(); injectHamburger(); });
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
