@@ -34,6 +34,7 @@
     <div style="padding:1rem 1.5rem; border-top:0.5px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
       <div style="display:flex;gap:6px;" id="welcome-dots"></div>
       <div style="display:flex;align-items:center;gap:10px;">
+        <button id="welcome-back-btn" onclick="welcomeBack()" style="font-size:12px;color:var(--stone);background:none;border:1px solid var(--border-md);border-radius:100px;cursor:pointer;padding:6px 14px;font-family:var(--font);display:none;">← Back</button>
         <button onclick="dismissWelcome()" style="font-size:12px;color:var(--text-tertiary);background:none;border:none;cursor:pointer;padding:4px;font-family:var(--font);">Skip</button>
         <button id="welcome-next-btn" onclick="welcomeNext()" style="font-size:13px;font-weight:500;padding:8px 18px;border-radius:var(--radius-md);background:#185fa5;color:white;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--font);"><i class="ti ti-arrow-right"></i> Next</button>
       </div>
@@ -520,7 +521,7 @@ const WELCOME_STEPS = [
   {
     icon: 'ti-users',
     title: 'Stay accountable together',
-    body: `Head to the Accountability page and create or join a team. You'll be able to see each other's prep status at a glance — green means on track, red means behind. Iron sharpens iron.`,
+    body: `Head to the Accountability page and create or join a team. You'll be able to see each other's prep status at a glance — green means on track, red means behind.`,
     code: true
   }
 ];
@@ -559,9 +560,13 @@ function renderWelcomeStep() {
     ? `<i class="ti ti-check"></i> Get started`
     : `<i class="ti ti-arrow-right"></i> Next`;
 
+  // Back button
+  const backBtn = document.getElementById('welcome-back-btn');
+  if (backBtn) backBtn.style.display = welcomeStep > 0 ? 'block' : 'none';
+
   // Stage flow for step 2
   const stageFlow = step.stages ? `
-    <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:12px 0;">
+    <div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow-x:auto;margin:12px 0;padding-bottom:4px;">
       ${(STAGES.length > 2 ? STAGES.slice(1, STAGES.length-1) : [
         {key:'study',label:'Study'},{key:'idea',label:'Main idea'},{key:'outline',label:'Outline'},
         {key:'draft',label:'Draft'},{key:'final',label:'Final'},{key:'run',label:'Run-through'}
@@ -596,6 +601,13 @@ window.welcomeNext = function() {
     renderWelcomeStep();
   } else {
     dismissWelcome();
+  }
+};
+
+window.welcomeBack = function() {
+  if (welcomeStep > 0) {
+    welcomeStep--;
+    renderWelcomeStep();
   }
 };
 
