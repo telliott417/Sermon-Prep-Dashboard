@@ -256,7 +256,7 @@
         <select id="f-context-select" onchange="handleContextSelect()">
   <option value="">— Select —</option>
 </select>
-        <input type="text" id="f-context-other" placeholder="Type context..." style="display:none;" />
+        <input type="text" id="f-context-other" placeholder="Type new context..." style="display:none;" />
       </div>
     </div>
     <div class="form-field"><label>Sermon date</label><input type="date" id="f-date" /></div>
@@ -290,7 +290,7 @@
           <select id="em-f-context-select" onchange="handleEditContextSelect()">
             <option value="">— Select —</option>
           </select>
-          <input type="text" id="em-f-context-other" placeholder="Type context..." style="display:none;" />
+          <input type="text" id="em-f-context-other" placeholder="Type new context..." style="display:none;" />
         </div>
       </div>
       <div class="form-field"><label>Sermon date</label><input type="date" id="em-f-date" /></div>
@@ -350,7 +350,7 @@ const DEFAULT_STAGES = [
   { key: 'final',   label: 'Final',         dueDay: 2, weeksBack: 0 },
   { key: 'run',     label: 'Run-through',   dueDay: 3, weeksBack: 0 },
 ];
-const DEFAULT_CONTEXTS = ['Salt','Candeo','Youth'];
+const DEFAULT_CONTEXTS = [];
 const SERMON_COLORS = ['#185fa5','#6d3fc0','#0f6e56','#854f0b','#7a3b69'];
 
 const SCORE_COLORS = [
@@ -783,7 +783,7 @@ async function loadUserSettings() {
     if (snap.exists()) {
       const s = snap.data();
       buildStagesFromSettings(s.stages);
-      if (s.contexts && s.contexts.length > 0) userContexts = s.contexts;
+      userContexts = s.contexts || [];
     } else {
       buildStagesFromSettings(DEFAULT_STAGES);
     }
@@ -1828,14 +1828,15 @@ function setContextValue(val) {
   const sel=document.getElementById('f-context-select');
   const other=document.getElementById('f-context-other');
   if (!val){sel.value='';other.style.display='none';return;}
-  if (val==='Salt'||val==='Candeo'){sel.value=val;other.style.display='none';}
+  const found=userContexts.find(c=>c===val);
+  if (found){sel.value=val;other.style.display='none';}
   else{sel.value='other';other.style.display='block';other.value=val;}
 }
 function buildContextOptions() {
   const sel = document.getElementById('f-context-select');
-  sel.innerHTML = '<option value="">— Select —</option>' +
+  sel.innerHTML = '<option value="">— Select context —</option>' +
     userContexts.map(c => `<option value="${c}">${c}</option>`).join('') +
-    '<option value="other">Other...</option>';
+    '<option value="other">+ Add a context</option>';
   const statusSel = document.getElementById('f-status');
   statusSel.innerHTML = STATUS_ORDER.map(k => `<option value="${k}">${STATUS_LABELS[k]}</option>`).join('');
 }
@@ -1921,9 +1922,9 @@ window.closeEditModal = function() {
 
 function buildEditContextOptions() {
   const sel = document.getElementById('em-f-context-select');
-  sel.innerHTML = '<option value="">— Select —</option>' +
+  sel.innerHTML = '<option value="">— Select context —</option>' +
     userContexts.map(c => `<option value="${c}">${c}</option>`).join('') +
-    '<option value="other">Other...</option>';
+    '<option value="other">+ Add a context</option>';
   const statusSel = document.getElementById('em-f-status');
   statusSel.innerHTML = STATUS_ORDER.map(k => `<option value="${k}">${STATUS_LABELS[k]}</option>`).join('');
 }
