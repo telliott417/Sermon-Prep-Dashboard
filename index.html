@@ -1373,31 +1373,20 @@ async function loadOrInitStreakData(uid) {
   const ref = doc(db, 'users', uid, 'meta', 'streak_data');
   const snap = await getDoc(ref);
 
-  // Start with whatever exists (or a blank skeleton)
-  const base = snap.exists() ? snap.data() : { currentStreak: 0, bestStreak: 0, lastRecorded: null };
+  // Existing user — return their data as-is
+  if (snap.exists()) return snap.data();
 
-  // Build the canonical 12-week grid (Mon 11 weeks ago → this Mon)
+  // New user — initialize with exactly 12 weeks of 75s (no more, no less)
   const now = getWeekStart();
-  const expectedWeeks = [];
+  const weeklyScores = [];
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - i * 7);
-    expectedWeeks.push(toYMD(d));
+    weeklyScores.push({ weekStart: toYMD(d), score: 75 });
   }
 
-  // Map existing scores so we can preserve real recorded values
-  const existingMap = new Map((base.weeklyScores || []).map(w => [w.weekStart, w.score]));
-
-  // Fill every expected week — use real score if recorded, else 75
-  let changed = !snap.exists();
-  const weeklyScores = expectedWeeks.map(weekStart => {
-    if (existingMap.has(weekStart)) return { weekStart, score: existingMap.get(weekStart) };
-    changed = true;
-    return { weekStart, score: 75 };
-  });
-
-  const data = { ...base, weeklyScores };
-  if (changed) await setDoc(ref, data);
+  const data = { currentStreak: 0, bestStreak: 0, lastRecorded: null, weeklyScores };
+  await setDoc(ref, data);
   return data;
 }
 
@@ -1751,7 +1740,12 @@ function renderAll() {
         <div class="section-line"></div>
         <div class="section-count">0</div>
       </div>
-      <div class="empty-state"><i class="ti ti-book"></i>No active sermons.</div>`;
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px 16px;">
+        <div style="font-size:32px;margin-bottom:10px;">📖</div>
+        <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px;">No active sermons</div>
+        <div style="font-size:12px;color:var(--stone);margin-bottom:16px;line-height:1.6;max-width:320px;">Add your next sermon and the dashboard will build your prep timeline automatically.</div>
+        <button onclick="openSermonModal()" style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;background:var(--brand);color:white;border-radius:100px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:var(--font);">+ Add your first sermon</button>
+      </div>`;
   } else {
     activeEl.innerHTML = `
       <div class="section-header">
@@ -2052,7 +2046,14 @@ async function loadTeamCard() {
     // Get user's team code from users/{uid}/meta/team → .code
     const teamMetaSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'team'));
     if (!teamMetaSnap.exists() || !teamMetaSnap.data().code) {
-      el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Team</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">Not on a team yet. <a href="/Sermon-Prep-Dashboard/accountability.html" style="color:var(--brand);">Join one →</a></div>`;
+      el.innerHTML = `
+<div class="r-card-title" style="margin-bottom:12px;">Team · Candeo</div>
+<div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:16px 8px 8px;">
+  <div style="font-size:28px;margin-bottom:8px;">👥</div>
+  <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;">No team yet</div>
+  <div style="font-size:11px;color:var(--stone);margin-bottom:14px;line-height:1.5;">Join a team to see your staff's prep status at a glance.</div>
+  <a href="/Sermon-Prep-Dashboard/accountability.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--brand);color:white;border-radius:100px;font-size:12px;font-weight:600;text-decoration:none;font-family:var(--font);">Join a team →</a>
+</div>`;
       return;
     }
     const teamCode = teamMetaSnap.data().code;
@@ -2164,7 +2165,14 @@ async function loadColorCard() {
     const q = query(collection(db, 'users', currentUser.uid, 'ideas'), orderBy('created','desc'), limit(2));
     const snap = await getDocs(q);
     if (snap.empty) {
-      el.innerHTML = `<div class="r-card-title" style="margin-bottom:12px;">Recent Color</div><div style="font-size:11px;color:var(--stone-light);padding:8px 0;">No Color yet. <a href="/Sermon-Prep-Dashboard/color.html?capture=1" style="color:var(--brand);">Add one →</a></div>`;
+      el.innerHTML = `
+<div class="r-card-title" style="margin-bottom:12px;">Recent Color</div>
+<div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:16px 8px 8px;">
+  <div style="font-size:28px;margin-bottom:8px;">🎨</div>
+  <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;">No Color yet</div>
+  <div style="font-size:11px;color:var(--stone);margin-bottom:14px;line-height:1.5;">Capture illustrations, quotes and stories for your sermons.</div>
+  <a href="/Sermon-Prep-Dashboard/color.html?capture=1" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--brand);color:white;border-radius:100px;font-size:12px;font-weight:600;text-decoration:none;font-family:var(--font);">Add Color →</a>
+</div>`;
       return;
     }
     const items = snap.docs.map(d => ({id:d.id,...d.data()}));
