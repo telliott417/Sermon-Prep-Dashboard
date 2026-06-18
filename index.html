@@ -1376,16 +1376,8 @@ async function loadOrInitStreakData(uid) {
   // Existing user — return their data as-is
   if (snap.exists()) return snap.data();
 
-  // New user — initialize with exactly 12 weeks of 75s (no more, no less)
-  const now = getWeekStart();
-  const weeklyScores = [];
-  for (let i = 11; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i * 7);
-    weeklyScores.push({ weekStart: toYMD(d), score: 75 });
-  }
-
-  const data = { currentStreak: 0, bestStreak: 0, lastRecorded: null, weeklyScores };
+  // New user — start clean; calculateOverallScore returns 75 as display default when empty
+  const data = { currentStreak: 0, bestStreak: 0, lastRecorded: null, weeklyScores: [] };
   await setDoc(ref, data);
   return data;
 }
@@ -1851,6 +1843,17 @@ window.openAdd = function() {
   document.getElementById('modal').classList.add('open');
 };
 window.closeModal = function(){document.getElementById('modal').classList.remove('open');};
+async function saveNewContextIfNeeded(context) {
+  if (!context || userContexts.includes(context)) return;
+  userContexts.push(context);
+  try {
+    const settingsRef = doc(db, 'users', currentUser.uid, 'meta', 'settings');
+    const snap = await getDoc(settingsRef);
+    const existing = snap.exists() ? snap.data() : {};
+    await setDoc(settingsRef, { ...existing, contexts: userContexts });
+  } catch(e) { console.error('Could not save context:', e); }
+}
+
 window.saveSermon = async function() {
   const title=document.getElementById('f-title').value.trim();
   const date=document.getElementById('f-date').value;
@@ -1873,6 +1876,7 @@ window.saveSermon = async function() {
     allSermons.sort((a,b)=>a.date.localeCompare(b.date));
   }
   await saveSermonToDb(sermon);
+  await saveNewContextIfNeeded(context);
   renderAll();
   window.closeModal();
   btn.textContent='Save sermon';btn.disabled=false;
@@ -2012,6 +2016,7 @@ window.saveEditModal = async function() {
   s.customDeadlines = Object.keys(customDeadlines).length > 0 ? customDeadlines : undefined;
   allSermons.sort((a,b) => a.date.localeCompare(b.date));
   await saveSermonToDb(s);
+  await saveNewContextIfNeeded(s.context);
   renderAll();
   window.closeEditModal();
 };
