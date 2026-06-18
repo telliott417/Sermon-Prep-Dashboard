@@ -1429,7 +1429,7 @@ async function initPrepScore(sermons, stages) {
     let sd = await loadOrInitStreakData(currentUser.uid);
     sd = await maybeRecordWeeklyScore(currentUser.uid, weekScore, weekHasData, sd);
     const overallScore = calculateOverallScore(sd);
-    updatePrepScoreDisplay(overallScore, weekScore);
+    updatePrepScoreDisplay(overallScore, weekHasData ? weekScore : 75);
 
     // Days-to-sermon mini-stat
     const nextUp = sermons
