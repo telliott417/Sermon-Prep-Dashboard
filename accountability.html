@@ -154,7 +154,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -171,10 +171,6 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 let currentUser = null;
-
-getRedirectResult(auth).then(result => {
-  if (result?.user) console.log('Redirect sign-in success:', result.user.displayName);
-}).catch(e => console.error('Redirect result error:', e));
 
 // ── SCORE COLORS ──────────────────────────────────────────────────────────────
 const SCORE_COLORS = [
@@ -234,7 +230,15 @@ onAuthStateChanged(auth, async user => {
   }
 });
 
-window.signIn = async () => { try { await signInWithRedirect(auth, provider); } catch(e) { console.error('Redirect sign-in error:', e); } };
+window.signIn = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch(e) {
+    const err = document.getElementById('login-error');
+    if (err) { err.style.display = 'block'; err.textContent = 'Sign-in failed: ' + e.message; }
+    console.error(e);
+  }
+};
 window.signOut = async () => { await fbSignOut(auth); };
 
 function setSyncStatus(state, label) {
