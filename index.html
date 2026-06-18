@@ -1326,6 +1326,14 @@ async function updateStreakData() {
     const weekEndDate = new Date(weekStartDate); weekEndDate.setDate(weekStartDate.getDate() + 6);
     const weekStartStr = toYMD(weekStartDate);
 
+    // Guard: don't write 100 when there are no active sermons
+    const activeForStreak = allSermons.filter(s => isActive(s) && s.status !== 'completed');
+    if (activeForStreak.length === 0) {
+      streakData = data;
+      renderStreakSection();
+      return;
+    }
+
     // Only write if this week not yet recorded
     if (!data.weeklyScores.find(w => w.weekStart === weekStartStr)) {
       let tasksDue = 0, tasksCompleted = 0, tasksOverdue = 0;
@@ -1718,17 +1726,24 @@ function renderAll() {
     });
   });
 
-  // Quick sync display — initPrepScore() will override with real rolling-average scores
-  updatePrepScoreDisplay(75, 75);
-
   renderStatCard(active, behind, allFuture);
   renderTodo();
 
   const activeEl = document.getElementById('active-section');
-  if (active.length===0) {
+  if (active.length === 0 && upcoming.length > 0) {
     activeEl.innerHTML = `
       <div class="section-header">
-        <div class="section-title">Active sermons</div>
+        <div class="section-title">Active Sermons</div>
+        <div class="section-line"></div>
+        <div class="section-count">0</div>
+      </div>
+      <div style="text-align:center;padding:20px 16px;">
+        <div style="font-size:13px;color:var(--stone);line-height:1.6;">Your upcoming sermons will appear here when prep begins.</div>
+      </div>`;
+  } else if (active.length === 0 && allSermons.filter(s => s.status !== 'completed').length === 0) {
+    activeEl.innerHTML = `
+      <div class="section-header">
+        <div class="section-title">Active Sermons</div>
         <div class="section-line"></div>
         <div class="section-count">0</div>
       </div>
