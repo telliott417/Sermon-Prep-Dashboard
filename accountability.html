@@ -95,6 +95,13 @@
     .member-grid { grid-template-columns: 1fr !important; }
     .onboard-grid { grid-template-columns: 1fr !important; }
     .onboard-vdivider { width: 100% !important; height: 1px !important; }
+    .topbar { flex-wrap: wrap !important; row-gap: 8px !important; }
+    .topbar-actions { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; width: auto !important; justify-content: flex-end !important; }
+    .topbar-actions .btn-ghost,
+    .topbar-actions .btn-brand { font-size: 11px !important; padding: 7px 12px !important; white-space: nowrap !important; }
+  }
+  @media (max-width: 480px) {
+    .topbar-actions { width: 100% !important; justify-content: flex-start !important; margin-top: 4px !important; }
   }
 </style>
 </head>
