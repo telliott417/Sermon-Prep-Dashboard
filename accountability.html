@@ -7,7 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..900;1,9..40,300..900&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" media="print" onload="this.media='all'"/>
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"/></noscript>
 <link rel="stylesheet" href="/Sermon-Prep-Dashboard/styles.css" />
 <style>
   /* ── ACCOUNTABILITY PAGE — SPECIFIC STYLES ── */
@@ -245,13 +246,17 @@ onAuthStateChanged(auth, async user => {
         dAvatar.textContent = (user.displayName||user.email||'?')[0].toUpperCase();
       }
     }
+    let preloadedRole = 'member';
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
-      if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
-        document.getElementById('admin-nav-section').style.display = 'block';
+      if (profileSnap.exists()) {
+        preloadedRole = profileSnap.data().role || 'member';
+        if (preloadedRole === 'admin' || preloadedRole === 'family') {
+          document.getElementById('admin-nav-section').style.display = 'block';
+        }
       }
     } catch(e) { console.error('Role check failed:', e); }
-    await init();
+    await init(preloadedRole);
   } else {
     currentUser = null;
     document.getElementById('login-screen').style.display = 'flex';
@@ -360,11 +365,16 @@ async function migrateTeamData(uid) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-async function init() {
+async function init(preloadedRole) {
   setSyncStatus('syncing', 'Loading...');
   try {
-    const profileSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'));
-    const role = profileSnap.exists() ? profileSnap.data().role : 'member';
+    let role;
+    if (preloadedRole !== undefined) {
+      role = preloadedRole;
+    } else {
+      const profileSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'));
+      role = profileSnap.exists() ? profileSnap.data().role : 'member';
+    }
     if (role === 'family') {
       document.getElementById('topbar-actions').innerHTML = '';
       document.getElementById('main-content').innerHTML = `
@@ -525,9 +535,7 @@ async function renderAllTeams(teams) {
     </div>
   `).join('');
 
-  for (const team of teams) {
-    await loadTeamMembers(team);
-  }
+  await Promise.all(teams.map(team => loadTeamMembers(team)));
 }
 
 // ── LOAD TEAM MEMBERS ─────────────────────────────────────────────────────────

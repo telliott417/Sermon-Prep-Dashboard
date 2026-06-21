@@ -7,7 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..900;1,9..40,300..900&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" media="print" onload="this.media='all'"/>
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"/></noscript>
 <link rel="stylesheet" href="/Sermon-Prep-Dashboard/styles.css" />
 </head>
 <body>
@@ -468,16 +469,17 @@ onAuthStateChanged(auth, async user => {
       }
     }
 
+    let profileSnap = null;
     try {
-      const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
+      profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
         document.getElementById('admin-nav-section').style.display = 'flex';
         const drawerAdminSection = document.getElementById('drawer-admin-section');
         if (drawerAdminSection) drawerAdminSection.style.display = 'block';
       }
     } catch(e) { console.error('Role check failed:', e); }
-    await loadUserSettings();
-    await checkWelcome();
+    await loadUserSettings(profileSnap);
+    checkWelcome();
     loadSermons();
     loadRightColumn();
   } else {
@@ -766,12 +768,12 @@ function calculateWeekScore(sermons, stages) {
 // ── USER SETTINGS ─────────────────────────────────────────────────────────────
 let userRole = 'member';
 
-async function loadUserSettings() {
+async function loadUserSettings(profileSnap) {
   try {
-    // Load role
-    const profileSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'));
-    if (profileSnap.exists()) {
-      userRole = profileSnap.data().role || 'member';
+    // Use already-fetched profile snap if available, otherwise fetch
+    const pSnap = profileSnap || await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'));
+    if (pSnap.exists()) {
+      userRole = pSnap.data().role || 'member';
     } else {
       // First time user — create profile with member role
       await setDoc(doc(db, 'users', currentUser.uid, 'meta', 'profile'), { role: 'member' });
@@ -817,8 +819,8 @@ window.loadSermons = async function() {
     setSyncStatus('synced','Synced');
     openCards.clear();
     renderAll();
-    await updateStreakData();
-    await initPrepScore(allSermons, STAGES);
+    const loadedStreakData = await updateStreakData();
+    await initPrepScore(allSermons, STAGES, loadedStreakData);
   } catch(e) {
     setSyncStatus('error','Error');
     showError('Could not load sermons. '+e.message);
@@ -1331,7 +1333,7 @@ async function updateStreakData() {
     if (activeForStreak.length === 0) {
       streakData = data;
       renderStreakSection();
-      return;
+      return data;
     }
 
     // Only write if this week not yet recorded
@@ -1369,6 +1371,7 @@ async function updateStreakData() {
       streakData = data;
     }
     renderStreakSection();
+    return data;
   } catch(e) {
     console.error('Streak update failed:', e);
   }
@@ -1429,12 +1432,12 @@ async function maybeRecordWeeklyScore(uid, weekScore, weekHasData, streakData) {
 }
 
 // Main prep score init — call after sermons + stages are loaded
-async function initPrepScore(sermons, stages) {
+async function initPrepScore(sermons, stages, preloadedStreakData) {
   try {
     const weekResult = calculateWeekScore(sermons, stages);
     const weekScore = weekResult.score;
     const weekHasData = weekResult.hasData;
-    let sd = await loadOrInitStreakData(currentUser.uid);
+    let sd = preloadedStreakData || await loadOrInitStreakData(currentUser.uid);
     sd = await maybeRecordWeeklyScore(currentUser.uid, weekScore, weekHasData, sd);
     const overallScore = calculateOverallScore(sd);
     updatePrepScoreDisplay(overallScore, weekHasData ? weekScore : 75);
