@@ -506,8 +506,8 @@ async function renderAllTeams(teams) {
   const content = document.getElementById('main-content');
 
   document.getElementById('topbar-actions').innerHTML = `
-    <button onclick="showJoinTeamModal()" style="display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;padding:7px 12px;border-radius:100px;border:1px solid var(--border-md);background:var(--white);color:var(--ink);font-family:var(--font);cursor:pointer;white-space:nowrap;flex-shrink:0;">+ Join</button>
-    <button onclick="showCreateTeamModal()" style="display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;padding:7px 12px;border-radius:100px;border:1px solid var(--border-md);background:var(--white);color:var(--ink);font-family:var(--font);cursor:pointer;white-space:nowrap;flex-shrink:0;margin-left:6px;">+ Create</button>
+    <button onclick="showCreateTeamModal()" style="display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;padding:7px 12px;border-radius:100px;border:1px solid var(--border-md);background:var(--white);color:var(--ink);font-family:var(--font);cursor:pointer;white-space:nowrap;flex-shrink:0;">+ Create</button>
+    <button onclick="showJoinTeamModal()" style="display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;padding:7px 12px;border-radius:100px;border:none;background:var(--brand);color:white;font-family:var(--font);cursor:pointer;white-space:nowrap;flex-shrink:0;margin-left:6px;">+ Join</button>
   `;
 
   content.innerHTML = teams.map(team => `
