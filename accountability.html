@@ -192,6 +192,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+import { SCORE_COLORS, getScoreColor, calculateOverallScore, calculateWeekScore, getStageDueDate as getStageDueDateFn, today, parseDate, daysUntil } from '/Sermon-Prep-Dashboard/score.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
@@ -208,26 +209,7 @@ const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 let currentUser = null;
 
-// ── SCORE COLORS ──────────────────────────────────────────────────────────────
-const SCORE_COLORS = [
-  {min:96,max:100,color:'#00CC55'}, {min:91,max:95,color:'#1A9A4A'},
-  {min:86,max:90,color:'#2DB85C'}, {min:81,max:85,color:'#52CC6E'},
-  {min:76,max:80,color:'#7DD47A'}, {min:71,max:75,color:'#C8D44A'},
-  {min:66,max:70,color:'#E0C832'}, {min:61,max:65,color:'#F0A820'},
-  {min:56,max:60,color:'#F08818'}, {min:51,max:55,color:'#E86818'},
-  {min:46,max:50,color:'#E04C14'}, {min:41,max:45,color:'#D43010'},
-  {min:0, max:40, color:'#880000'},
-];
-function getScoreColor(score) {
-  for (const b of SCORE_COLORS) if (score >= b.min && score <= b.max) return b.color;
-  return '#880000';
-}
-function calculateOverallScore(streakData) {
-  const scores = streakData.weeklyScores || [];
-  if (scores.length === 0) return 75;
-  const sum = scores.reduce((acc, w) => acc + (w.score ?? 75), 0);
-  return Math.round(sum / scores.length);
-}
+// SCORE_COLORS, getScoreColor, calculateOverallScore, calculateWeekScore, getStageDueDateFn, today, parseDate, daysUntil imported from score.js
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
@@ -282,39 +264,21 @@ function setSyncStatus(state, label) {
 }
 
 // ── DATE HELPERS ─────────────────────────────────────────────────────────────
-function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
-function parseDate(str) { if (!str) return null; const [y,m,d] = str.split('-').map(Number); return new Date(y,m-1,d); }
-function daysUntil(d) { return Math.round((d - today()) / 86400000); }
+// today, parseDate, daysUntil imported from score.js
 function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
-
-function getStageDueDate(sermonDateStr, stage) {
-  if (!stage || stage.dueDay === null) return null;
-  const sermonDate = parseDate(sermonDateStr);
-  const base = new Date(sermonDate);
-  base.setDate(sermonDate.getDate() - (stage.weeksBack * 7));
-  const baseDow = base.getDay();
-  let diff = baseDow - stage.dueDay;
-  if (diff < 0) diff += 7;
-  let result = new Date(base);
-  result.setDate(base.getDate() - diff);
-  if (result > sermonDate && stage.key !== 'completed') {
-    result = new Date(sermonDate);
-  }
-  return result;
-}
 
 function isSermonBehind(sermon, stages) {
   if (sermon.status === 'completed') return false;
   if (sermon.status === 'not-started') {
     const firstStage = stages.find(s => s.key !== 'not-started' && s.key !== 'completed');
     if (!firstStage) return false;
-    const due = getStageDueDate(sermon.date, firstStage);
+    const due = getStageDueDateFn(sermon.date, firstStage.key, sermon.customDeadlines, stages);
     if (!due) return false;
     return daysUntil(due) < 0;
   }
   const stage = stages.find(s => s.key === sermon.status);
   if (!stage) return false;
-  const due = getStageDueDate(sermon.date, stage);
+  const due = getStageDueDateFn(sermon.date, stage.key, sermon.customDeadlines, stages);
   if (!due) return false;
   return daysUntil(due) < 0;
 }
@@ -328,26 +292,6 @@ function getProgressPct(status, statusOrder) {
   return totalWorkingStages > 0 ? Math.round((completedStages / totalWorkingStages) * 100) : 0;
 }
 
-function calcWeekScore(sermons, stages) {
-  const todayDate = new Date(); todayDate.setHours(0,0,0,0);
-  let deductions = 0;
-  const activeSermons = sermons.filter(s => s.status !== 'completed' && s.date && new Date(s.date.replace(/-/g,'/')) >= todayDate);
-  for (const s of activeSermons) {
-    const stageKeys = stages.map(st => st.key);
-    const currentIdx = stageKeys.indexOf(s.status);
-    for (let i = currentIdx; i < stages.length - 1; i++) {
-      const stage = stages[i];
-      if (!stage.dueDay && stage.dueDay !== 0) continue;
-      const due = getStageDueDate(s.date, stage);
-      if (!due) continue;
-      const diff = Math.round((due - todayDate) / 86400000);
-      if (diff < 0) deductions += Math.min(20, 10 + (Math.abs(diff) - 1) * 5);
-      else if (diff <= 1) deductions += 10;
-      else if (diff === 2) deductions += 5;
-    }
-  }
-  return { score: Math.max(0, 100 - deductions), hasData: activeSermons.length > 0 };
-}
 
 // ── MIGRATION ─────────────────────────────────────────────────────────────────
 async function migrateTeamData(uid) {
@@ -575,7 +519,7 @@ async function loadTeamMembers(team) {
       const statusOrder = stages.map(s => s.key);
       const streakData = streakSnap.exists() ? streakSnap.data() : {};
       const overallScore = calculateOverallScore(streakData);
-      const weekScore = calcWeekScore(sermons, stages).score;
+      const weekScore = calculateWeekScore(sermons, stages).score;
       return { member, sermons, stages, statusOrder, overallScore, weekScore };
     } catch(e) {
       return { member, sermons: [], stages: [], statusOrder: [], overallScore: 75, weekScore: 75 };

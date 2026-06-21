@@ -331,6 +331,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, writeBatch, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+import { SCORE_COLORS, getScoreColor, today, parseDate, toYMD, daysUntil, getWeekStart, getStageDueDate as getStageDueDateFn, isStageCompleted, calculateWeekScore, calculateOverallScore, loadOrInitStreakData as loadOrInitStreakDataFn, recordMissingWeeklyScores as recordMissingWeeklyScoresFn } from '/Sermon-Prep-Dashboard/score.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
@@ -357,16 +358,6 @@ const DEFAULT_STAGES = [
 ];
 const DEFAULT_CONTEXTS = [];
 const SERMON_COLORS = ['#185fa5','#6d3fc0','#0f6e56','#854f0b','#7a3b69'];
-
-const SCORE_COLORS = [
-  {min:96,max:100,color:'#00CC55'}, {min:91,max:95,color:'#1A9A4A'},
-  {min:86,max:90,color:'#2DB85C'}, {min:81,max:85,color:'#52CC6E'},
-  {min:76,max:80,color:'#7DD47A'}, {min:71,max:75,color:'#C8D44A'},
-  {min:66,max:70,color:'#E0C832'}, {min:61,max:65,color:'#F0A820'},
-  {min:56,max:60,color:'#F08818'}, {min:51,max:55,color:'#E86818'},
-  {min:46,max:50,color:'#E04C14'}, {min:41,max:45,color:'#D43010'},
-  {min:0, max:40, color:'#880000'},
-];
 
 let STAGES = [];
 let STATUS_ORDER = [];
@@ -641,11 +632,8 @@ window.goAddColor = function() {
   window.location.href = '/Sermon-Prep-Dashboard/color.html?capture=1';
 };
 
-// ── DATE HELPERS ─────────────────────────────────────────────────────────────
-function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
-function parseDate(str) { if (!str) return null; const [y,m,d] = str.split('-').map(Number); return new Date(y,m-1,d); }
-function toYMD(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function daysUntil(d) { return Math.round((d - today()) / 86400000); }
+// ── DATE HELPERS (thin wrappers — implementations live in score.js) ───────────
+// today, parseDate, toYMD, daysUntil, getWeekStart imported from score.js
 function getUrgencyColor(dueDate) {
   const d = daysUntil(dueDate);
   if (d < 0) return '#a32d2d';   // past due → red
@@ -655,33 +643,10 @@ function getUrgencyColor(dueDate) {
 function formatDate(d) { return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
 function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
 
+// Thin wrapper: callers pass (sermonDateStr, stageKey, customDeadlines);
+// the canonical implementation in score.js also needs STAGES.
 function getStageDueDate(sermonDateStr, stageKey, customDeadlines) {
-  // Use custom deadline if available
-  if (customDeadlines && customDeadlines[stageKey]) {
-    return parseDate(customDeadlines[stageKey]);
-  }
-  const stage = STAGES.find(s=>s.key===stageKey);
-  if (!stage||stage.dueDay===null) return null;
-  const sermonDate = parseDate(sermonDateStr);
-
-  // Start from sermon date and go back weeksBack * 7 days
-  const base = new Date(sermonDate);
-  base.setDate(sermonDate.getDate() - (stage.weeksBack * 7));
-
-  // Now find the most recent occurrence of dueDay on or before base
-  // dueDay: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
-  const baseDow = base.getDay();
-  let diff = baseDow - stage.dueDay;
-  if (diff < 0) diff += 7;
-  let result = new Date(base);
-  result.setDate(base.getDate() - diff);
-
-  // Safety check — any stage except 'completed' that falls after sermon date gets clamped to sermon date
-  if (result > sermonDate && stage.key !== 'completed') {
-    result = new Date(sermonDate);
-  }
-
-  return result;
+  return getStageDueDateFn(sermonDateStr, stageKey, customDeadlines, STAGES);
 }
 
 function isBehind(sermon) {
@@ -716,60 +681,7 @@ function isActive(s) {
   return daysUntil(firstDue) <= 7;
 }
 
-function getWeekStart(date = new Date()) {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1) - day;
-  d.setDate(d.getDate() + diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-// Returns true if the sermon's current status is past the given stageKey
-function isStageCompleted(sermon, stageKey, stages) {
-  const stageKeys = stages.map(s => s.key);
-  const currentIdx = stageKeys.indexOf(sermon.status);
-  const stageIdx = stageKeys.indexOf(stageKey);
-  return stageIdx < currentIdx;
-}
-
-// Inner-ring score: start at 100 and deduct for each undone stage that is
-// overdue, due today, due tomorrow, or due in 2 days.
-function calculateWeekScore(sermons, stages) {
-  const todayDate = today();
-  let totalDeductions = 0;
-
-  const activeSermons = sermons.filter(s =>
-    s.status !== 'completed' &&
-    s.date &&
-    parseDate(s.date) >= todayDate
-  );
-
-  // No active sermons — return 100 for display but flag as no-data week
-  if (activeSermons.length === 0) return { score: 100, hasData: false };
-
-  for (const sermon of activeSermons) {
-    const workingStages = stages.filter(st =>
-      st.key !== 'not-started' && st.key !== 'completed'
-    );
-    for (const stage of workingStages) {
-      if (isStageCompleted(sermon, stage.key, stages)) continue;
-      const dueDate = getStageDueDate(sermon.date, stage.key, sermon.customDeadlines);
-      if (!dueDate) continue;
-      const du = daysUntil(dueDate);
-      if (du < 0) {
-        const overdueDays = Math.abs(du);
-        totalDeductions += Math.min(20, 10 + (overdueDays - 1) * 5);
-      } else if (du <= 1) {
-        totalDeductions += 10;
-      } else if (du === 2) {
-        totalDeductions += 5;
-      }
-    }
-  }
-
-  return { score: Math.max(0, 100 - totalDeductions), hasData: true };
-}
+// getWeekStart, isStageCompleted, calculateWeekScore imported from score.js
 
 // ── USER SETTINGS ─────────────────────────────────────────────────────────────
 let userRole = 'member';
@@ -825,8 +737,11 @@ window.loadSermons = async function() {
     setSyncStatus('synced','Synced');
     openCards.clear();
     renderAll();
-    const loadedStreakData = await updateStreakData();
-    await initPrepScore(allSermons, STAGES, loadedStreakData);
+    let sd = await loadOrInitStreakDataFn(db, doc, getDoc, setDoc, currentUser.uid);
+    sd = await recordMissingWeeklyScoresFn(db, doc, getDoc, setDoc, currentUser.uid, allSermons, STAGES, sd);
+    streakData = sd;
+    renderStreakSection();
+    await initPrepScore(allSermons, STAGES, sd);
   } catch(e) {
     setSyncStatus('error','Error');
     showError('Could not load sermons. '+e.message);
@@ -1316,126 +1231,7 @@ function renderStreakSection() {
   }).join('');
 }
 
-async function updateStreakData() {
-  if (!currentUser) return;
-  try {
-    const streakRef = doc(db, 'users', currentUser.uid, 'meta', 'streak_data');
-    const snap = await getDoc(streakRef);
-    let data = snap.exists() ? { ...snap.data() } : {
-      weeklyScores: [], currentStreak: 0, bestStreak: 0, totalWeeks: 0, onTimeWeeks: 0
-    };
-    if (!Array.isArray(data.weeklyScores)) data.weeklyScores = [];
-
-    // Current week Monday
-    const t = today();
-    const dow = t.getDay();
-    const daysToMon = dow === 0 ? -6 : 1 - dow;
-    const weekStartDate = new Date(t); weekStartDate.setDate(t.getDate() + daysToMon);
-    const weekEndDate = new Date(weekStartDate); weekEndDate.setDate(weekStartDate.getDate() + 6);
-    const weekStartStr = toYMD(weekStartDate);
-
-    // Guard: don't write 100 when there are no active sermons
-    const activeForStreak = allSermons.filter(s => isActive(s) && s.status !== 'completed');
-    if (activeForStreak.length === 0) {
-      streakData = data;
-      renderStreakSection();
-      return data;
-    }
-
-    // Only write if this week not yet recorded
-    if (!data.weeklyScores.find(w => w.weekStart === weekStartStr)) {
-      let tasksDue = 0, tasksCompleted = 0, tasksOverdue = 0;
-      allSermons.filter(s => isActive(s) && s.status !== 'completed').forEach(s => {
-        const statusIdx = STATUS_ORDER.indexOf(s.status);
-        STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started').forEach(st => {
-          const stIdx = STATUS_ORDER.indexOf(st.key);
-          const due = getStageDueDate(s.date, st.key, s.customDeadlines);
-          if (!due || due < weekStartDate || due > weekEndDate) return;
-          tasksDue++;
-          if (stIdx < statusIdx) tasksCompleted++;
-          else if (daysUntil(due) < 0) tasksOverdue++;
-        });
-      });
-
-      const score = tasksDue > 0 ? Math.round(tasksCompleted / tasksDue * 100) : 100;
-      const allOnTime = tasksOverdue === 0;
-      data.weeklyScores.push({ weekStart: weekStartStr, score, allOnTime });
-      data.weeklyScores.sort((a, b) => a.weekStart.localeCompare(b.weekStart));
-      if (data.weeklyScores.length > 52) data.weeklyScores = data.weeklyScores.slice(-52);
-
-      data.totalWeeks = data.weeklyScores.length;
-      data.onTimeWeeks = data.weeklyScores.filter(w => w.allOnTime).length;
-      let streak = 0;
-      for (let i = data.weeklyScores.length - 1; i >= 0; i--) {
-        if (data.weeklyScores[i].allOnTime) streak++; else break;
-      }
-      data.currentStreak = streak;
-      data.bestStreak = Math.max(data.bestStreak || 0, streak);
-      streakData = data;
-      await setDoc(streakRef, data);
-    } else {
-      streakData = data;
-    }
-    renderStreakSection();
-    return data;
-  } catch(e) {
-    console.error('Streak update failed:', e);
-  }
-}
-
 // ── PREP SCORE ENGINE ─────────────────────────────────────────────────────────
-
-// Load or create the streak_data document with 12 weeks of seed scores
-async function loadOrInitStreakData(uid) {
-  const ref = doc(db, 'users', uid, 'meta', 'streak_data');
-  const snap = await getDoc(ref);
-
-  // Existing user — return their data as-is
-  if (snap.exists()) return snap.data();
-
-  // New user — start clean; calculateOverallScore returns 75 as display default when empty
-  const data = { currentStreak: 0, bestStreak: 0, lastRecorded: null, weeklyScores: [] };
-  await setDoc(ref, data);
-  return data;
-}
-
-// Overall = rolling 12-week average
-function calculateOverallScore(streakData) {
-  const scores = streakData.weeklyScores || [];
-  if (scores.length === 0) return 75;
-  const sum = scores.reduce((acc, w) => acc + (w.score ?? 75), 0);
-  return Math.round(sum / scores.length);
-}
-
-// On Monday after 12:01 am, lock in this week's score if not yet recorded
-async function maybeRecordWeeklyScore(uid, weekScore, weekHasData, streakData) {
-  // Never record weeks with no active sermons
-  if (!weekHasData) return streakData;
-
-  const now = new Date();
-  const isMonday = now.getDay() === 1;
-  const isPastMidnight = now.getHours() > 0 || (now.getHours() === 0 && now.getMinutes() >= 1);
-  const thisWeekStart = toYMD(getWeekStart());
-  const alreadyRecorded = (streakData.weeklyScores || []).some(w => w.weekStart === thisWeekStart);
-  if (!isMonday || !isPastMidnight || alreadyRecorded) return streakData;
-
-  const updated = { ...streakData };
-  updated.weeklyScores = [...(streakData.weeklyScores || []), { weekStart: thisWeekStart, score: weekScore }];
-  if (updated.weeklyScores.length > 12) updated.weeklyScores = updated.weeklyScores.slice(-12);
-
-  const sorted = [...updated.weeklyScores].sort((a, b) => a.weekStart.localeCompare(b.weekStart));
-  let streak = 0;
-  for (let i = sorted.length - 1; i >= 0; i--) {
-    if (sorted[i].score >= 80) streak++;
-    else break;
-  }
-  updated.currentStreak = streak;
-  updated.bestStreak = Math.max(streak, streakData.bestStreak || 0);
-  updated.lastRecorded = thisWeekStart;
-
-  await setDoc(doc(db, 'users', uid, 'meta', 'streak_data'), updated);
-  return updated;
-}
 
 // Main prep score init — call after sermons + stages are loaded
 async function initPrepScore(sermons, stages, preloadedStreakData) {
@@ -1443,8 +1239,7 @@ async function initPrepScore(sermons, stages, preloadedStreakData) {
     const weekResult = calculateWeekScore(sermons, stages);
     const weekScore = weekResult.score;
     const weekHasData = weekResult.hasData;
-    let sd = preloadedStreakData || await loadOrInitStreakData(currentUser.uid);
-    sd = await maybeRecordWeeklyScore(currentUser.uid, weekScore, weekHasData, sd);
+    const sd = preloadedStreakData || await loadOrInitStreakDataFn(db, doc, getDoc, setDoc, currentUser.uid);
     const overallScore = calculateOverallScore(sd);
     updatePrepScoreDisplay(overallScore, weekHasData ? weekScore : 75);
 
@@ -1543,11 +1338,7 @@ function renderStatCard(active, behind, allFuture) {
   updateWeek(weekTotal > 0 ? (weekDone / weekTotal * 100) : 100);
 }
 
-// ── SCORE COLOR ───────────────────────────────────────────────────────────────
-function getScoreColor(score) {
-  for (const b of SCORE_COLORS) if (score >= b.min && score <= b.max) return b.color;
-  return '#880000';
-}
+// getScoreColor, SCORE_COLORS imported from score.js
 
 // ── PREP SCORE DISPLAY ────────────────────────────────────────────────────────
 function updatePrepScoreDisplay(overall, week) {
