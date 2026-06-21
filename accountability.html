@@ -95,13 +95,9 @@
     .member-grid { grid-template-columns: 1fr !important; }
     .onboard-grid { grid-template-columns: 1fr !important; }
     .onboard-vdivider { width: 100% !important; height: 1px !important; }
-    .topbar { flex-wrap: wrap !important; row-gap: 8px !important; }
-    .topbar-actions { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; width: auto !important; justify-content: flex-end !important; }
-    .topbar-actions .btn-ghost,
-    .topbar-actions .btn-brand { font-size: 11px !important; padding: 7px 12px !important; white-space: nowrap !important; }
-  }
-  @media (max-width: 480px) {
-    .topbar-actions { width: 100% !important; justify-content: flex-start !important; margin-top: 4px !important; }
+    .topbar { flex-wrap: nowrap !important; }
+    .topbar-greeting { flex: 1 !important; min-width: 0 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+    .topbar-actions { flex-shrink: 0 !important; display: flex !important; gap: 5px !important; }
   }
 </style>
 </head>
@@ -509,8 +505,8 @@ async function renderAllTeams(teams) {
   const content = document.getElementById('main-content');
 
   document.getElementById('topbar-actions').innerHTML = `
-    <button class="btn-ghost" onclick="showJoinTeamModal()">+ Join team</button>
-    <button class="btn-brand" onclick="showCreateTeamModal()">+ Create team</button>`;
+    <button class="btn btn-ghost" onclick="showJoinTeamModal()" style="font-size:11px;padding:7px 10px;white-space:nowrap;flex-shrink:0;">+ Join</button>
+    <button class="btn btn-brand" onclick="showCreateTeamModal()" style="font-size:11px;padding:7px 10px;white-space:nowrap;flex-shrink:0;">+ Create</button>`;
 
   content.innerHTML = teams.map(team => `
     <div id="team-section-${team.code}" style="margin-bottom:32px;">
