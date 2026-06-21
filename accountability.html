@@ -156,7 +156,7 @@
     <h2>Join a team</h2>
     <div class="form-field">
       <label>Team code</label>
-      <input type="text" id="modal-join-code" placeholder="e.g. CANDEO" style="text-transform:uppercase;letter-spacing:0.08em;" />
+      <input type="text" id="modal-join-code" placeholder="Team code" style="text-transform:uppercase;letter-spacing:0.08em;" />
     </div>
     <div class="onboard-error" id="modal-join-error"></div>
     <div class="modal-actions">
@@ -176,7 +176,7 @@
     </div>
     <div class="form-field">
       <label>Team code</label>
-      <input type="text" id="modal-create-code" placeholder="e.g. CANDEO" style="text-transform:uppercase;letter-spacing:0.08em;" />
+      <input type="text" id="modal-create-code" placeholder="Team code" style="text-transform:uppercase;letter-spacing:0.08em;" />
     </div>
     <div class="onboard-error" id="modal-create-error"></div>
     <div class="modal-actions">
@@ -423,10 +423,10 @@ function renderOnboard() {
           <h2>Create a team</h2>
           <p>Start a team for your staff. Share the code and they can join instantly.</p>
           <div class="onboard-row">
-            <input type="text" id="create-name" placeholder="Team name e.g. Candeo Staff" />
+            <input type="text" id="create-name" placeholder="Team name" />
           </div>
           <div class="onboard-row">
-            <input type="text" id="create-code" class="code-input" placeholder="Team code e.g. CANDEO" maxlength="20" />
+            <input type="text" id="create-code" class="code-input" placeholder="Team code" maxlength="20" />
             <button class="btn primary" onclick="createTeam()"><i class="ti ti-plus"></i> Create</button>
           </div>
           <div class="onboard-error" id="create-error"></div>
@@ -436,7 +436,7 @@ function renderOnboard() {
           <h2>Join a team</h2>
           <p>Enter the team code your team leader shared with you.</p>
           <div class="onboard-row" style="margin-top:36px;">
-            <input type="text" id="join-code" class="code-input" placeholder="Enter team code" maxlength="20" />
+            <input type="text" id="join-code" class="code-input" placeholder="Team code" maxlength="20" />
             <button class="btn primary" onclick="joinTeam()"><i class="ti ti-arrow-right"></i> Join</button>
           </div>
           <div class="onboard-error" id="join-error"></div>
