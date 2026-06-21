@@ -10,6 +10,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" media="print" onload="this.media='all'"/>
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"/></noscript>
 <link rel="stylesheet" href="/Sermon-Prep-Dashboard/styles.css" />
+<style>
+  #topbar-greeting { opacity: 0; transition: opacity 0.15s; }
+  #topbar-greeting.ready { opacity: 1; }
+</style>
 </head>
 <body>
 <div class="app">
@@ -407,8 +411,10 @@ onAuthStateChanged(auth, async user => {
     loginScreen.style.display = 'none';
     const navAvatar = document.getElementById('nav-avatar');
     if (navAvatar) navAvatar.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
-    // Update topbar greeting with user's first name
+    // Update topbar greeting with user's first name and fade it in
     updateTopbar(user.displayName || '');
+    const greetingEl = document.getElementById('topbar-greeting');
+    if (greetingEl) greetingEl.classList.add('ready');
 
     // ── MOBILE: inject drawer and hamburger ──────────────────────────────────
     if (window.innerWidth <= 768 && !document.getElementById('mobile-drawer')) {
@@ -2287,7 +2293,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 // Set initial greeting without name (name will update on auth)
-updateTopbar(null);
 // Show placeholder rings immediately before data loads
 updatePrepScoreDisplay(75, 75);
 // Show placeholder streak bars immediately
