@@ -88,7 +88,13 @@
     </div>
     -->
     <div class="nav-bottom">
-      <div class="nav-avatar" id="nav-avatar" title="Sign out" onclick="signOut()">T</div>
+      <div class="nav-avatar" id="nav-avatar" onclick="toggleSignOutMenu()" style="cursor:pointer;">T</div>
+      <div id="sign-out-menu" style="display:none;position:fixed;left:calc(var(--nav-width) + 8px);bottom:16px;background:var(--white);border:1px solid var(--border-md);border-radius:var(--r-lg);box-shadow:var(--shadow-md);padding:14px 16px;min-width:200px;z-index:500;">
+        <div id="sign-out-name" style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px;"></div>
+        <div id="sign-out-email" style="font-size:11px;color:var(--stone);margin-bottom:12px;"></div>
+        <div style="height:1px;background:var(--border);margin-bottom:12px;"></div>
+        <button onclick="signOut()" style="display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;font-family:var(--font);font-size:13px;font-weight:500;color:var(--red);cursor:pointer;padding:0;">Sign out</button>
+      </div>
     </div>
     <div id="sync-dot" style="display:none;"></div>
     <span id="sync-label" style="display:none;"></span>
@@ -165,6 +171,10 @@ onAuthStateChanged(auth, async user => {
     document.getElementById('user-subtitle').textContent = user.email;
     const navAvatar = document.getElementById('nav-avatar');
     if (navAvatar) navAvatar.textContent = (user.displayName || user.email || '?').charAt(0).toUpperCase();
+    const signOutName = document.getElementById('sign-out-name');
+    const signOutEmail = document.getElementById('sign-out-email');
+    if (signOutName) signOutName.textContent = user.displayName || '';
+    if (signOutEmail) signOutEmail.textContent = user.email || '';
     buildMobileDrawer(); injectHamburger();
     const dName = document.getElementById('drawer-name'); if (dName) dName.textContent = user.displayName || user.email;
     const dUser = document.getElementById('drawer-user-name'); if (dUser) dUser.textContent = user.displayName || user.email;
@@ -201,6 +211,19 @@ window.signIn = async () => {
   }
 };
 window.signOut = async () => { await fbSignOut(auth); };
+
+window.toggleSignOutMenu = function() {
+  const menu = document.getElementById('sign-out-menu');
+  if (!menu) return;
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+};
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('sign-out-menu');
+  const avatar = document.getElementById('nav-avatar');
+  if (menu && avatar && !menu.contains(e.target) && !avatar.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
 
 function setSyncStatus(state, label) {
   document.getElementById('sync-dot').className = 'sync-dot '+state;
