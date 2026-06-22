@@ -56,9 +56,11 @@
     <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/archive.html" data-tip="Archive">📚</a>
     <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/settings.html" data-tip="Settings">⚙️</a>
     <div class="nav-sep"></div>
+    <!-- HIDDEN: Library removed from nav
     <div id="admin-nav-section" style="display:none;flex-direction:column;align-items:center;gap:4px;">
       <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/library.html" data-tip="My Library">📖</a>
     </div>
+    -->
     <div class="nav-bottom">
       <div class="nav-avatar" id="nav-avatar" title="Sign out" onclick="signOut()">T</div>
     </div>
@@ -423,11 +425,13 @@ onAuthStateChanged(auth, async user => {
     <a href="/Sermon-Prep-Dashboard/accountability.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">👥 Accountability</a>
     <a href="/Sermon-Prep-Dashboard/archive.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">📚 Archive</a>
     <a href="/Sermon-Prep-Dashboard/settings.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">⚙️ Settings</a>
+    <!-- HIDDEN: Library and Chores removed from mobile drawer
     <div id="drawer-admin-section" style="display:none;">
       <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--stone-light);padding:10px 18px 4px;">My Pages</div>
       <a href="/Sermon-Prep-Dashboard/library.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">📖 My Library</a>
       <a href="/Sermon-Prep-Dashboard/chores.html" style="display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:14px;font-weight:500;color:var(--stone);text-decoration:none;">🏡 My Chores</a>
     </div>
+    -->
   </div>
   <div id="drawer-bottom" style="padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;">
     <div id="drawer-avatar" style="width:32px;height:32px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;overflow:hidden;">T</div>
@@ -470,7 +474,8 @@ onAuthStateChanged(auth, async user => {
     try {
       profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
-        document.getElementById('admin-nav-section').style.display = 'flex';
+        const adminNav = document.getElementById('admin-nav-section');
+        if (adminNav) adminNav.style.display = 'flex';
         const drawerAdminSection = document.getElementById('drawer-admin-section');
         if (drawerAdminSection) drawerAdminSection.style.display = 'block';
       }

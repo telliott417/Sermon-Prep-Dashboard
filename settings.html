@@ -82,9 +82,11 @@
     <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/archive.html" data-tip="Archive">📚</a>
     <a class="nav-icon-btn active" href="/Sermon-Prep-Dashboard/settings.html" data-tip="Settings">⚙️</a>
     <div class="nav-sep"></div>
+    <!-- HIDDEN: Library removed from nav
     <div id="admin-nav-section" style="display:none;flex-direction:column;align-items:center;gap:4px;">
       <a class="nav-icon-btn" href="/Sermon-Prep-Dashboard/library.html" data-tip="My Library">📖</a>
     </div>
+    -->
     <div class="nav-bottom">
       <div class="nav-avatar" id="nav-avatar" title="Sign out" onclick="signOut()">T</div>
     </div>
@@ -178,7 +180,8 @@ onAuthStateChanged(auth, async user => {
     try {
       const profileSnap = await getDoc(doc(db, 'users', user.uid, 'meta', 'profile'));
       if (profileSnap.exists() && (profileSnap.data().role === 'admin' || profileSnap.data().role === 'family')) {
-        document.getElementById('admin-nav-section').style.display = 'block';
+        const adminNav = document.getElementById('admin-nav-section');
+        if (adminNav) adminNav.style.display = 'block';
       }
     } catch(e) { console.error('Role check failed:', e); }
     await loadSettings();
