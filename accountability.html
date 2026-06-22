@@ -462,8 +462,8 @@ async function renderAllTeams(teams) {
   const content = document.getElementById('main-content');
 
   document.getElementById('topbar-actions').innerHTML = `
-    <button onclick="showCreateTeamModal()" class="btn btn-ghost">+ Create</button>
-    <button onclick="showJoinTeamModal()" class="btn btn-brand">+ Join</button>
+    <button class="btn btn-ghost" onclick="showCreateTeamModal()">+ Create</button>
+    <button class="btn-brand" onclick="showJoinTeamModal()">+ Join</button>
   `;
 
   content.innerHTML = teams.map(team => `
