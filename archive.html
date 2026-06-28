@@ -185,10 +185,28 @@
 
 </div>
 
+<div class="modal-overlay" id="archive-modal">
+  <div class="modal" style="max-width:400px;">
+    <h2 id="archive-modal-title">Sermon Options</h2>
+    <p id="archive-modal-subtitle" style="font-size:13px;color:var(--stone);margin-bottom:20px;"></p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="restoreSermon()" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--green-light);color:var(--green);border:1px solid var(--green-border);border-radius:var(--r-lg);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">
+        ↩ Restore to Active Sermons
+      </button>
+      <button onclick="deleteArchivedSermon()" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--red-light);color:var(--red);border:1px solid var(--red-border);border-radius:var(--r-lg);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">
+        🗑 Delete Sermon
+      </button>
+    </div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="action-btn" onclick="closeArchiveModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
@@ -529,10 +547,102 @@ function renderArchive(sermons) {
       </div>
       <div class="archive-actions">
         ${s.doc?`<a class="doc-link" href="${s.doc}" target="_blank"><i class="ti ti-file-text"></i> Sermon doc</a>`:''}
+        <button class="sc2-gear-btn" onclick="openArchiveModal('${s.id}')" title="Options">⚙</button>
       </div>
     </div>`;
   }).join('');
 }
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(message) {
+  const existing = document.getElementById('toast-notification');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'toast-notification';
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1714;color:white;font-size:13px;font-weight:500;padding:12px 20px;border-radius:100px;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:999;opacity:0;transition:opacity 0.2s;white-space:nowrap;font-family:var(--font);';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => { toast.style.opacity = '1'; });
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 200);
+  }, 4000);
+}
+
+// ── ARCHIVE MODAL ─────────────────────────────────────────────────────────────
+const DEFAULT_STAGES_FULL = [
+  { key: 'not-started', label: 'Not yet started', dueDay: null, weeksBack: null },
+  { key: 'study',   label: 'Study',        dueDay: 1, weeksBack: 1 },
+  { key: 'idea',    label: 'Main idea',     dueDay: 2, weeksBack: 1 },
+  { key: 'outline', label: 'Outline',       dueDay: 3, weeksBack: 1 },
+  { key: 'draft',   label: 'Draft',         dueDay: 1, weeksBack: 0 },
+  { key: 'final',   label: 'Final',         dueDay: 2, weeksBack: 0 },
+  { key: 'run',     label: 'Run-through',   dueDay: 3, weeksBack: 0 },
+  { key: 'completed', label: 'Completed', dueDay: 0, weeksBack: 0 },
+];
+
+let archiveModalSermonId = null;
+
+window.openArchiveModal = function(id) {
+  archiveModalSermonId = id;
+  const sermon = allSermons.find(s => s.id === id);
+  if (!sermon) return;
+  document.getElementById('archive-modal-title').textContent = sermon.title || 'Untitled';
+  document.getElementById('archive-modal-subtitle').textContent = sermon.text ? sermon.text : '';
+  document.getElementById('archive-modal').classList.add('open');
+};
+
+window.closeArchiveModal = function() {
+  document.getElementById('archive-modal').classList.remove('open');
+  archiveModalSermonId = null;
+};
+
+window.restoreSermon = async function() {
+  const sermon = allSermons.find(s => s.id === archiveModalSermonId);
+  if (!sermon) return;
+
+  const settingsSnap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'settings'));
+  const settings = settingsSnap.exists() ? settingsSnap.data() : null;
+  const stages = settings?.stages ? [
+    { key: 'not-started', label: 'Not yet started', dueDay: null, weeksBack: null },
+    ...settings.stages,
+    { key: 'completed', label: 'Completed', dueDay: 0, weeksBack: 0 }
+  ] : DEFAULT_STAGES_FULL;
+
+  const firstWorkingStage = stages.find(s => s.key !== 'not-started' && s.key !== 'completed');
+  if (!firstWorkingStage) return;
+
+  sermon.status = firstWorkingStage.key;
+
+  try {
+    await setDoc(doc(db, 'users', currentUser.uid, 'sermons', sermon.id), sermon);
+    closeArchiveModal();
+    showToast(`"${sermon.title}" restored to Active Sermons.`);
+    await loadArchive();
+  } catch(e) {
+    alert('Error restoring sermon: ' + e.message);
+  }
+};
+
+window.deleteArchivedSermon = async function() {
+  const sermon = allSermons.find(s => s.id === archiveModalSermonId);
+  if (!sermon) return;
+  if (!confirm(`Delete "${sermon.title}"? This cannot be undone.`)) return;
+
+  try {
+    await deleteDoc(doc(db, 'users', currentUser.uid, 'sermons', sermon.id));
+    allSermons = allSermons.filter(s => s.id !== archiveModalSermonId);
+    closeArchiveModal();
+    showToast(`"${sermon.title}" has been deleted.`);
+    await loadArchive();
+  } catch(e) {
+    alert('Error deleting sermon: ' + e.message);
+  }
+};
+
+document.getElementById('archive-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeArchiveModal();
+});
 
 // ── MOBILE DRAWER (matches dashboard design) ──────────────────────────────
 function buildMobileDrawer() {

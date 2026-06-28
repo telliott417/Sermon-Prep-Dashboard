@@ -874,10 +874,26 @@ function checkAndQueueAutoComplete(active) {
         s.status = 'completed';
         await saveSermonToDb(s);
         sermonsPendingArchive.delete(s.id);
+        showToast(`"${s.title}" has been moved to your archive.`);
         renderAll();
       }, 2200);
     }
   });
+}
+
+function showToast(message) {
+  const existing = document.getElementById('toast-notification');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'toast-notification';
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1714;color:white;font-size:13px;font-weight:500;padding:12px 20px;border-radius:100px;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:999;opacity:0;transition:opacity 0.2s;white-space:nowrap;font-family:var(--font);';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => { toast.style.opacity = '1'; });
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 200);
+  }, 4000);
 }
 
 function getUrgencyBadge(s) {
@@ -1030,8 +1046,10 @@ function renderSermonCard(s) {
   const sermonDate = parseDate(s.date);
   const validation = validateSermonDeadlines(s, STAGES);
   const nextStage = STATUS_ORDER[STATUS_ORDER.indexOf(s.status)+1];
-  const showDoneBtn = s.status !== 'completed' && s.status !== 'not-started' && nextStage;
+  const showDoneBtn = s.status !== 'completed' && s.status !== 'not-started' && nextStage && nextStage !== 'completed';
   const dAway = daysUntil(sermonDate);
+  const lastWorkingStage = STATUS_ORDER[STATUS_ORDER.indexOf('completed') - 1];
+  const showPreachedBtn = dAway === 0 && s.status === lastWorkingStage;
   const daysAwayLabel = dAway < 0 ? `${Math.abs(dAway)}d ago` : dAway === 0 ? 'Today!' : dAway === 1 ? 'Tomorrow' : `${dAway}d away`;
 
   return `<div class="sc2-card" id="card-${s.id}">
@@ -1066,6 +1084,7 @@ function renderSermonCard(s) {
     <div class="sc2-actions">
       <div class="sc2-prog-bg"><div class="sc2-prog-fill" style="width:${pct}%;background:${color};"></div></div>
       ${showDoneBtn ? `<button class="sc2-done-btn" onclick="advanceStatus('${s.id}')"><i class="ti ti-check"></i> Done: ${STATUS_LABELS[s.status]}</button>` : ''}
+      ${showPreachedBtn ? `<button class="sc2-done-btn" style="background:var(--brand);color:white;border-color:var(--brand);" onclick="markAsPreached('${s.id}')">⛪ Mark as Preached</button>` : ''}
       <button class="sc2-gear-btn" onclick="openEditModal('${s.id}')" title="Edit sermon"><i class="ti ti-settings-2"></i></button>
     </div>
   </div>`;
@@ -1628,17 +1647,25 @@ window.toggleCard = function(id) {
 
 // ── ACTIONS ───────────────────────────────────────────────────────────────────
 window.advanceStatus = async function(id) {
-  const s=allSermons.find(x=>x.id===id);
+  const s = allSermons.find(x => x.id === id);
   if (!s) return;
-  const idx=STATUS_ORDER.indexOf(s.status);
-  if (idx<STATUS_ORDER.length-1) {
-    const newStatus=STATUS_ORDER[idx+1];
-    if (newStatus==='completed') openCards.delete(id);
-    s.status=newStatus;
-    renderAll();
-    await saveSermonToDb(s);
-    await initPrepScore(allSermons, STAGES);
-  }
+  const idx = STATUS_ORDER.indexOf(s.status);
+  const nextStatus = STATUS_ORDER[idx + 1];
+  if (!nextStatus || nextStatus === 'completed') return; // never advance to completed via Done button
+  s.status = nextStatus;
+  renderAll();
+  await saveSermonToDb(s);
+  await initPrepScore(allSermons, STAGES);
+};
+
+window.markAsPreached = async function(id) {
+  const s = allSermons.find(x => x.id === id);
+  if (!s) return;
+  s.status = 'completed';
+  renderAll();
+  await saveSermonToDb(s);
+  await initPrepScore(allSermons, STAGES);
+  showToast(`"${s.title}" has been moved to your archive.`);
 };
 
 window.deleteSermon = async function(id) {
