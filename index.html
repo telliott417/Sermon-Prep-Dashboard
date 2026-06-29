@@ -675,7 +675,9 @@ function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'long',d
 // Thin wrapper: callers pass (sermonDateStr, stageKey, customDeadlines);
 // the canonical implementation in score.js also needs STAGES.
 function getStageDueDate(sermonDateStr, stageKey, customDeadlines) {
-  return getStageDueDateFn(sermonDateStr, stageKey, customDeadlines, STAGES);
+  const result = getStageDueDateFn(sermonDateStr, stageKey, customDeadlines, STAGES);
+  console.log('getStageDueDate:', sermonDateStr, stageKey, 'result:', result?.toDateString());
+  return result;
 }
 
 function isBehind(sermon) {
