@@ -943,14 +943,22 @@ function renderPipeline(s) {
       <div class="sc2-pip-date">${dateLabel}</div>
     </div>`;
   });
-  // Preach pill at end
+  // Preach dot at end
   const sermonDate = parseDate(s.date);
   const preachLabel = sermonDate ? sermonDate.toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
-  html += `<div class="sc2-pip-connector"></div>
+  const runThroughIdx = STATUS_ORDER.indexOf(STATUS_ORDER[STATUS_ORDER.length - 2]); // last working stage
+  const runThroughDone = STATUS_ORDER.indexOf(s.status) > runThroughIdx;
+  const preachDotStyle = runThroughDone
+    ? `border-color:${color};border-width:2.5px;background:${color}22;cursor:pointer;`
+    : `background:var(--bg-secondary);border-color:var(--border-md);cursor:default;`;
+  const preachDotContent = runThroughDone ? '' : '';
+  const preachConnectorClass = runThroughDone ? ' done' : '';
+
+  html += `<div class="sc2-pip-connector${preachConnectorClass}"></div>
     <div class="sc2-pip-item">
-      <div class="preach-pill">Preach</div>
-      <div class="sc2-pip-label" style="max-width:52px;">${preachLabel}</div>
-      <div class="sc2-pip-date"></div>
+      <div class="sc2-pip-dot" style="${preachDotStyle}" ${runThroughDone ? `onclick="markAsPreached('${s.id}')" title="Mark as Preached"` : ''}>${preachDotContent}</div>
+      <div class="sc2-pip-label">Preach</div>
+      <div class="sc2-pip-date">${preachLabel}</div>
     </div>`;
   html += '</div>';
   return html;
@@ -1011,11 +1019,13 @@ function renderMobilePipeline(s) {
 
   const sermonDate = parseDate(s.date);
   const preachDateStr = sermonDate ? sermonDate.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}) : '';
-  const preachRow = `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid var(--border);">
-    <span style="background:var(--warm-bg);border:1px solid var(--border-md);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:600;color:var(--stone);flex-shrink:0;">Preach</span>
+  const lastWorkingStageKey = STATUS_ORDER[STATUS_ORDER.length - 2];
+  const allStagesDone = STATUS_ORDER.indexOf(s.status) > STATUS_ORDER.indexOf(lastWorkingStageKey);
+  const preachRow = `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid var(--border);${allStagesDone ? 'background:var(--green-light);cursor:pointer;' : ''}" ${allStagesDone ? `onclick="markAsPreached('${s.id}')"` : ''}>
+    <div style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;${allStagesDone ? `background:var(--green-light);color:var(--green);border:2px solid var(--green);` : 'background:var(--warm-bg);border:1px solid var(--border-md);'}"></div>
     <div style="flex:1;">
-      <div style="font-size:12px;font-weight:600;color:var(--stone);">Sermon day</div>
-      <div style="font-size:10px;color:var(--stone);margin-top:1px;">${preachDateStr}</div>
+      <div style="font-size:12px;font-weight:600;color:${allStagesDone ? 'var(--green)' : 'var(--stone)'};">Preach</div>
+      <div style="font-size:10px;color:var(--stone);margin-top:1px;">${preachDateStr}${allStagesDone ? ' · tap to mark as preached' : ''}</div>
     </div>
   </div>`;
 
