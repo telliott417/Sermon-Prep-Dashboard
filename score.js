@@ -63,6 +63,7 @@ export function getStageDueDate(sermonDateStr, stageKey, customDeadlines, STAGES
 }
 
 export function isStageCompleted(sermon, stageKey, stages) {
+  if (sermon.status === 'preached' || sermon.status === 'completed') return true;
   const stageKeys = stages.map(s => s.key);
   const currentIdx = stageKeys.indexOf(sermon.status);
   const stageIdx = stageKeys.indexOf(stageKey);

@@ -384,7 +384,7 @@ function buildStagesFromSettings(settingsStages) {
   STAGES = [
     { key: 'not-started', label: 'Not yet started', dueDay: null, weeksBack: null },
     ...middle,
-    { key: 'preached', label: 'Preached', dueDay: null, weeksBack: null },
+    { key: 'preached', label: 'Preach', dueDay: null, weeksBack: null },
     { key: 'completed', label: 'Completed', dueDay: 0, weeksBack: 0 },
   ];
   STATUS_ORDER = STAGES.map(s => s.key);
@@ -692,11 +692,12 @@ function isBehind(sermon) {
   return daysUntil(due) < 0;
 }
 function getProgressPct(status) {
+  if (status === 'completed' || status === 'preached') return 100;
   const idx = STATUS_ORDER.indexOf(status);
   if (idx <= 0) return 0;
-  if (status === 'completed') return 100;
-  const totalWorkingStages = STATUS_ORDER.length - 2; // exclude not-started and completed
-  const completedStages = idx - 1; // stages before current (not-started doesn't count)
+  const workingStages = STATUS_ORDER.filter(k => k !== 'not-started' && k !== 'completed' && k !== 'preached');
+  const totalWorkingStages = workingStages.length;
+  const completedStages = workingStages.filter(k => STATUS_ORDER.indexOf(k) < idx).length;
   return totalWorkingStages > 0 ? Math.round((completedStages / totalWorkingStages) * 100) : 0;
 }
 function isActive(s) {
@@ -869,7 +870,7 @@ function validateSermonDeadlines(sermon, stages) {
 
 function checkAndQueueAutoComplete(active) {
   active.forEach(s => {
-    if (daysUntil(parseDate(s.date)) < 0 && s.status !== 'completed' && s.status !== 'preached' && !sermonsPendingArchive.has(s.id)) {
+    if (daysUntil(parseDate(s.date)) < 0 && s.status !== 'completed' && !sermonsPendingArchive.has(s.id)) {
       sermonsPendingArchive.add(s.id);
       setTimeout(async () => {
         s.status = 'completed';
@@ -913,6 +914,7 @@ function renderPipeline(s) {
   if (workingStages.length === 0) return '';
   const statusIdx = STATUS_ORDER.indexOf(s.status);
   const color = s._color;
+  const sermonDate = parseDate(s.date);
   let html = '<div class="sc2-pipeline pipeline">';
   workingStages.forEach((stage, i) => {
     const stageIdx = STATUS_ORDER.indexOf(stage.key);
@@ -937,7 +939,9 @@ function renderPipeline(s) {
       dotStyle = overdue ? `border-color:#a32d2d;background:var(--bg-secondary);` : `background:var(--bg-secondary);border-color:var(--border-md);`;
       dotContent = '';
     }
-    const dateLabel = due ? formatDate(due) : '';
+    const dateLabel = stage.key === 'preached'
+      ? (sermonDate ? sermonDate.toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '')
+      : (due ? formatDate(due) : '');
     html += `<div class="sc2-pip-item">
       <div class="sc2-pip-dot" style="${dotStyle}">${dotContent}</div>
       <div class="sc2-pip-label">${stage.label}</div>
@@ -956,12 +960,15 @@ function renderMobilePipeline(s) {
   const nextStage = STATUS_ORDER[STATUS_ORDER.indexOf(s.status) + 1];
   const showDoneBtn = s.status !== 'completed' && s.status !== 'not-started' && nextStage;
 
+  const sermonDate = parseDate(s.date);
   const stageRows = workingStages.map(stage => {
     const stageIdx = STATUS_ORDER.indexOf(stage.key);
     const isDone = stageIdx < statusIdx;
     const isCurrent = stageIdx === statusIdx;
     const due = getStageDueDate(s.date, stage.key, s.customDeadlines);
-    const dueStr = due ? formatDate(due) : '';
+    const dueStr = stage.key === 'preached'
+      ? (sermonDate ? sermonDate.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) : '')
+      : (due ? formatDate(due) : '');
     const d = due ? daysUntil(due) : null;
     const isOverdue = d !== null && d < 0;
     const isDueToday = d === 0;
@@ -1028,7 +1035,7 @@ function renderSermonCard(s) {
   const sermonDate = parseDate(s.date);
   const validation = validateSermonDeadlines(s, STAGES);
   const nextStage = STATUS_ORDER[STATUS_ORDER.indexOf(s.status)+1];
-  const showDoneBtn = s.status !== 'completed' && s.status !== 'not-started' && nextStage && nextStage !== 'completed';
+  const showDoneBtn = s.status !== 'completed' && s.status !== 'not-started' && nextStage;
   const dAway = daysUntil(sermonDate);
   const lastWorkingStage = STATUS_ORDER[STATUS_ORDER.indexOf('preached') - 1];
   const showPreachedBtn = dAway === 0 && s.status === lastWorkingStage;
@@ -1117,6 +1124,7 @@ function renderTodo() {
     const curIdx = STATUS_ORDER.indexOf(s.status);
     for (let i=Math.max(curIdx,1); i<STATUS_ORDER.length-1; i++) {
       const stage = STAGES[i];
+      if (stage.key === 'preached' || stage.key === 'not-started' || stage.key === 'completed') continue;
       if (stage.dueDay===null) continue;
       const due = getStageDueDate(s.date, stage.key, s.customDeadlines);
       if (!due||due>threeWeeks) continue;
@@ -1633,8 +1641,8 @@ window.advanceStatus = async function(id) {
   if (!s) return;
   const idx = STATUS_ORDER.indexOf(s.status);
   const nextStatus = STATUS_ORDER[idx + 1];
-  if (!nextStatus || nextStatus === 'completed') return;
-  if (nextStatus === 'preached') {
+  if (!nextStatus) return;
+  if (nextStatus === 'completed') {
     await markAsPreached(id);
     return;
   }
