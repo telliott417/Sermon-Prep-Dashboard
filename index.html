@@ -947,7 +947,7 @@ function renderPipeline(s) {
   const sermonDate = parseDate(s.date);
   const preachLabel = sermonDate ? sermonDate.toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
   const runThroughIdx = STATUS_ORDER.indexOf(STATUS_ORDER[STATUS_ORDER.length - 2]); // last working stage
-  const runThroughDone = STATUS_ORDER.indexOf(s.status) > runThroughIdx;
+  const runThroughDone = STATUS_ORDER.indexOf(s.status) >= runThroughIdx;
   const preachDotStyle = runThroughDone
     ? `border-color:${color};border-width:2.5px;background:${color}22;cursor:pointer;`
     : `background:var(--bg-secondary);border-color:var(--border-md);cursor:default;`;
@@ -1020,7 +1020,7 @@ function renderMobilePipeline(s) {
   const sermonDate = parseDate(s.date);
   const preachDateStr = sermonDate ? sermonDate.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}) : '';
   const lastWorkingStageKey = STATUS_ORDER[STATUS_ORDER.length - 2];
-  const allStagesDone = STATUS_ORDER.indexOf(s.status) > STATUS_ORDER.indexOf(lastWorkingStageKey);
+  const allStagesDone = STATUS_ORDER.indexOf(s.status) >= STATUS_ORDER.indexOf(lastWorkingStageKey);
   const preachRow = `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid var(--border);${allStagesDone ? 'background:var(--green-light);cursor:pointer;' : ''}" ${allStagesDone ? `onclick="markAsPreached('${s.id}')"` : ''}>
     <div style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;${allStagesDone ? `background:var(--green-light);color:var(--green);border:2px solid var(--green);` : 'background:var(--warm-bg);border:1px solid var(--border-md);'}"></div>
     <div style="flex:1;">
