@@ -676,7 +676,6 @@ function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'long',d
 // the canonical implementation in score.js also needs STAGES.
 function getStageDueDate(sermonDateStr, stageKey, customDeadlines) {
   const result = getStageDueDateFn(sermonDateStr, stageKey, customDeadlines, STAGES);
-  console.log('getStageDueDate:', sermonDateStr, stageKey, 'result:', result?.toDateString());
   return result;
 }
 
@@ -903,6 +902,7 @@ function showToast(message) {
 function getUrgencyBadge(s) {
   if (s.status === 'completed' || s.status === 'not-started') return '';
   const due = getStageDueDate(s.date, s.status, s.customDeadlines);
+  console.log('getUrgencyBadge:', s.title, 'status:', s.status, 'due:', due?.toDateString(), 'd:', due ? daysUntil(due) : null);
   if (!due) return '';
   const d = daysUntil(due);
   const color = getUrgencyColor(due);
