@@ -74,13 +74,13 @@ export function calculateWeekScore(sermons, stages) {
   let totalDeductions = 0;
 
   const activeSermons = sermons.filter(s =>
-    s.status !== 'completed' && s.date && parseDate(s.date) >= todayDate
+    s.status !== 'completed' && s.status !== 'preached' && s.date && parseDate(s.date) >= todayDate
   );
 
   if (activeSermons.length === 0) return { score: 100, hasData: false };
 
   for (const sermon of activeSermons) {
-    const workingStages = stages.filter(st => st.key !== 'not-started' && st.key !== 'completed');
+    const workingStages = stages.filter(st => st.key !== 'not-started' && st.key !== 'completed' && st.key !== 'preached');
     for (const stage of workingStages) {
       if (isStageCompleted(sermon, stage.key, stages)) continue;
       const dueDate = getStageDueDate(sermon.date, stage.key, sermon.customDeadlines, stages);
@@ -143,7 +143,7 @@ export async function recordMissingWeeklyScores(db, docFn, getDocFn, setDocFn, u
     weekEnd.setHours(23, 59, 59, 999);
 
     let hadTasks = false;
-    for (const sermon of sermons.filter(s => s.status !== 'completed')) {
+    for (const sermon of sermons.filter(s => s.status !== 'completed' && s.status !== 'preached')) {
       const workingStages = stages.filter(st => st.key !== 'not-started' && st.key !== 'completed' && st.dueDay !== null);
       for (const stage of workingStages) {
         const due = getStageDueDate(sermon.date, stage.key, sermon.customDeadlines, stages);
@@ -154,8 +154,8 @@ export async function recordMissingWeeklyScores(db, docFn, getDocFn, setDocFn, u
     if (!hadTasks) continue;
 
     let deductions = 0;
-    for (const sermon of sermons.filter(s => s.status !== 'completed' && s.date && parseDate(s.date) >= monday)) {
-      const workingStages = stages.filter(st => st.key !== 'not-started' && st.key !== 'completed');
+    for (const sermon of sermons.filter(s => s.status !== 'completed' && s.status !== 'preached' && s.date && parseDate(s.date) >= monday)) {
+      const workingStages = stages.filter(st => st.key !== 'not-started' && st.key !== 'completed' && st.key !== 'preached');
       for (const stage of workingStages) {
         if (isStageCompleted(sermon, stage.key, stages)) continue;
         const due = getStageDueDate(sermon.date, stage.key, sermon.customDeadlines, stages);
