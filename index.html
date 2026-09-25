@@ -1480,21 +1480,42 @@ function renderUpcomingCard(s) {
   </div>`;
 }
 
+const UPCOMING_INITIAL_LIMIT = 9;
+
 function renderUpcomingSection(upcoming) {
   const el = document.getElementById('upcoming-section');
   if (!el) return;
   if (upcoming.length === 0) { el.innerHTML = ''; return; }
-  const showSeeAll = upcoming.length > 3;
-  const shown = upcoming.slice(0, 3);
-  el.innerHTML = `
+  let html = `
     <div class="section-header">
       <div class="section-title">Upcoming Sermons</div>
       <div class="section-line"></div>
       <div class="section-count">${upcoming.length}</div>
-      ${showSeeAll ? `<a href="/Sermon-Prep-Dashboard/archive.html" style="font-size:11px;color:var(--blue-text);text-decoration:none;white-space:nowrap;flex-shrink:0;margin-left:8px;">See all →</a>` : ''}
-    </div>
-    ${shown.map(s => renderUpcomingCard(s)).join('')}`;
+    </div>`;
+  if (upcoming.length >= 10) {
+    const visible = upcoming.slice(0, UPCOMING_INITIAL_LIMIT);
+    const hidden = upcoming.slice(UPCOMING_INITIAL_LIMIT);
+    html += visible.map(s => renderUpcomingCard(s)).join('');
+    html += `<div id="upcoming-expand-wrap" style="text-align:center;padding:8px 0;">
+      <button onclick="expandUpcoming()" class="btn-ghost" style="font-size:12px;display:inline-flex;">
+        Show ${hidden.length} more sermon${hidden.length > 1 ? 's' : ''} ↓
+      </button>
+    </div>`;
+    html += `<div id="upcoming-hidden" style="display:none;">
+      ${hidden.map(s => renderUpcomingCard(s)).join('')}
+    </div>`;
+  } else {
+    html += upcoming.map(s => renderUpcomingCard(s)).join('');
+  }
+  el.innerHTML = html;
 }
+
+window.expandUpcoming = function() {
+  const hidden = document.getElementById('upcoming-hidden');
+  const wrap = document.getElementById('upcoming-expand-wrap');
+  if (hidden) hidden.style.display = 'block';
+  if (wrap) wrap.style.display = 'none';
+};
 
 window.startPrep = async function(id) {
   const s = allSermons.find(x => x.id === id);
