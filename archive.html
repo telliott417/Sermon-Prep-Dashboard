@@ -190,6 +190,9 @@
     <h2 id="archive-modal-title">Sermon Options</h2>
     <p id="archive-modal-subtitle" style="font-size:13px;color:var(--stone);margin-bottom:20px;"></p>
     <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="editArchivedSermon()" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--warm-bg);color:var(--ink);border:1px solid var(--border-md);border-radius:var(--r-lg);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);width:100%;">
+        ✏️ Edit Sermon
+      </button>
       <button onclick="restoreSermon()" style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--green-light);color:var(--green);border:1px solid var(--green-border);border-radius:var(--r-lg);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">
         ↩ Restore to Active Sermons
       </button>
@@ -203,10 +206,62 @@
   </div>
 </div>
 
+<!-- EDIT MODAL (two-tab: Details + Deadlines) -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="edit-tab-details" onclick="switchEditTab('details')">Details</button>
+      <button class="modal-tab" id="edit-tab-deadlines" onclick="switchEditTab('deadlines')">Deadlines</button>
+    </div>
+    <h2 id="em-title" style="margin-bottom:16px;">Edit Sermon</h2>
+
+    <!-- DETAILS PANEL -->
+    <div id="em-details-panel">
+      <div class="form-field"><label>Sermon title</label><input type="text" id="em-f-title" placeholder="e.g. Walking by Faith" /></div>
+      <div class="form-field"><label>Scripture text</label><input type="text" id="em-f-text" placeholder="e.g. Hebrews 11:1–6" /></div>
+      <div class="form-field"><label>Series</label><input type="text" id="em-f-series" placeholder="e.g. Heroes of Faith" /></div>
+      <div class="form-field"><label>Context</label>
+        <div class="context-row">
+          <select id="em-f-context-select" onchange="handleEditContextSelect()">
+            <option value="">— Select —</option>
+          </select>
+          <input type="text" id="em-f-context-other" placeholder="Type new context..." style="display:none;" />
+        </div>
+      </div>
+      <div class="form-field"><label>Sermon date</label><input type="date" id="em-f-date" /></div>
+      <div class="form-field"><label>Google Docs link (optional)</label><input type="url" id="em-f-doc" placeholder="https://docs.google.com/..." /></div>
+      <div class="form-field"><label>Current status</label><select id="em-f-status"></select></div>
+      <div class="modal-actions" style="justify-content:space-between;">
+        <button class="action-btn danger" onclick="deleteEditSermon()"><i class="ti ti-trash"></i> Delete</button>
+        <div style="display:flex;gap:8px;">
+          <button class="action-btn" onclick="closeEditModal()">Cancel</button>
+          <button class="action-btn primary" onclick="saveEditModal()"><i class="ti ti-check"></i> Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEADLINES PANEL -->
+    <div id="em-deadlines-panel" style="display:none;">
+      <div style="font-size:13px; color:var(--text-secondary); margin-bottom:16px; display:flex; align-items:center; gap:5px;">
+        <i class="ti ti-calendar"></i> <span id="em-dl-date"></span>
+      </div>
+      <div id="em-dl-stages-list"></div>
+      <div class="modal-actions" style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <button class="action-btn danger" onclick="resetEditDeadlines()"><i class="ti ti-refresh"></i> Reset to defaults</button>
+        <div style="display:flex; gap:8px;">
+          <button class="action-btn" onclick="closeEditModal()">Cancel</button>
+          <button class="action-btn primary" onclick="saveEditModal()"><i class="ti ti-check"></i> Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 import { getFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+import { parseDate, toYMD, daysUntil, getStageDueDate as getStageDueDateFn } from '/Sermon-Prep-Dashboard/score.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAzrDYUgAAbGHgQmm5PxGDh1dhWqdKp-pI",
@@ -225,6 +280,66 @@ let currentUser = null;
 
 let allSermons = [];
 let activeBook = null;
+
+// ── STAGES / CONTEXTS (needed for the edit modal) ──────────────────────────────
+const DEFAULT_STAGES = [
+  { key: 'study',   label: 'Study',        dueDay: 1, weeksBack: 1 },
+  { key: 'idea',    label: 'Main idea',     dueDay: 2, weeksBack: 1 },
+  { key: 'outline', label: 'Outline',       dueDay: 3, weeksBack: 1 },
+  { key: 'draft',   label: 'Draft',         dueDay: 1, weeksBack: 0 },
+  { key: 'final',   label: 'Final',         dueDay: 2, weeksBack: 0 },
+  { key: 'run',     label: 'Run-through',   dueDay: 3, weeksBack: 0 },
+];
+let STAGES = [];
+let STATUS_ORDER = [];
+let STATUS_LABELS = {};
+let userContexts = [];
+
+function buildStagesFromSettings(settingsStages) {
+  const middle = settingsStages || DEFAULT_STAGES;
+  STAGES = [
+    { key: 'not-started', label: 'Not yet started', dueDay: null, weeksBack: null },
+    ...middle,
+    { key: 'preached', label: 'Preach', dueDay: null, weeksBack: null },
+    { key: 'completed', label: 'Completed', dueDay: 0, weeksBack: 0 },
+  ];
+  STATUS_ORDER = STAGES.map(s => s.key);
+  STATUS_LABELS = {};
+  STAGES.forEach(s => { STATUS_LABELS[s.key] = s.label; });
+}
+
+function getStageDueDate(sermonDateStr, stageKey, customDeadlines) {
+  return getStageDueDateFn(sermonDateStr, stageKey, customDeadlines, STAGES);
+}
+
+function formatDateFull(d) { return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
+
+async function loadUserSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'users', currentUser.uid, 'meta', 'settings'));
+    if (snap.exists()) {
+      const s = snap.data();
+      buildStagesFromSettings(s.stages);
+      userContexts = s.contexts || [];
+    } else {
+      buildStagesFromSettings(DEFAULT_STAGES);
+    }
+  } catch(e) {
+    console.error('Could not load settings:', e);
+    buildStagesFromSettings(DEFAULT_STAGES);
+  }
+}
+
+async function saveNewContextIfNeeded(context) {
+  if (!context || userContexts.includes(context)) return;
+  userContexts.push(context);
+  try {
+    const settingsRef = doc(db, 'users', currentUser.uid, 'meta', 'settings');
+    const snap = await getDoc(settingsRef);
+    const existing = snap.exists() ? snap.data() : {};
+    await setDoc(settingsRef, { ...existing, contexts: userContexts });
+  } catch(e) { console.error('Could not save context:', e); }
+}
 
 // ── BIBLE BOOKS ───────────────────────────────────────────────────────────────
 const BIBLE_BOOKS = [
@@ -347,6 +462,7 @@ onAuthStateChanged(auth, async user => {
         if (adminNav) adminNav.style.display = 'block';
       }
     } catch(e) { console.error('Role check failed:', e); }
+    await loadUserSettings();
     await loadArchive();
   } else {
     currentUser = null;
@@ -642,6 +758,172 @@ window.deleteArchivedSermon = async function() {
 
 document.getElementById('archive-modal').addEventListener('click', function(e) {
   if (e.target === this) closeArchiveModal();
+});
+
+// ── EDIT MODAL ────────────────────────────────────────────────────────────────
+window.editArchivedSermon = function() {
+  const sermon = allSermons.find(s => s.id === archiveModalSermonId);
+  if (!sermon) return;
+  closeArchiveModal();
+  openEditModal(sermon.id);
+};
+
+let editModalSermonId = null;
+let editModalTab = 'details';
+
+window.openEditModal = function(id, tab) {
+  const s = allSermons.find(x => x.id === id);
+  if (!s) return;
+  editModalSermonId = id;
+  buildEditContextOptions();
+  document.getElementById('em-title').textContent = s.title || 'Untitled';
+  document.getElementById('em-f-title').value = s.title || '';
+  document.getElementById('em-f-text').value = s.text || '';
+  document.getElementById('em-f-series').value = s.series || '';
+  document.getElementById('em-f-date').value = s.date || '';
+  document.getElementById('em-f-doc').value = s.doc || '';
+  document.getElementById('em-f-status').value = s.status || 'not-started';
+  setEditContextValue(s.context || '');
+  populateEditDeadlines(s);
+  switchEditTab(tab || 'details');
+  document.getElementById('edit-modal').classList.add('open');
+};
+
+window.switchEditTab = function(tab) {
+  editModalTab = tab;
+  document.getElementById('em-details-panel').style.display = tab === 'details' ? 'block' : 'none';
+  document.getElementById('em-deadlines-panel').style.display = tab === 'deadlines' ? 'block' : 'none';
+  document.getElementById('edit-tab-details').classList.toggle('active', tab === 'details');
+  document.getElementById('edit-tab-deadlines').classList.toggle('active', tab === 'deadlines');
+};
+
+window.closeEditModal = function() {
+  document.getElementById('edit-modal').classList.remove('open');
+  editModalSermonId = null;
+};
+
+function buildEditContextOptions() {
+  const sel = document.getElementById('em-f-context-select');
+  sel.innerHTML = '<option value="">— Select context —</option>' +
+    userContexts.map(c => `<option value="${c}">${c}</option>`).join('') +
+    '<option value="other">+ Add a context</option>';
+  const statusSel = document.getElementById('em-f-status');
+  statusSel.innerHTML = STATUS_ORDER.map(k => `<option value="${k}">${STATUS_LABELS[k]}</option>`).join('');
+}
+
+window.handleEditContextSelect = function() {
+  const sel = document.getElementById('em-f-context-select').value;
+  document.getElementById('em-f-context-other').style.display = sel === 'other' ? 'block' : 'none';
+};
+
+function getEditContextValue() {
+  const sel = document.getElementById('em-f-context-select').value;
+  if (sel === 'other') return document.getElementById('em-f-context-other').value.trim();
+  return sel;
+}
+
+function setEditContextValue(val) {
+  const sel = document.getElementById('em-f-context-select');
+  const other = document.getElementById('em-f-context-other');
+  if (!val) { sel.value = ''; other.style.display = 'none'; return; }
+  const found = userContexts.find(c => c === val);
+  if (found) { sel.value = val; other.style.display = 'none'; }
+  else { sel.value = 'other'; other.style.display = 'block'; other.value = val; }
+}
+
+function populateEditDeadlines(s) {
+  const sermonDate = parseDate(s.date);
+  if (!sermonDate) return;
+  const maxDate = new Date(sermonDate); maxDate.setDate(sermonDate.getDate() - 1);
+  const maxDateStr = toYMD(maxDate);
+  document.getElementById('em-dl-date').textContent = formatDateFull(sermonDate);
+  const workingStages = STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started');
+  document.getElementById('em-dl-stages-list').innerHTML = workingStages.map((stage, i) => {
+    const effectiveDate = (s.customDeadlines && s.customDeadlines[stage.key])
+      ? s.customDeadlines[stage.key]
+      : toYMD(getStageDueDate(s.date, stage.key));
+    return `<div class="deadline-stage-row">
+      <div class="deadline-stage-name">${stage.label}</div>
+      <input type="date" class="deadline-date-input" id="emdl-${stage.key}" value="${effectiveDate||''}" max="${maxDateStr}"
+        data-index="${i}" onchange="enforceEditDeadlineOrder(${i})" />
+    </div>`;
+  }).join('');
+}
+
+window.enforceEditDeadlineOrder = function(changedIdx) {
+  const s = allSermons.find(x => x.id === editModalSermonId);
+  if (!s) return;
+  const sermonDate = parseDate(s.date);
+  const maxDate = new Date(sermonDate); maxDate.setDate(sermonDate.getDate() - 1);
+  const maxDateStr = toYMD(maxDate);
+  const workingStages = STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started');
+  const el = document.getElementById('emdl-' + workingStages[changedIdx].key);
+  if (!el) return;
+  let val = el.value;
+  if (val > maxDateStr) { val = maxDateStr; el.value = val; }
+  if (changedIdx > 0) {
+    const prevEl = document.getElementById('emdl-' + workingStages[changedIdx - 1].key);
+    if (prevEl && val < prevEl.value) { val = prevEl.value; el.value = val; }
+  }
+  if (changedIdx < workingStages.length - 1) {
+    const nextEl = document.getElementById('emdl-' + workingStages[changedIdx + 1].key);
+    if (nextEl && val > nextEl.value) { el.value = nextEl.value; }
+  }
+};
+
+window.saveEditModal = async function() {
+  const s = allSermons.find(x => x.id === editModalSermonId);
+  if (!s) return;
+  const title = document.getElementById('em-f-title').value.trim();
+  const date = document.getElementById('em-f-date').value;
+  if (!title || !date) { alert('Please enter a title and sermon date.'); return; }
+  s.title = title;
+  s.text = document.getElementById('em-f-text').value.trim();
+  s.series = document.getElementById('em-f-series').value.trim();
+  s.context = getEditContextValue();
+  s.date = date;
+  s.doc = document.getElementById('em-f-doc').value.trim();
+  s.status = document.getElementById('em-f-status').value;
+  const workingStages = STAGES.filter(st => st.dueDay !== null && st.key !== 'completed' && st.key !== 'not-started');
+  const customDeadlines = {};
+  workingStages.forEach(stage => {
+    const el = document.getElementById('emdl-' + stage.key);
+    if (el && el.value) customDeadlines[stage.key] = el.value;
+  });
+  s.customDeadlines = Object.keys(customDeadlines).length > 0 ? customDeadlines : undefined;
+  try {
+    await setDoc(doc(db, 'users', currentUser.uid, 'sermons', s.id), s);
+    await saveNewContextIfNeeded(s.context);
+    window.closeEditModal();
+    showToast(`"${s.title}" saved.`);
+    await loadArchive();
+  } catch(e) {
+    alert('Error saving sermon: ' + e.message);
+  }
+};
+
+window.deleteEditSermon = async function() {
+  if (!confirm('Delete this sermon?')) return;
+  const id = editModalSermonId;
+  const sermon = allSermons.find(x => x.id === id);
+  try {
+    await deleteDoc(doc(db, 'users', currentUser.uid, 'sermons', id));
+    window.closeEditModal();
+    showToast(`"${sermon?.title||'Sermon'}" has been deleted.`);
+    await loadArchive();
+  } catch(e) {
+    alert('Error deleting sermon: ' + e.message);
+  }
+};
+
+window.resetEditDeadlines = function() {
+  const s = allSermons.find(x => x.id === editModalSermonId);
+  if (!s) return;
+  populateEditDeadlines({ ...s, customDeadlines: undefined });
+};
+
+document.getElementById('edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
 });
 
 // ── MOBILE DRAWER (matches dashboard design) ──────────────────────────────
